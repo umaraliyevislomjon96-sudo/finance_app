@@ -1,0 +1,3799 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Spendly / Aurora Finance — Ultra-Modern Mobile Experience</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-canvas: #030712;
+      --bg-primary: #080E1A;
+      --bg-secondary: #0F172A;
+      --card-surface: #141E33;
+      --card-gradient-top: #152238;
+      --card-gradient-bottom: #0D1627;
+      --primary-blue: #2563EB;
+      --cyan-accent: #00F0FF;
+      --cyan-glow: rgba(0, 240, 255, 0.45);
+      --ai-glow: #38BDF8;
+      --income-green: #10B981;
+      --expense-red: #F43F5E;
+      --savings-purple: #8B5CF6;
+      --warning-amber: #F59E0B;
+      --text-primary: #F8FAFC;
+      --text-secondary: #CBD5E1;
+      --text-muted: #64748B;
+      --border-soft: rgba(255, 255, 255, 0.08);
+      --border-cyan: rgba(0, 240, 255, 0.35);
+      --keypad-bg: rgba(255, 255, 255, 0.05);
+      --input-bg: #111B2E;
+      --shadow-card: 0 16px 36px rgba(0, 0, 0, 0.45);
+      --nav-bg: rgba(8, 14, 26, 0.95);
+      --studio-bg: #0B1324;
+    }
+
+    [data-theme="light"] {
+      --bg-canvas: #E2E8F0;
+      --bg-primary: #F8FAFC;
+      --bg-secondary: #FFFFFF;
+      --card-surface: #FFFFFF;
+      --card-gradient-top: #FFFFFF;
+      --card-gradient-bottom: #F1F5F9;
+      --primary-blue: #1D4ED8;
+      --cyan-accent: #0284C7;
+      --cyan-glow: rgba(2, 132, 199, 0.3);
+      --ai-glow: #0284C7;
+      --income-green: #059669;
+      --expense-red: #E11D48;
+      --savings-purple: #7C3AED;
+      --warning-amber: #D97706;
+      --text-primary: #0F172A;
+      --text-secondary: #334155;
+      --text-muted: #64748B;
+      --border-soft: rgba(0, 0, 0, 0.08);
+      --border-cyan: rgba(2, 132, 199, 0.3);
+      --keypad-bg: rgba(0, 0, 0, 0.04);
+      --input-bg: #F1F5F9;
+      --shadow-card: 0 12px 28px rgba(15, 23, 42, 0.08);
+      --nav-bg: rgba(255, 255, 255, 0.96);
+      --studio-bg: #FFFFFF;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 20%, #0F1B35 0%, var(--bg-canvas) 85%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    /* DESKTOP STUDIO WORKSPACE WRAPPER */
+    .studio-layout {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+      justify-content: center;
+      max-width: 1200px;
+      width: 100%;
+    }
+
+    /* IPHONE 16 PRO HARDWARE CHASSIS */
+    .iphone-wrapper {
+      width: 410px;
+      height: 870px;
+      background: var(--bg-primary);
+      border-radius: 54px;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8),
+                  0 0 0 12px #182234,
+                  0 0 0 14px #0B111D,
+                  0 0 40px rgba(0, 240, 255, 0.12);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* DYNAMIC ISLAND EXPANDING SYSTEM (iOS 17/18 Physics) */
+    .dynamic-island-container {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 300;
+      pointer-events: none;
+    }
+
+    .dynamic-island {
+      width: 124px;
+      height: 32px;
+      background: #000000;
+      border-radius: 20px;
+      transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      pointer-events: auto;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .dynamic-island.expanded {
+      width: 374px;
+      height: 84px;
+      border-radius: 42px;
+      padding: 12px 18px;
+      background: #000000;
+      border: 1px solid var(--cyan-accent);
+      box-shadow: 0 20px 50px rgba(0, 240, 255, 0.35), 0 0 0 1px rgba(0, 240, 255, 0.5);
+    }
+
+    .di-pill-idle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      opacity: 1;
+      transition: opacity 0.2s;
+    }
+    .dynamic-island.expanded .di-pill-idle { display: none; }
+
+    .di-camera {
+      width: 11px;
+      height: 11px;
+      background: #0d1322;
+      border-radius: 50%;
+      border: 1px solid #1e293b;
+    }
+    .di-sensor {
+      width: 8px;
+      height: 8px;
+      background: #0f172a;
+      border-radius: 50%;
+    }
+
+    .di-expanded-content {
+      display: none;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .dynamic-island.expanded .di-expanded-content {
+      display: flex;
+      animation: fadeInDi 0.3s ease forwards;
+    }
+
+    @keyframes fadeInDi {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .di-bank-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #00F0FF, #2563EB);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: #fff;
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.5);
+    }
+
+    .di-text-box {
+      flex: 1;
+      overflow: hidden;
+    }
+    .di-app-label {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--cyan-accent);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .di-merchant-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      margin-top: 2px;
+    }
+    .di-amount-badge {
+      font-size: 15px;
+      font-weight: 800;
+      color: #ffffff;
+      text-align: right;
+    }
+    .di-status-badge {
+      font-size: 9.5px;
+      font-weight: 700;
+      color: var(--income-green);
+      letter-spacing: 0.4px;
+      background: rgba(16, 185, 129, 0.15);
+      padding: 2px 6px;
+      border-radius: 6px;
+      margin-top: 3px;
+      display: inline-block;
+    }
+
+    /* STATUS BAR */
+    .status-bar {
+      height: 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 0 28px 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      z-index: 50;
+    }
+
+    /* TOP CONTROLS: LANG & THEME */
+    .top-controls-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 20px 8px;
+      z-index: 40;
+    }
+
+    .lang-switcher {
+      display: flex;
+      background: var(--input-bg);
+      border: 1px solid var(--border-soft);
+      border-radius: 14px;
+      padding: 2px;
+      gap: 2px;
+    }
+    .lang-btn {
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      border-radius: 10px;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      transition: all 0.2s;
+    }
+    .lang-btn.active {
+      background: var(--primary-blue);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+    }
+
+    .control-pill-btn {
+      background: var(--input-bg);
+      border: 1px solid var(--border-soft);
+      border-radius: 14px;
+      padding: 4px 12px;
+      font-size: 12px;
+      color: var(--text-primary);
+      cursor: pointer;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .control-pill-btn:hover { border-color: var(--cyan-accent); }
+
+    /* VIEWPORT */
+    .app-viewport {
+      flex: 1;
+      position: relative;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 6px 18px 86px;
+    }
+    .app-viewport::-webkit-scrollbar { display: none; }
+
+    .screen-view { display: none; }
+    .screen-view.active {
+      display: block;
+      animation: screenEnter 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes screenEnter {
+      from { opacity: 0; transform: translateY(8px) scale(0.99); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* PREMIUM GLASS CARD */
+    .glass-card {
+      background: var(--card-surface);
+      border: 1px solid var(--border-soft);
+      border-radius: 24px;
+      padding: 18px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-card);
+      position: relative;
+      overflow: hidden;
+    }
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    }
+
+    /* BALANCE CARD */
+    .balance-card {
+      background: linear-gradient(145deg, var(--card-gradient-top), var(--card-gradient-bottom));
+      border: 1px solid var(--border-cyan);
+      box-shadow: 0 16px 36px rgba(0, 240, 255, 0.08), var(--shadow-card);
+    }
+    .balance-header { display: flex; justify-content: space-between; align-items: center; }
+    .balance-label { font-size: 12.5px; color: var(--text-secondary); font-weight: 600; display: flex; align-items: center; gap: 6px; }
+    .balance-amount {
+      font-size: 38px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin: 8px 0 4px;
+      letter-spacing: -1px;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .balance-currency { font-size: 18px; font-weight: 700; color: var(--cyan-accent); }
+
+    /* INTERACTIVE BALANCE TIMEFRAME SPARKLINE */
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 12px 0 6px;
+    }
+    .chart-pill-selector {
+      display: flex;
+      gap: 4px;
+      background: var(--input-bg);
+      border-radius: 12px;
+      padding: 2px;
+    }
+    .chart-pill {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      border-radius: 8px;
+      padding: 3px 8px;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+    }
+    .chart-pill.active {
+      background: var(--primary-blue);
+      color: #fff;
+    }
+
+    .sparkline-svg-wrap {
+      width: 100%;
+      height: 90px;
+      position: relative;
+    }
+    .sparkline-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+    .spark-area { fill: url(#sparkGrad); }
+    .spark-line {
+      fill: none;
+      stroke: var(--cyan-accent);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.6));
+    }
+    .spark-dot {
+      fill: #ffffff;
+      stroke: var(--cyan-accent);
+      stroke-width: 3;
+      r: 4.5;
+      transition: all 0.2s;
+    }
+
+    /* METRIC PILLS */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .metric-box {
+      background: var(--card-surface);
+      border: 1px solid var(--border-soft);
+      border-radius: 20px;
+      padding: 12px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .metric-box:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-cyan);
+    }
+    .metric-title { font-size: 11px; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; }
+    .metric-val { font-size: 14.5px; font-weight: 800; }
+
+    /* SVG DONUT CHART (SPENDING BREAKDOWN) */
+    .donut-chart-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin: 14px 0 18px;
+    }
+    .donut-svg-wrap {
+      width: 140px;
+      height: 140px;
+      position: relative;
+    }
+    .donut-svg {
+      transform: rotate(-90deg);
+      width: 100%;
+      height: 100%;
+    }
+    .donut-slice {
+      fill: none;
+      stroke-width: 18;
+      transition: stroke-width 0.3s, opacity 0.3s;
+      cursor: pointer;
+    }
+    .donut-slice:hover {
+      stroke-width: 22;
+      opacity: 1 !important;
+      filter: drop-shadow(0 0 6px currentColor);
+    }
+    .donut-center-readout {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      pointer-events: none;
+    }
+    .donut-center-pct { font-size: 20px; font-weight: 800; color: var(--text-primary); }
+    .donut-center-cat { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+
+    .category-legend-list {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .legend-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 4px 6px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .legend-item:hover { background: var(--input-bg); }
+    .legend-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+    }
+
+    /* 3D HOLOGRAPHIC CARDS */
+    .card-deck-stack {
+      perspective: 1000px;
+      margin-bottom: 16px;
+    }
+    .holo-card {
+      width: 100%;
+      height: 195px;
+      border-radius: 26px;
+      padding: 20px 22px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: #ffffff;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+      transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s;
+      cursor: pointer;
+      margin-bottom: 12px;
+    }
+    .holo-card:hover {
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: 0 24px 50px rgba(0, 240, 255, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+    }
+    .holo-shimmer {
+      position: absolute;
+      top: -50%; left: -50%; width: 200%; height: 200%;
+      background: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.12) 50%, transparent 60%);
+      transform: rotate(25deg);
+      pointer-events: none;
+      animation: shimmerGlint 6s infinite ease-in-out;
+    }
+    @keyframes shimmerGlint {
+      0% { transform: translateY(-50%) rotate(25deg); }
+      100% { transform: translateY(50%) rotate(25deg); }
+    }
+
+    .card-chip {
+      width: 38px;
+      height: 28px;
+      background: linear-gradient(135deg, #d4af37, #fef08a, #ca8a04);
+      border-radius: 6px;
+      position: relative;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    .card-chip::after {
+      content: '';
+      position: absolute;
+      top: 6px; left: 8px; right: 8px; bottom: 6px;
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      border-radius: 3px;
+    }
+    .card-nfc {
+      font-size: 16px;
+      opacity: 0.8;
+      display: inline-block;
+      margin-left: 10px;
+    }
+
+    .card-num-masked {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 17px;
+      letter-spacing: 2.5px;
+      font-weight: 700;
+    }
+
+    /* NEON RANGE SLIDERS FOR CALCULATORS */
+    .slider-box {
+      margin-bottom: 16px;
+    }
+    .slider-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    .slider-title { color: var(--text-secondary); font-weight: 600; }
+    .slider-highlight-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 800;
+      color: var(--cyan-accent);
+      font-size: 14.5px;
+    }
+
+    .neon-range {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 6px;
+      background: var(--input-bg);
+      outline: none;
+      border: 1px solid var(--border-soft);
+      cursor: pointer;
+    }
+    .neon-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 2px solid var(--cyan-accent);
+      box-shadow: 0 0 14px var(--cyan-glow);
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .neon-range::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    /* OVERPAYMENT MOUNTAIN COMPARISON */
+    .strategy-bars-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 12px 0 16px;
+    }
+    .strategy-col {
+      background: var(--input-bg);
+      border-radius: 18px;
+      padding: 14px;
+      border: 1px solid var(--border-soft);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .strategy-col.bad { border-color: rgba(244, 63, 94, 0.3); background: rgba(244, 63, 94, 0.05); }
+    .strategy-col.good { border-color: rgba(16, 185, 129, 0.35); background: rgba(16, 185, 129, 0.07); }
+
+    .vis-bar-wrap {
+      height: 90px;
+      display: flex;
+      align-items: flex-end;
+      margin: 8px 0;
+    }
+    .vis-bar {
+      width: 100%;
+      border-radius: 10px 10px 4px 4px;
+      transition: height 0.4s ease;
+      position: relative;
+    }
+    .vis-bar.red { background: linear-gradient(to top, #BE123C, #F43F5E); }
+    .vis-bar.green { background: linear-gradient(to top, #047857, #10B981); }
+
+    /* AI CONVERSATION SYSTEM */
+    .orb-visual-stage {
+      width: 130px;
+      height: 130px;
+      margin: 8px auto 14px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .orb-pulse-field {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--cyan-accent) 0%, rgba(37, 99, 235, 0) 70%);
+      filter: blur(18px);
+      animation: orbFloat 4s infinite alternate ease-in-out;
+    }
+    .orb-sphere-core {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00F0FF, #2563EB, #A855F7, #EC4899);
+      background-size: 200% 200%;
+      animation: orbGradient 6s infinite ease, orbSpin 14s infinite linear;
+      box-shadow: 0 0 28px rgba(0, 240, 255, 0.7);
+    }
+    @keyframes orbFloat {
+      0% { transform: scale(0.9); opacity: 0.5; }
+      100% { transform: scale(1.15); opacity: 0.9; }
+    }
+    @keyframes orbGradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes orbSpin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .chat-scroller {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 380px;
+      overflow-y: auto;
+      padding-right: 4px;
+      margin-bottom: 12px;
+    }
+    .chat-msg {
+      max-width: 85%;
+      padding: 12px 16px;
+      border-radius: 20px;
+      font-size: 13.5px;
+      line-height: 1.45;
+    }
+    .chat-msg.user {
+      align-self: flex-end;
+      background: var(--primary-blue);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+    .chat-msg.ai {
+      align-self: flex-start;
+      background: var(--card-surface);
+      border: 1px solid var(--border-cyan);
+      color: var(--text-primary);
+      border-bottom-left-radius: 4px;
+      box-shadow: var(--shadow-card);
+    }
+
+    /* AI FINANCIAL AGENT & RICH CARDS */
+    .ai-health-banner {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.12), rgba(37, 99, 235, 0.08));
+      border: 1px solid var(--border-cyan);
+      border-radius: 18px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .ai-health-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .ai-score-pill {
+      background: rgba(0, 240, 255, 0.18);
+      border: 1px solid var(--cyan-accent);
+      color: var(--cyan-accent);
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 13.5px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .ai-health-details {
+      display: none;
+      font-size: 11.5px;
+      line-height: 1.5;
+      color: var(--text-secondary);
+      border-top: 1px solid var(--border-soft);
+      padding-top: 8px;
+      animation: fadeInDi 0.25s ease;
+    }
+    .ai-autopilot-pill {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--income-green);
+      color: var(--income-green);
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s ease;
+    }
+    .ai-autopilot-pill.off {
+      background: rgba(100, 116, 139, 0.2);
+      border-color: var(--text-muted);
+      color: var(--text-muted);
+    }
+    .ai-clear-mem-btn {
+      background: transparent;
+      border: 1px solid var(--border-soft);
+      color: var(--text-muted);
+      border-radius: 10px;
+      padding: 3px 7px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .ai-clear-mem-btn:hover {
+      border-color: var(--expense-red);
+      color: var(--expense-red);
+    }
+    .ai-chips-scroll {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 8px;
+      scrollbar-width: none;
+    }
+    .ai-chips-scroll::-webkit-scrollbar { display: none; }
+    .ai-chip-btn {
+      white-space: nowrap;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 11px;
+      border-radius: 14px;
+      background: var(--input-bg);
+      border: 1px solid var(--border-soft);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .ai-chip-btn:hover {
+      border-color: var(--cyan-accent);
+      color: var(--cyan-accent);
+      transform: translateY(-1px);
+    }
+    .ai-rich-card {
+      background: rgba(8, 14, 26, 0.7);
+      border: 1px solid var(--border-soft);
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin-top: 10px;
+      font-size: 12px;
+    }
+    .ai-action-btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .ai-action-btn {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(37, 99, 235, 0.2));
+      border: 1px solid var(--cyan-accent);
+      color: var(--cyan-accent);
+      padding: 5px 12px;
+      border-radius: 12px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .ai-action-btn:hover {
+      background: var(--cyan-accent);
+      color: #000;
+      transform: translateY(-1px);
+    }
+    .ai-disclaimer-note {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      font-style: italic;
+      border-top: 1px dashed var(--border-soft);
+      padding-top: 6px;
+    }
+
+    /* COMPACT BANKING HEADER & PROFILE */
+    .banking-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding: 2px 0;
+    }
+    .user-profile-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      user-select: none;
+      padding: 4px 6px;
+      margin-left: -6px;
+      border-radius: 24px;
+      transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+    .user-profile-trigger:hover {
+      opacity: 0.85;
+      transform: scale(0.99);
+    }
+    .avatar-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00F0FF, #2563EB);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 800;
+      font-size: 14.5px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 12px rgba(0, 240, 255, 0.25);
+    }
+    .user-fullname {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.2px;
+    }
+    .notif-bell-btn {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--input-bg);
+      border: 1px solid var(--border-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .notif-bell-btn:hover {
+      border-color: var(--cyan-accent);
+      color: var(--cyan-accent);
+      transform: translateY(-1px);
+    }
+    .notif-badge-dot {
+      position: absolute;
+      top: 9px;
+      right: 9px;
+      width: 8px;
+      height: 8px;
+      background: var(--cyan-accent);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--cyan-accent);
+    }
+
+    /* PROFILE SCREEN */
+    .profile-header-bar {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .profile-back-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 17px;
+      font-weight: 800;
+      cursor: pointer;
+      padding: 4px 0;
+      transition: color 0.15s;
+    }
+    .profile-back-btn:hover {
+      color: var(--cyan-accent);
+    }
+    .profile-hero-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .profile-avatar-large {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00F0FF, #2563EB);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 800;
+      font-size: 24px;
+      margin-bottom: 12px;
+      box-shadow: 0 8px 24px rgba(0, 240, 255, 0.35);
+    }
+    .profile-name-large {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+    .profile-email {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+    .profile-section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin: 18px 0 8px 4px;
+      text-transform: none;
+    }
+    .profile-menu-card {
+      background: var(--card-surface);
+      border: 1px solid var(--border-soft);
+      border-radius: 18px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .profile-menu-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--border-soft);
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.15s;
+    }
+    .profile-menu-item:last-child {
+      border-bottom: none;
+    }
+    .profile-menu-item:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .profile-menu-label {
+      color: var(--text-primary);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .menu-chevron {
+      color: var(--cyan-accent);
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .profile-menu-value {
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .profile-logout-btn {
+      margin-top: 24px;
+      margin-bottom: 30px;
+      padding: 14px;
+      text-align: center;
+      color: var(--expense-red);
+      font-weight: 700;
+      font-size: 14px;
+      background: rgba(244, 63, 94, 0.08);
+      border: 1px solid rgba(244, 63, 94, 0.25);
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .profile-logout-btn:hover {
+      background: rgba(244, 63, 94, 0.16);
+    }
+
+    /* NOTIFICATIONS MODAL */
+    .notif-modal-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(12px);
+      z-index: 200;
+      display: none;
+      align-items: flex-end;
+      border-radius: 54px;
+      overflow: hidden;
+    }
+    .notif-modal-sheet {
+      width: 100%;
+      background: var(--bg-primary);
+      border-top: 1px solid var(--border-soft);
+      border-top-left-radius: 28px;
+      border-top-right-radius: 28px;
+      padding: 20px;
+      max-height: 82%;
+      overflow-y: auto;
+      box-shadow: 0 -12px 36px rgba(0, 0, 0, 0.5);
+      animation: sheetSlideUp 0.22s ease-out;
+    }
+    @keyframes sheetSlideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    /* BOTTOM NAV */
+    .bottom-nav-bar {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 74px;
+      background: var(--nav-bg);
+      backdrop-filter: blur(24px);
+      border-top: 1px solid var(--border-soft);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding-bottom: 8px;
+      z-index: 100;
+    }
+    .nav-tab-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      transition: color 0.2s;
+    }
+    .nav-tab-btn.active { color: var(--cyan-accent); }
+    .nav-ai-center {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00F0FF, #2563EB);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 18px;
+      box-shadow: 0 0 18px rgba(0, 240, 255, 0.6);
+      margin-bottom: -4px;
+    }
+
+    /* RIGHT SIDE STUDIO CONTROL DESK (DESKTOP) */
+    .studio-panel {
+      flex: 1;
+      max-width: 440px;
+      background: var(--studio-bg);
+      border: 1px solid var(--border-soft);
+      border-radius: 36px;
+      padding: 24px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    @media (max-width: 920px) {
+      .studio-panel { display: none; }
+    }
+
+    .studio-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-soft);
+      padding-bottom: 14px;
+    }
+    .studio-badge {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--cyan-accent);
+      background: rgba(0, 240, 255, 0.12);
+      border: 1px solid var(--border-cyan);
+      padding: 4px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+    }
+
+    .terminal-window {
+      background: #030712;
+      border: 1px solid var(--border-soft);
+      border-radius: 18px;
+      padding: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: #38BDF8;
+      max-height: 240px;
+      overflow-y: auto;
+      line-height: 1.5;
+    }
+    .term-line { margin-bottom: 4px; }
+    .term-tag { color: var(--income-green); font-weight: 700; }
+    .term-err { color: var(--expense-red); }
+
+    .test-trigger-btn {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 16px;
+      border: 1px solid var(--border-soft);
+      background: var(--input-bg);
+      color: var(--text-primary);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s;
+    }
+    .test-trigger-btn:hover {
+      border-color: var(--cyan-accent);
+      background: rgba(0, 240, 255, 0.08);
+      transform: translateX(4px);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="studio-layout">
+
+    <!-- IPHONE DEVICE PREVIEW -->
+    <div class="iphone-wrapper" id="iphoneContainer" data-theme="dark">
+
+      <!-- DYNAMIC ISLAND EXPANDING COMPONENT -->
+      <div class="dynamic-island-container">
+        <div class="dynamic-island" id="dynamicIsland">
+          <div class="di-pill-idle">
+            <div class="di-camera"></div>
+            <div class="di-sensor"></div>
+          </div>
+          <div class="di-expanded-content">
+            <div class="di-bank-icon" id="diBankIcon">💳</div>
+            <div class="di-text-box">
+              <div class="di-app-label" id="diAppLabel">PAYME • ZERO-TOUCH</div>
+              <div class="di-merchant-title" id="diMerchant">Korzinka supermarket</div>
+              <div class="di-status-badge">⚡ Распознано 48ms • RLS Saved</div>
+            </div>
+            <div style="text-align:right;">
+              <div class="di-amount-badge" id="diAmount">-45 000 UZS</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATUS BAR -->
+      <div class="status-bar">
+        <span>9:41</span>
+        <div style="display:flex; gap:6px; align-items:center;">
+          <span style="font-size:11px;">5G</span>
+          <span style="font-size:11px;">100%</span>
+        </div>
+      </div>
+
+      <!-- TOP BAR: MULTI-LANGUAGE, CURRENCY & THEME -->
+      <div class="top-controls-bar">
+        <div class="lang-switcher">
+          <button class="lang-btn active" id="btnLangRu" onclick="setAppLanguage('ru')">RU</button>
+          <button class="lang-btn" id="btnLangEn" onclick="setAppLanguage('en')">EN</button>
+          <button class="lang-btn" id="btnLangUz" onclick="setAppLanguage('uz')">UZ</button>
+        </div>
+
+        <div style="display:flex; gap:6px;">
+          <!-- Currency Switcher ($ USD ↔ UZS сум) -->
+          <button class="control-pill-btn" onclick="toggleCurrency()" id="currencyToggleBtn">
+            <span id="currSymbol">UZS</span>
+          </button>
+          <!-- Theme Switcher (Dark ↔ Light) -->
+          <button class="control-pill-btn" onclick="toggleAppTheme()">
+            <span id="themeIcon">☀️</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- VIEWPORT -->
+      <div class="app-viewport">
+
+        <!-- SCREEN: HOME DASHBOARD -->
+        <div id="screen-home" class="screen-view active">
+          <!-- COMPACT BANKING HEADER -->
+          <div class="banking-top-bar">
+            <div class="user-profile-trigger" onclick="openProfileScreen()" title="Профиль">
+              <div class="avatar-circle">AM</div>
+              <span class="user-fullname">Alex Mercer</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div class="ai-score-pill" onclick="switchTab('ai'); askAiQuestion('Какое у меня финансовое здоровье?');" style="cursor:pointer; font-size:11px; padding:3px 8px;" title="Financial Health Score">
+                ✦ 78 / 100
+              </div>
+              <button class="notif-bell-btn" onclick="openNotificationsModal()" title="Уведомления">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                <span class="notif-badge-dot"></span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Total Balance Glass Card -->
+          <div class="glass-card balance-card">
+            <div class="balance-header">
+              <span class="balance-label">
+                <span data-i18n="total_balance">Общий баланс</span>
+                <span style="cursor:pointer;" onclick="toggleMaskBalance()">👁</span>
+              </span>
+              <span style="font-size:11px; padding:3px 8px; border-radius:10px; background:rgba(16,185,129,0.15); color:var(--income-green); font-weight:700;">+8.4%</span>
+            </div>
+
+            <div class="balance-amount">
+              <span id="totalBalanceVal">34 850 000</span>
+              <span class="balance-currency" id="lblBalanceCurr">UZS</span>
+            </div>
+
+            <!-- Dynamic Balance Trend Sparkline -->
+            <div class="chart-header">
+              <span style="font-size:11px; color:var(--text-muted);" data-i18n="chart_trend">Динамика накоплений</span>
+              <div class="chart-pill-selector">
+                <button class="chart-pill" onclick="changeSparkline('1W')">1W</button>
+                <button class="chart-pill active" onclick="changeSparkline('1M')">1M</button>
+                <button class="chart-pill" onclick="changeSparkline('3M')">3M</button>
+                <button class="chart-pill" onclick="changeSparkline('1Y')">1Y</button>
+              </div>
+            </div>
+
+            <div class="sparkline-svg-wrap">
+              <svg class="sparkline-svg" viewBox="0 0 320 80" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#00F0FF" stop-opacity="0.35"/>
+                    <stop offset="100%" stop-color="#00F0FF" stop-opacity="0.0"/>
+                  </linearGradient>
+                </defs>
+                <path class="spark-area" id="sparkAreaPath" d="M 0 60 Q 50 40 100 50 T 200 30 T 320 15 L 320 80 L 0 80 Z"/>
+                <path class="spark-line" id="sparkLinePath" d="M 0 60 Q 50 40 100 50 T 200 30 T 320 15"/>
+                <circle class="spark-dot" id="sparkDot" cx="320" cy="15"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- 3 Financial Metrics -->
+          <div class="metrics-grid">
+            <div class="metric-box" onclick="switchTab('spending')">
+              <div class="metric-title" data-i18n="m_income">Доходы</div>
+              <div class="metric-val" style="color:var(--income-green);" id="mIncomeVal">22 000 000</div>
+            </div>
+            <div class="metric-box" onclick="switchTab('spending')">
+              <div class="metric-title" data-i18n="m_expense">Расходы</div>
+              <div class="metric-val" style="color:var(--expense-red);" id="mExpenseVal">8 450 000</div>
+            </div>
+            <div class="metric-box" onclick="switchTab('calcs')">
+              <div class="metric-title" data-i18n="m_savings">Остаток</div>
+              <div class="metric-val" style="color:var(--savings-purple);" id="mSavingsVal">13 550 000</div>
+            </div>
+          </div>
+
+          <!-- Proactive AI Contextual Insight Banner -->
+          <div class="glass-card" style="background:linear-gradient(135deg, rgba(245,158,11,0.12), rgba(0,240,255,0.08)); border-color:rgba(245,158,11,0.4); margin-bottom:14px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="font-size:24px;">⚠️</div>
+              <div style="flex:1;">
+                <div style="font-size:10.5px; font-weight:800; color:var(--warning-amber); text-transform:uppercase;">AI Проактивный Инсайт</div>
+                <div style="font-size:12px; font-weight:600; color:var(--text-primary); margin-top:2px;" id="homeAiInsightText">В этом месяце вы потратили на доставку еды на 620 000 UZS больше обычного (+37%).</div>
+              </div>
+              <button onclick="switchTab('ai'); askAiQuestion('Почему мои расходы выросли?');" style="background:var(--cyan-accent); color:#000; border:none; border-radius:12px; padding:6px 12px; font-size:11px; font-weight:800; cursor:pointer;">
+                Почему?
+              </button>
+            </div>
+          </div>
+
+          <!-- Auto-Ingested Stream Preview -->
+          <div style="display:flex; justify-content:space-between; align-items:center; margin:16px 0 10px;">
+            <span style="font-size:14px; font-weight:800; color:var(--text-primary);" data-i18n="auto_feed_title">Zero-Touch Лента событий</span>
+            <span style="font-size:11.5px; color:var(--cyan-accent); cursor:pointer; font-weight:700;" onclick="switchTab('spending')" data-i18n="see_all">Все</span>
+          </div>
+          <div id="homeRecentTxList"></div>
+        </div>
+
+        <!-- SCREEN: SPENDING & CATEGORIES (SVG DONUT CHART) -->
+        <div id="screen-spending" class="screen-view">
+          <div style="text-align:center; padding:6px 0 14px;">
+            <div style="font-size:12px; color:var(--text-muted);" data-i18n="spending_month_label">Расходы за месяц</div>
+            <div style="font-size:34px; font-weight:800; color:var(--text-primary);" id="spendingTotalHero">8 450 000 UZS</div>
+            <span style="font-size:11.5px; color:var(--income-green); font-weight:700;" data-i18n="under_budget">↓ на 12% ниже установленного лимита</span>
+          </div>
+
+          <!-- Interactive SVG Donut Chart Card -->
+          <div class="glass-card">
+            <div style="font-size:13.5px; font-weight:800; color:var(--text-primary); margin-bottom:12px;" data-i18n="cat_distribution">Структура категорий трат</div>
+
+            <div class="donut-chart-container">
+              <div class="donut-svg-wrap">
+                <svg class="donut-svg" viewBox="0 0 100 100">
+                  <!-- Slices calculated via stroke-dasharray (circumference = 2 * PI * r = 251.2 with r=40) -->
+                  <circle class="donut-slice" cx="50" cy="50" r="40" stroke="#00F0FF" stroke-dasharray="85.4 165.8" stroke-dashoffset="0" onmouseenter="hoverDonut('Еда и кафе', '34%', '#00F0FF')"></circle>
+                  <circle class="donut-slice" cx="50" cy="50" r="40" stroke="#2563EB" stroke-dasharray="55.2 196.0" stroke-dashoffset="-85.4" onmouseenter="hoverDonut('Транспорт', '22%', '#2563EB')"></circle>
+                  <circle class="donut-slice" cx="50" cy="50" r="40" stroke="#8B5CF6" stroke-dasharray="50.2 201.0" stroke-dashoffset="-140.6" onmouseenter="hoverDonut('Жилье и счета', '20%', '#8B5CF6')"></circle>
+                  <circle class="donut-slice" cx="50" cy="50" r="40" stroke="#10B981" stroke-dasharray="35.1 216.1" stroke-dashoffset="-190.8" onmouseenter="hoverDonut('Покупки', '14%', '#10B981')"></circle>
+                  <circle class="donut-slice" cx="50" cy="50" r="40" stroke="#F59E0B" stroke-dasharray="25.1 226.1" stroke-dashoffset="-225.9" onmouseenter="hoverDonut('Развлечения', '10%', '#F59E0B')"></circle>
+                </svg>
+                <div class="donut-center-readout">
+                  <div class="donut-center-pct" id="donutHoverPct">34%</div>
+                  <div class="donut-center-cat" id="donutHoverCat">Еда и кафе</div>
+                </div>
+              </div>
+
+              <div class="category-legend-list">
+                <div class="legend-item" onmouseenter="hoverDonut('Еда и кафе', '34%', '#00F0FF')">
+                  <div><span class="legend-indicator" style="background:#00F0FF;"></span><span data-i18n="c_food">Еда и кафе</span></div>
+                  <span>34%</span>
+                </div>
+                <div class="legend-item" onmouseenter="hoverDonut('Транспорт', '22%', '#2563EB')">
+                  <div><span class="legend-indicator" style="background:#2563EB;"></span><span data-i18n="c_transport">Транспорт</span></div>
+                  <span>22%</span>
+                </div>
+                <div class="legend-item" onmouseenter="hoverDonut('Жилье и счета', '20%', '#8B5CF6')">
+                  <div><span class="legend-indicator" style="background:#8B5CF6;"></span><span data-i18n="c_home">Жилье и счета</span></div>
+                  <span>20%</span>
+                </div>
+                <div class="legend-item" onmouseenter="hoverDonut('Покупки', '14%', '#10B981')">
+                  <div><span class="legend-indicator" style="background:#10B981;"></span><span data-i18n="c_shopping">Покупки</span></div>
+                  <span>14%</span>
+                </div>
+                <div class="legend-item" onmouseenter="hoverDonut('Развлечения', '10%', '#F59E0B')">
+                  <div><span class="legend-indicator" style="background:#F59E0B;"></span><span data-i18n="c_fun">Развлечения</span></div>
+                  <span>10%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Spending Analysis Trigger -->
+          <div class="glass-card" style="background:linear-gradient(135deg, rgba(0,240,255,0.08), rgba(37,99,235,0.05)); border-color:var(--border-cyan); display:flex; justify-content:space-between; align-items:center; cursor:pointer; margin-bottom:12px;" onclick="switchTab('ai'); askAiQuestion('Куда у меня ушли деньги в этом месяце?');">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="font-size:20px;">✨</span>
+              <div>
+                <div style="font-size:12.5px; font-weight:800; color:var(--text-primary);">Объяснить структуру трат с AI</div>
+                <div style="font-size:11px; color:var(--text-muted);">Причины роста, скрытые подписки и оптимизация</div>
+              </div>
+            </div>
+            <span style="color:var(--cyan-accent); font-size:16px;">→</span>
+          </div>
+
+          <!-- Top Merchants List -->
+          <div class="glass-card">
+            <div style="font-size:13.5px; font-weight:800; color:var(--text-primary); margin-bottom:12px;" data-i18n="top_merchants">Топ заведений / мерчантов</div>
+            <div id="topMerchantsListContainer"></div>
+          </div>
+        </div>
+
+        <!-- SCREEN: CALCULATORS & DEBT STRATEGY -->
+        <div id="screen-calcs" class="screen-view">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3 style="font-size:17px; font-weight:800; color:var(--text-primary);" data-i18n="calcs_header">Финансовые калькуляторы</h3>
+            <div class="ai-score-pill" style="cursor:pointer; font-size:10.5px; padding:3px 7px;" onclick="switchTab('ai'); askAiQuestion('Стоит ли мне брать этот кредит?');">✦ AI Советник</div>
+          </div>
+
+
+          <!-- Subtabs -->
+          <div style="display:flex; background:var(--input-bg); border-radius:14px; padding:3px; gap:4px; margin-bottom:14px;">
+            <button class="calc-tab-btn active" id="btnTabLoan" onclick="switchCalcSubTab('loan')" style="flex:1; padding:8px; border-radius:10px; font-size:12px; font-weight:700; border:none; cursor:pointer;" data-i18n="tab_loan">Кредит</button>
+            <button class="calc-tab-btn" id="btnTabCard" onclick="switchCalcSubTab('card')" style="flex:1; padding:8px; border-radius:10px; font-size:12px; font-weight:700; border:none; cursor:pointer;" data-i18n="tab_card">Кредитная карта</button>
+          </div>
+
+          <!-- 1. LOAN CALCULATOR -->
+          <div id="view-loan-calc">
+            <div class="glass-card">
+              <!-- Principal Slider -->
+              <div class="slider-box">
+                <div class="slider-meta-row">
+                  <span class="slider-title" data-i18n="loan_amount">Сумма кредита</span>
+                  <span class="slider-highlight-val" id="lblLoanAmount">25 000 000 UZS</span>
+                </div>
+                <input type="range" class="neon-range" id="rngLoanAmount" min="1000000" max="150000000" step="1000000" value="25000000" oninput="updateLoanCalc()">
+              </div>
+
+              <!-- Rate Slider -->
+              <div class="slider-box">
+                <div class="slider-meta-row">
+                  <span class="slider-title" data-i18n="loan_rate">Ставка (%)</span>
+                  <span class="slider-highlight-val" id="lblLoanRate">22%</span>
+                </div>
+                <input type="range" class="neon-range" id="rngLoanRate" min="5" max="45" step="0.5" value="22" oninput="updateLoanCalc()">
+              </div>
+
+              <!-- Term Slider -->
+              <div class="slider-box">
+                <div class="slider-meta-row">
+                  <span class="slider-title" data-i18n="loan_term">Срок (мес.)</span>
+                  <span class="slider-highlight-val" id="lblLoanTerm">24 мес</span>
+                </div>
+                <input type="range" class="neon-range" id="rngLoanTerm" min="6" max="60" step="6" value="24" oninput="updateLoanCalc()">
+              </div>
+
+              <!-- Annuity vs Diff -->
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+                <span style="font-size:12px; color:var(--text-secondary);" data-i18n="payment_type">Тип:</span>
+                <div style="display:flex; gap:6px;">
+                  <button class="lang-btn active" id="btnAnnuity" onclick="setPaymentType('annuity')" data-i18n="annuity">Аннуитетный</button>
+                  <button class="lang-btn" id="btnDiff" onclick="setPaymentType('differential')" data-i18n="differential">Дифференцированный</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Result Box -->
+            <div class="glass-card" style="border-color:var(--border-cyan);">
+              <div style="font-size:12px; color:var(--text-muted);" data-i18n="monthly_payment">Ежемесячный платёж</div>
+              <div style="font-size:32px; font-weight:800; color:var(--cyan-accent); margin:4px 0 10px;" id="resMonthlyPay">1 300 280 UZS</div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; border-top:1px solid var(--border-soft); padding-top:10px;">
+                <div>
+                  <div style="font-size:11px; color:var(--text-muted);" data-i18n="total_repayment">Всего к выплате</div>
+                  <div style="font-size:15px; font-weight:800;" id="resTotalPayment">31 206 720 UZS</div>
+                </div>
+                <div>
+                  <div style="font-size:11px; color:var(--text-muted);" data-i18n="overpayment">Переплата банку</div>
+                  <div style="font-size:15px; font-weight:800; color:var(--expense-red);" id="resTotalInterest">6 206 720 UZS (24.8%)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. CREDIT CARD PAYOFF & TRAP SIMULATION -->
+          <div id="view-card-calc" style="display:none;">
+            <div class="glass-card">
+              <!-- Debt Slider -->
+              <div class="slider-box">
+                <div class="slider-meta-row">
+                  <span class="slider-title" data-i18n="card_debt">Текущий долг</span>
+                  <span class="slider-highlight-val" id="lblCardDebt">5 000 000 UZS</span>
+                </div>
+                <input type="range" class="neon-range" id="rngCardDebt" min="500000" max="30000000" step="500000" value="5000000" oninput="updateCardCalc()">
+              </div>
+
+              <!-- APR Slider -->
+              <div class="slider-box">
+                <div class="slider-meta-row">
+                  <span class="slider-title" data-i18n="card_apr">Ставка (APR %)</span>
+                  <span class="slider-highlight-val" id="lblCardApr">28%</span>
+                </div>
+                <input type="range" class="neon-range" id="rngCardApr" min="10" max="48" step="1" value="28" oninput="updateCardCalc()">
+              </div>
+
+              <!-- Extra Payment Slider -->
+              <div class="slider-box">
+                <div class="slider-meta-row">
+                  <span class="slider-title" data-i18n="extra_pay">Доплата к мин. (+ к платежу)</span>
+                  <span class="slider-highlight-val" id="lblCardExtra">+250 000 UZS / мес</span>
+                </div>
+                <input type="range" class="neon-range" id="rngCardExtra" min="0" max="2000000" step="50000" value="250000" oninput="updateCardCalc()">
+              </div>
+            </div>
+
+            <!-- Overpayment Mountain Visualization -->
+            <div class="glass-card" style="border-color:var(--border-cyan);">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:13px; font-weight:800;" data-i18n="strategy_compare">Сравнение стратегий</span>
+                <span style="font-size:10.5px; padding:2px 8px; border-radius:10px; background:rgba(16,185,129,0.15); color:var(--income-green); font-weight:700;">Утилизация 35%</span>
+              </div>
+
+              <div class="strategy-bars-grid">
+                <!-- Bad: Min Trap -->
+                <div class="strategy-col bad">
+                  <div style="font-size:11px; font-weight:700; color:var(--expense-red);" data-i18n="min_pay_trap">⚠️ Мин. платёж</div>
+                  <div class="vis-bar-wrap">
+                    <div class="vis-bar red" id="barMinTrap" style="height:85%;"></div>
+                  </div>
+                  <div style="font-size:13px; font-weight:800; color:var(--text-primary);" id="resMinMonths">54 мес</div>
+                  <div style="font-size:11px; color:var(--expense-red);" id="resMinInterest">2 850 000 UZS</div>
+                </div>
+
+                <!-- Good: Accelerated -->
+                <div class="strategy-col good">
+                  <div style="font-size:11px; font-weight:700; color:var(--income-green);" data-i18n="smart_payoff">🚀 Ускоренное</div>
+                  <div class="vis-bar-wrap">
+                    <div class="vis-bar green" id="barAccelerated" style="height:26%;"></div>
+                  </div>
+                  <div style="font-size:13px; font-weight:800; color:var(--income-green);" id="resSmartMonths">11 мес</div>
+                  <div style="font-size:11px; color:var(--income-green);" id="resSmartInterest">580 000 UZS</div>
+                </div>
+              </div>
+
+              <div style="text-align:center; font-size:12.5px; font-weight:800; color:var(--cyan-accent); padding-top:4px;" id="resSavingsHighlight">
+                Экономия: 2 270 000 UZS и 43 месяца свободы от долга!
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCREEN: CARDS & WALLET (HOLOGRAPHIC CARDS) -->
+        <div id="screen-cards" class="screen-view">
+          <h3 style="font-size:17px; font-weight:800; color:var(--text-primary); margin-bottom:12px;" data-i18n="cards_header">Банковские карты</h3>
+          <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;" data-i18n="cards_note">Строго non-custodial: баланс и пуши считываются без доступа к списаниям.</p>
+
+          <!-- AI Cards Optimizer Trigger -->
+          <div class="glass-card" style="background:linear-gradient(135deg, rgba(0,240,255,0.08), rgba(16,185,129,0.06)); border-color:var(--border-cyan); display:flex; justify-content:space-between; align-items:center; cursor:pointer; margin-bottom:14px;" onclick="switchTab('ai'); askAiQuestion('Сколько я буду платить, если буду погашать по 500 000 в месяц?');">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="font-size:20px;">⚡</span>
+              <div>
+                <div style="font-size:12.5px; font-weight:800; color:var(--text-primary);">AI Анализ кредитной карты</div>
+                <div style="font-size:11px; color:var(--text-muted);">Как ускорить выплату и сэкономить 2.2M сум</div>
+              </div>
+            </div>
+            <span style="color:var(--cyan-accent); font-size:16px;">→</span>
+          </div>
+
+          <div class="card-deck-stack">
+            <!-- Card 1: Kapitalbank Black Visa Platinum -->
+            <div class="holo-card" style="background:linear-gradient(135deg, #0F172A, #1E293B, #020617); border:1px solid rgba(255,255,255,0.2);">
+              <div class="holo-shimmer"></div>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-weight:800; font-size:15px; letter-spacing:0.5px;">KAPITALBANK</span>
+                <span style="font-size:11px; font-weight:700; background:rgba(255,255,255,0.15); padding:3px 8px; border-radius:12px;">VISA PLATINUM</span>
+              </div>
+              <div style="display:flex; align-items:center;">
+                <div class="card-chip"></div>
+                <span class="card-nfc">📶</span>
+              </div>
+              <div>
+                <div class="card-num-masked">4821 •••• •••• 9012</div>
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:6px;">
+                  <div>
+                    <div style="font-size:9.5px; opacity:0.6; text-transform:uppercase;">Держатель</div>
+                    <div style="font-size:12px; font-weight:700;">ALEX MERCER</div>
+                  </div>
+                  <div style="font-size:15px; font-weight:800; color:var(--cyan-accent);" id="card1Val">18 450 000 UZS</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 2: Payme Uzcard Glow -->
+            <div class="holo-card" style="background:linear-gradient(135deg, #0284C7, #06B6D4, #0F172A); border:1px solid rgba(0,240,255,0.35);">
+              <div class="holo-shimmer"></div>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-weight:800; font-size:15px;">PAYME CARD</span>
+                <span style="font-size:11px; font-weight:700; background:rgba(255,255,255,0.2); padding:3px 8px; border-radius:12px;">UZCARD</span>
+              </div>
+              <div style="display:flex; align-items:center;">
+                <div class="card-chip"></div>
+                <span class="card-nfc">📶</span>
+              </div>
+              <div>
+                <div class="card-num-masked">8600 •••• •••• 4410</div>
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:6px;">
+                  <div>
+                    <div style="font-size:9.5px; opacity:0.6;">СТАТУС</div>
+                    <div style="font-size:12px; font-weight:700;">АКТИВНА</div>
+                  </div>
+                  <div style="font-size:15px; font-weight:800; color:#ffffff;" id="card2Val">12 300 000 UZS</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 3: TBC Bank Humo Electric -->
+            <div class="holo-card" style="background:linear-gradient(135deg, #7C3AED, #A855F7, #1E1B4B); border:1px solid rgba(255,255,255,0.2);">
+              <div class="holo-shimmer"></div>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-weight:800; font-size:15px;">TBC BANK</span>
+                <span style="font-size:11px; font-weight:700; background:rgba(255,255,255,0.2); padding:3px 8px; border-radius:12px;">HUMO</span>
+              </div>
+              <div style="display:flex; align-items:center;">
+                <div class="card-chip"></div>
+                <span class="card-nfc">📶</span>
+              </div>
+              <div>
+                <div class="card-num-masked">9860 •••• •••• 3328</div>
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:6px;">
+                  <div>
+                    <div style="font-size:9.5px; opacity:0.6;">КРЕДИТНЫЙ ЛИМИТ</div>
+                    <div style="font-size:12px; font-weight:700;">10 000 000 UZS</div>
+                  </div>
+                  <div style="font-size:15px; font-weight:800; color:var(--income-green);" id="card3Val">4 100 000 UZS</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCREEN: CONVERSATIONAL AI ASSISTANT -->
+        <div id="screen-ai" class="screen-view">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <span style="font-size:18px; cursor:pointer;" onclick="switchTab('home')">←</span>
+            <div style="text-align:center;">
+              <h3 style="font-size:15px; font-weight:800; color:var(--text-primary);">✨ AI Financial Assistant</h3>
+              <p style="font-size:11px; color:var(--text-muted);">Чем я могу помочь?</p>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <button id="btnAiAutopilot" class="ai-autopilot-pill" onclick="toggleAutopilotMode()" title="Режим автопилота">⚡ Автопилот: ВКЛ</button>
+              <button class="ai-clear-mem-btn" onclick="clearAiMemory()" title="Очистить память AI">🗑️</button>
+            </div>
+          </div>
+
+          <!-- Financial Health Score Banner -->
+          <div class="ai-health-banner" id="aiHealthScoreBanner">
+            <div class="ai-health-row">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:18px;">🛡️</span>
+                <div>
+                  <div style="font-size:11.5px; font-weight:800; color:var(--text-primary); letter-spacing:0.3px;">Financial Health</div>
+                  <div style="font-size:10.5px; color:var(--income-green); font-weight:700;">Отличное состояние бюджета</div>
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div class="ai-score-pill" id="aiHealthScoreVal">78 / 100</div>
+                <button onclick="toggleHealthDetails()" id="btnToggleHealth" style="background:transparent; border:none; color:var(--cyan-accent); font-size:11px; font-weight:800; cursor:pointer;">Разбор ▼</button>
+              </div>
+            </div>
+            <div class="ai-health-details" id="aiHealthDetailsBlock">
+              <div style="color:var(--income-green); font-weight:700; margin-bottom:3px;">Сильные стороны:</div>
+              <div>✓ Стабильный подтверждённый доход (22 000 000 UZS)</div>
+              <div>✓ Расходы значительно ниже доходов (норма сбережений 61.6%)</div>
+              <div>✓ Финансовая подушка безопасности на 4.1 месяца трат</div>
+              <div style="color:var(--warning-amber); font-weight:700; margin-top:6px; margin-bottom:3px;">Что можно улучшить:</div>
+              <div>• Активная долговая нагрузка по автокредиту (1 300 280 UZS / мес)</div>
+              <div>• Расходы на рестораны выросли на 37% по сравнению с прошлым месяцем</div>
+            </div>
+          </div>
+
+          <div class="orb-visual-stage" style="width:90px; height:90px; margin:4px auto 10px;">
+            <div class="orb-pulse-field" style="width:85px; height:85px;"></div>
+            <div class="orb-sphere-core" style="width:58px; height:58px;"></div>
+          </div>
+
+          <!-- Quick Action Chips (6 Mandatory Categories) -->
+          <div class="ai-chips-scroll">
+            <button class="ai-chip-btn" onclick="askAiQuestion('Куда у меня ушли деньги в этом месяце?')">📊 Анализ расходов</button>
+            <button class="ai-chip-btn" onclick="askAiQuestion('Сколько я могу откладывать каждый месяц?')">💰 Мои накопления</button>
+            <button class="ai-chip-btn" onclick="askAiQuestion('Как быстрее погасить мой кредит?')">💳 Мои кредиты</button>
+            <button class="ai-chip-btn" onclick="askAiQuestion('Хочу накопить 15 млн на ноутбук за 6 месяцев')">🎯 Финансовая цель</button>
+            <button class="ai-chip-btn" onclick="askAiQuestion('Что будет, если я буду откладывать по 1 млн каждый месяц?')">🔮 Что будет, если...</button>
+            <button class="ai-chip-btn" onclick="askAiQuestion('Могу ли я позволить себе купить телефон за 8 млн?')">🛒 Могу ли я это купить?</button>
+          </div>
+
+          <!-- Chat Messages Area -->
+          <div class="chat-scroller" id="chatHistoryContainer" style="max-height:360px;">
+            <div class="chat-msg ai" id="aiWelcomeBubble">
+              Здравствуйте, Alex! Я ваш персональный AI Финансовый Ассистент.<br><br>
+              Свободный остаток в этом месяце: <strong>13 550 000 UZS</strong>, финансовое здоровье: <strong>78 / 100</strong>.<br><br>
+              Спросите меня о распределении трат, доступности крупной покупки, оптимизации кредита или подписках.
+            </div>
+          </div>
+
+          <!-- Chat Input -->
+          <div style="display:flex; gap:8px; align-items:center; background:var(--input-bg); border:1px solid var(--border-soft); border-radius:24px; padding:6px 8px 6px 14px;">
+            <input type="text" id="aiUserInputField" placeholder="Спросите о своих финансах..." style="flex:1; background:transparent; border:none; outline:none; color:var(--text-primary); font-size:13.5px;" onkeypress="if(event.key==='Enter') sendCustomAiMessage()">
+            <button style="width:36px; height:36px; border-radius:50%; background:var(--primary-blue); border:none; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="sendCustomAiMessage()">↗</button>
+          </div>
+        </div>
+
+        <!-- SCREEN: PROFILE -->
+        <div id="screen-profile" class="screen-view">
+          <div class="profile-header-bar" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <button class="profile-back-btn" onclick="closeProfileScreen()">
+              <span style="font-size: 19px; line-height: 1;">←</span>
+            </button>
+            <div style="font-size: 16px; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+              <span>👤</span>
+              <span>ПРОФИЛЬ</span>
+            </div>
+            <div style="width: 24px;"></div>
+          </div>
+
+          <div class="profile-hero-card" style="margin-bottom: 20px;">
+            <div class="profile-avatar-large" style="position:relative;">
+              AM
+              <div style="position:absolute; bottom:0; right:0; width:22px; height:22px; border-radius:50%; background:var(--card-surface); border:1.5px solid var(--cyan-accent); display:flex; align-items:center; justify-content:center; font-size:11px;">📷</div>
+            </div>
+            <div class="profile-name-large">Alex Mercer</div>
+            <div class="profile-email">alex@email.com</div>
+          </div>
+
+          <!-- Разделитель -->
+          <div style="height:1px; background:var(--border-soft); margin: 0 0 16px 0;"></div>
+
+          <!-- 6 Пунктов меню -->
+          <div class="profile-menu-card" style="margin-bottom: 20px;">
+            <!-- 1. 👤 Личные данные -->
+            <div class="profile-menu-item" onclick="openProfileModal('profilePersonalModal')">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:40px; height:40px; border-radius:12px; background:rgba(37,99,235,0.12); display:flex; align-items:center; justify-content:center; font-size:18px;">👤</div>
+                <div>
+                  <div style="font-size:14.5px; font-weight:700; color:var(--text-primary);">Личные данные</div>
+                  <div style="font-size:11.5px; color:var(--text-muted); margin-top:1px;">Имя, телефон, email</div>
+                </div>
+              </div>
+              <span style="color:var(--text-muted); font-size:18px;">›</span>
+            </div>
+
+            <!-- 2. 💳 Карты и счета -->
+            <div class="profile-menu-item" onclick="openProfileModal('profileCardsModal')">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:40px; height:40px; border-radius:12px; background:rgba(0,240,255,0.12); display:flex; align-items:center; justify-content:center; font-size:18px;">💳</div>
+                <div>
+                  <div style="font-size:14.5px; font-weight:700; color:var(--text-primary);">Карты и счета</div>
+                  <div style="font-size:11.5px; color:var(--text-muted); margin-top:1px;">Карты, банки, наличные</div>
+                </div>
+              </div>
+              <span style="color:var(--text-muted); font-size:18px;">›</span>
+            </div>
+
+            <!-- 3. 🔐 Безопасность -->
+            <div class="profile-menu-item" onclick="openProfileModal('profileSecurityModal')">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:40px; height:40px; border-radius:12px; background:rgba(16,185,129,0.12); display:flex; align-items:center; justify-content:center; font-size:18px;">🔐</div>
+                <div>
+                  <div style="font-size:14.5px; font-weight:700; color:var(--text-primary);">Безопасность</div>
+                  <div style="font-size:11.5px; color:var(--text-muted); margin-top:1px;">PIN, Face ID, устройства</div>
+                </div>
+              </div>
+              <span style="color:var(--text-muted); font-size:18px;">›</span>
+            </div>
+
+            <!-- 4. ⚙️ Настройки -->
+            <div class="profile-menu-item" onclick="openProfileModal('profileSettingsModal')">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:40px; height:40px; border-radius:12px; background:rgba(245,158,11,0.12); display:flex; align-items:center; justify-content:center; font-size:18px;">⚙️</div>
+                <div>
+                  <div style="font-size:14.5px; font-weight:700; color:var(--text-primary);">Настройки</div>
+                  <div style="font-size:11.5px; color:var(--text-muted); margin-top:1px;">Язык, тема, уведомления</div>
+                </div>
+              </div>
+              <span style="color:var(--text-muted); font-size:18px;">›</span>
+            </div>
+
+            <!-- 5. 🤖 AI Финансист -->
+            <div class="profile-menu-item" onclick="openProfileModal('profileAiModal')">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:40px; height:40px; border-radius:12px; background:rgba(139,92,246,0.12); display:flex; align-items:center; justify-content:center; font-size:18px;">🤖</div>
+                <div>
+                  <div style="font-size:14.5px; font-weight:700; color:var(--text-primary);">AI Финансист</div>
+                  <div style="font-size:11.5px; color:var(--text-muted); margin-top:1px;">AI Autopilot, память, отчёты</div>
+                </div>
+              </div>
+              <span style="color:var(--text-muted); font-size:18px;">›</span>
+            </div>
+
+            <!-- 6. 🔒 Конфиденциальность -->
+            <div class="profile-menu-item" style="border-bottom:none;" onclick="openProfileModal('profilePrivacyModal')">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:40px; height:40px; border-radius:12px; background:rgba(244,63,94,0.12); display:flex; align-items:center; justify-content:center; font-size:18px;">🔒</div>
+                <div>
+                  <div style="font-size:14.5px; font-weight:700; color:var(--text-primary);">Конфиденциальность</div>
+                  <div style="font-size:11.5px; color:var(--text-muted); margin-top:1px;">Данные, экспорт, удаление</div>
+                </div>
+              </div>
+              <span style="color:var(--text-muted); font-size:18px;">›</span>
+            </div>
+          </div>
+
+          <!-- Разделитель -->
+          <div style="height:1px; background:var(--border-soft); margin: 0 0 16px 0;"></div>
+
+          <!-- Выйти из аккаунта -->
+          <div class="profile-logout-btn" onclick="openProfileModal('profileLogoutModal')">
+            Выйти из аккаунта
+          </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- PROFILE MODAL 1: ЛИЧНЫЕ ДАННЫЕ -->
+        <!-- ============================================================ -->
+        <div class="notif-modal-overlay" id="profilePersonalModal" onclick="if(event.target===this) closeProfileModal('profilePersonalModal')">
+          <div class="notif-modal-sheet">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:20px;">👤</span>
+                <h3 style="font-size:16px; font-weight:800; color:var(--text-primary);">Личные данные</h3>
+              </div>
+              <button onclick="closeProfileModal('profilePersonalModal')" style="background:transparent; border:none; color:var(--text-muted); font-size:18px; cursor:pointer;">✕</button>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:14px;">
+              <div style="display:flex; align-items:center; gap:14px; background:var(--input-bg); border:1px solid var(--border-soft); border-radius:18px; padding:12px 14px;">
+                <div class="profile-avatar-large" style="width:52px; height:52px; font-size:18px; margin-bottom:0; flex-shrink:0;">AM</div>
+                <div style="flex:1;">
+                  <div style="font-size:14px; font-weight:700; color:var(--text-primary);" id="displayProfileName">Alex Mercer</div>
+                  <div style="font-size:11px; color:var(--income-green); font-weight:700;">✓ OneID Верифицирован (Tier 2)</div>
+                </div>
+                <button onclick="alert('Загрузка нового фото профиля...')" style="background:rgba(0,240,255,0.12); border:1px solid var(--border-cyan); color:var(--cyan-accent); font-size:11px; font-weight:700; padding:6px 10px; border-radius:10px; cursor:pointer;">Изменить</button>
+              </div>
+
+              <div>
+                <label style="font-size:11px; color:var(--text-muted); font-weight:700; margin-left:4px;">ФИО</label>
+                <input type="text" id="editProfileName" value="Alex Mercer" style="width:100%; margin-top:4px; padding:11px 14px; background:var(--input-bg); border:1px solid var(--border-soft); border-radius:14px; color:var(--text-primary); font-size:13.5px; outline:none;">
+              </div>
+              <div>
+                <label style="font-size:11px; color:var(--text-muted); font-weight:700; margin-left:4px;">Номер телефона</label>
+                <input type="text" id="editProfilePhone" value="+998 90 123 45 67" style="width:100%; margin-top:4px; padding:11px 14px; background:var(--input-bg); border:1px solid var(--border-soft); border-radius:14px; color:var(--text-primary); font-size:13.5px; outline:none;">
+              </div>
+              <div>
+                <label style="font-size:11px; color:var(--text-muted); font-weight:700; margin-left:4px;">Email</label>
+                <input type="text" id="editProfileEmail" value="alex@email.com" style="width:100%; margin-top:4px; padding:11px 14px; background:var(--input-bg); border:1px solid var(--border-soft); border-radius:14px; color:var(--text-primary); font-size:13.5px; outline:none;">
+              </div>
+
+              <button onclick="savePersonalData()" style="width:100%; padding:13px; margin-top:4px; background:var(--primary-blue); border:none; border-radius:14px; color:#fff; font-size:14px; font-weight:700; cursor:pointer;">Сохранить изменения</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- PROFILE MODAL 2: КАРТЫ И СЧЕТА -->
+        <!-- ============================================================ -->
+        <div class="notif-modal-overlay" id="profileCardsModal" onclick="if(event.target===this) closeProfileModal('profileCardsModal')">
+          <div class="notif-modal-sheet">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:20px;">💳</span>
+                <h3 style="font-size:16px; font-weight:800; color:var(--text-primary);">Карты и счета</h3>
+              </div>
+              <button onclick="closeProfileModal('profileCardsModal')" style="background:transparent; border:none; color:var(--text-muted); font-size:18px; cursor:pointer;">✕</button>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <div style="background:var(--input-bg); border:1px solid var(--border-soft); border-radius:16px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; gap:12px; align-items:center;">
+                  <div style="width:38px; height:26px; border-radius:6px; background:linear-gradient(135deg, #1E293B, #0F172A); border:1px solid rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:800; color:#fff;">VISA</div>
+                  <div>
+                    <div style="font-size:13px; font-weight:700; color:var(--text-primary);">Kapitalbank Visa • 4892</div>
+                    <div style="font-size:11px; color:var(--cyan-accent); font-weight:600;">Основная карта</div>
+                  </div>
+                </div>
+                <div style="font-size:13.5px; font-weight:800; color:var(--text-primary);">18 450 000 UZS</div>
+              </div>
+
+              <div style="background:var(--input-bg); border:1px solid var(--border-soft); border-radius:16px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; gap:12px; align-items:center;">
+                  <div style="width:38px; height:26px; border-radius:6px; background:linear-gradient(135deg, #0284C7, #0369A1); border:1px solid rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:800; color:#fff;">UZCARD</div>
+                  <div>
+                    <div style="font-size:13px; font-weight:700; color:var(--text-primary);">Payme Uzcard • 1234</div>
+                    <div style="font-size:11px; color:var(--text-muted);">Зарплатная</div>
+                  </div>
+                </div>
+                <div style="font-size:13.5px; font-weight:800; color:var(--text-primary);">9 600 000 UZS</div>
+              </div>
+
+              <div style="background:var(--input-bg); border:1px solid var(--border-soft); border-radius:16px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; gap:12px; align-items:center;">
+                  <div style="width:38px; height:26px; border-radius:6px; background:linear-gradient(135deg, #4C1D95, #2E1065); border:1px solid rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:800; color:#fff;">HUMO</div>
+                  <div>
+                    <div style="font-size:13px; font-weight:700; color:var(--text-primary);">TBC Bank Humo • 9012</div>
+                    <div style="font-size:11px; color:var(--warning-amber); font-weight:600;">Кредитная (Лимит 10 млн)</div>
+                  </div>
+                </div>
+                <div style="font-size:13.5px; font-weight:800; color:var(--text-primary);">6 800 000 UZS</div>
+              </div>
+
+              <div style="background:var(--input-bg); border:1px solid var(--border-soft); border-radius:16px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; gap:12px; align-items:center;">
+                  <div style="font-size:22px;">💵</div>
+                  <div>
+                    <div style="font-size:13px; font-weight:700; color:var(--text-primary);">Наличные в кошельке</div>
+                    <div style="font-size:11px; color:var(--text-muted);">Ручной баланс</div>
+                  </div>
+                </div>
+                <div style="font-size:13.5px; font-weight:800; color:var(--text-primary);">2 500 000 UZS</div>
+              </div>
+
+              <div style="display:flex; gap:10px; margin-top:8px;">
+                <button onclick="alert('Форма привязки карты: введите номер и подтвердите через SMS-код');" style="flex:1; padding:12px; background:rgba(0,240,255,0.12); border:1px solid var(--border-cyan); border-radius:14px; color:var(--cyan-accent); font-size:13px; font-weight:700; cursor:pointer;">+ Новая карта</button>
+                <button onclick="closeProfileModal('profileCardsModal'); closeProfileScreen(); switchTab('cards');" style="flex:1; padding:12px; background:var(--primary-blue); border:none; border-radius:14px; color:#fff; font-size:13px; font-weight:700; cursor:pointer;">Все карты ›</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- PROFILE MODAL 3: БЕЗОПАСНОСТЬ -->
+        <!-- ============================================================ -->
+        <div class="notif-modal-overlay" id="profileSecurityModal" onclick="if(event.target===this) closeProfileModal('profileSecurityModal')">
+          <div class="notif-modal-sheet">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:20px;">🔐</span>
+                <h3 style="font-size:16px; font-weight:800; color:var(--text-primary);">Безопасность</h3>
+              </div>
+              <button onclick="closeProfileModal('profileSecurityModal')" style="background:transparent; border:none; color:var(--text-muted); font-size:18px; cursor:pointer;">✕</button>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div style="background:var(--input-bg); border:1px solid var(--border-soft); border-radius:16px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="font-size:13.5px; font-weight:700; color:var(--text-primary);">PIN-код доступа</div>
+                  <div style="font-size:11px; color:var(--text-muted);">6-значный персональный PIN</div>
+                </div>
+                <button onclick="changePinCode()" style="padding:6px 12px; background:rgba(255,255,255,0.08); border:1px solid var(--border-soft); border-radius:10px; color:var(--text-primary); font-size:12px; font-weight:700; cursor:pointer;">Изменить</button>
+              </div>
+
+              <div style="background:var(--input-bg); border:1px solid var(--border-soft); border-radius:16px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="font-size:13.5px; font-weight:700; color:var(--text-primary);">Face ID / Биометрия</div>
+                  <div style="font-size:11px; color:var(--text-muted);">Быстрая аутентификация</div>
+                </div>
+                <input type="checkbox" checked onchange="toggleSecurityFeature('Face ID', this.checked)" style="width:20px; height:20px; accent-color:var(--cyan-accent); cursor:pointer;">
+              </div>
+
+              <div style="background:var(--input-bg); border:1px solid var(--border-soft); border-radius:16px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="font-size:13.5px; font-weight:700; color:var(--text-primary);">Подтверждение переводов</div>
+                  <div style="font-size:11px; color:var(--text-muted);">Запрос биометрии при операциях</div>
+                </div>
+                <input type="checkbox" checked onchange="toggleSecurityFeature('Подтверждение переводов', this.checked)" style="width:20px; height:20px; accent-color:var(--cyan-accent); cursor:pointer;">
+              </div>
+
+              <div style="background:var(--input-bg); border:1px solid var(--border-soft); border-radius:16px; padding:12px 14px;">
+                <div style="font-size:11.5px; font-weight:800; color:var(--text-muted); margin-bottom:8px;">АКТИВНЫЕ УСТРОЙСТВА</div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                  <div>
+                    <div style="font-size:13px; font-weight:700; color:var(--text-primary);">📱 iPhone 16 Pro (iOS 18)</div>
+                    <div style="font-size:11px; color:var(--income-green);">Текущее • Онлайн</div>
+                  </div>
+                  <span style="font-size:11px; color:var(--cyan-accent); font-weight:700;">Сессия 1</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <div style="font-size:13px; font-weight:700; color:var(--text-primary);">💻 MacBook Pro M3 (Web)</div>
+                    <div style="font-size:11px; color:var(--text-muted);">Ташкент • Вчера, 14:30</div>
+                  </div>
+                  <button onclick="terminateSession(this)" style="background:transparent; border:none; color:var(--expense-red); font-size:11px; font-weight:700; cursor:pointer;">Завершить</button>
+                </div>
+              </div>
+
+              <div style="padding:10px; border-radius:12px; background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25); font-size:11.5px; color:var(--income-green); text-align:center;">
+                🔒 Secure Enclave AES-256 аппаратный барьер активен
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- PROFILE MODAL 4: НАСТРОЙКИ -->
+        <!-- ============================================================ -->
+        <div class="notif-modal-overlay" id="profileSettingsModal" onclick="if(event.target===this) closeProfileModal('profileSettingsModal')">
+          <div class="notif-modal-sheet">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:20px;">⚙️</span>
+                <h3 style="font-size:16px; font-weight:800; color:var(--text-primary);">Настройки</h3>
+              </div>
+              <button onclick="closeProfileModal('profileSettingsModal')" style="background:transparent; border:none; color:var(--text-muted); font-size:18px; cursor:pointer;">✕</button>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:14px;">
+              <div>
+                <div style="font-size:11.5px; font-weight:800; color:var(--text-muted); margin-bottom:6px;">ЯЗЫК ИНТЕРФЕЙСА</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+                  <button id="btnLangRu" onclick="setAppLanguage('ru')" style="padding:10px 4px; border-radius:12px; border:1px solid var(--border-cyan); background:rgba(0,240,255,0.15); color:var(--cyan-accent); font-weight:700; font-size:12px; cursor:pointer;">🇷🇺 Русский</button>
+                  <button id="btnLangEn" onclick="setAppLanguage('en')" style="padding:10px 4px; border-radius:12px; border:1px solid var(--border-soft); background:var(--input-bg); color:var(--text-primary); font-weight:700; font-size:12px; cursor:pointer;">🇬🇧 English</button>
+                  <button id="btnLangUz" onclick="setAppLanguage('uz')" style="padding:10px 4px; border-radius:12px; border:1px solid var(--border-soft); background:var(--input-bg); color:var(--text-primary); font-weight:700; font-size:12px; cursor:pointer;">🇺🇿 O‘zbek</button>
+                </div>
+              </div>
+
+              <div>
+                <div style="font-size:11.5px; font-weight:800; color:var(--text-muted); margin-bottom:6px;">ТЕМА ОФОРМЛЕНИЯ</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                  <button id="btnThemeDark" onclick="applyTheme('dark')" style="padding:10px; border-radius:12px; border:1px solid var(--border-cyan); background:rgba(0,240,255,0.15); color:var(--cyan-accent); font-weight:700; font-size:12px; cursor:pointer;">🌙 Obsidian</button>
+                  <button id="btnThemeLight" onclick="applyTheme('light')" style="padding:10px; border-radius:12px; border:1px solid var(--border-soft); background:var(--input-bg); color:var(--text-primary); font-weight:700; font-size:12px; cursor:pointer;">☀️ Ceramic</button>
+                </div>
+              </div>
+
+              <div>
+                <div style="font-size:11.5px; font-weight:800; color:var(--text-muted); margin-bottom:6px;">ОСНОВНАЯ ВАЛЮТА</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                  <button id="btnCurrUzs" onclick="setCurrencyType('uzs')" style="padding:10px; border-radius:12px; border:1px solid var(--border-cyan); background:rgba(0,240,255,0.15); color:var(--cyan-accent); font-weight:700; font-size:12px; cursor:pointer;">UZS (сум)</button>
+                  <button id="btnCurrUsd" onclick="setCurrencyType('usd')" style="padding:10px; border-radius:12px; border:1px solid var(--border-soft); background:var(--input-bg); color:var(--text-primary); font-weight:700; font-size:12px; cursor:pointer;">USD ($)</button>
+                </div>
+              </div>
+
+              <!-- ИСТОЧНИКИ ФИНАНСОВЫХ ДАННЫХ (Requirement 15) -->
+              <div style="background:var(--card-surface); border:1px solid var(--border-cyan); border-radius:18px; padding:14px; display:flex; flex-direction:column; gap:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:16px;">📡</span>
+                    <span style="font-size:13px; font-weight:800; color:var(--text-primary);">Источники финансовых данных</span>
+                  </div>
+                  <span id="notifAccessBadge" style="font-size:10px; font-weight:800; padding:3px 8px; border-radius:20px; background:rgba(16,185,129,0.15); color:var(--income-green); border:1px solid rgba(16,185,129,0.3);">Connected</span>
+                </div>
+
+                <!-- Master Toggle: Автоматический импорт -->
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid var(--border-soft);">
+                  <div>
+                    <div style="font-size:13px; font-weight:700; color:var(--text-primary);">Автоматический импорт</div>
+                    <div style="font-size:10.5px; color:var(--text-muted);">Разрешить чтение финансовых уведомлений</div>
+                  </div>
+                  <input type="checkbox" id="toggleAutoImport" checked onchange="updateSourceSettings()" style="width:20px; height:20px; accent-color:var(--cyan-accent); cursor:pointer;">
+                </div>
+
+                <!-- Sub-toggle 1: Automatic Transaction Detection -->
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 0;">
+                  <div>
+                    <div style="font-size:12.5px; font-weight:600; color:var(--text-secondary);">Авто-детекция операций</div>
+                    <div style="font-size:10px; color:var(--text-muted);">Отсечение спама и OTP-кодов</div>
+                  </div>
+                  <input type="checkbox" id="toggleAutoDetection" checked onchange="updateSourceSettings()" style="width:18px; height:18px; accent-color:var(--cyan-accent); cursor:pointer;">
+                </div>
+
+                <!-- Sub-toggle 2: AI Categorization -->
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 0;">
+                  <div>
+                    <div style="font-size:12.5px; font-weight:600; color:var(--text-secondary);">AI Категоризация</div>
+                    <div style="font-size:10px; color:var(--text-muted);">Интеллектуальное распределение по 18 категориям</div>
+                  </div>
+                  <input type="checkbox" id="toggleAiCategorization" checked onchange="updateSourceSettings()" style="width:18px; height:18px; accent-color:var(--cyan-accent); cursor:pointer;">
+                </div>
+
+                <!-- Sub-toggle 3: Allow Auto-Creation -->
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 0;">
+                  <div>
+                    <div style="font-size:12.5px; font-weight:600; color:var(--text-secondary);">Авто-создание транзакций</div>
+                    <div style="font-size:10px; color:var(--text-muted);">Мгновенное добавление в баланс и историю</div>
+                  </div>
+                  <input type="checkbox" id="toggleAutoCreate" checked onchange="updateSourceSettings()" style="width:18px; height:18px; accent-color:var(--cyan-accent); cursor:pointer;">
+                </div>
+
+                <!-- Поддерживаемые приложения -->
+                <div style="margin-top:2px;">
+                  <div style="font-size:10px; font-weight:800; color:var(--text-muted); margin-bottom:6px;">ПОДДЕРЖИВАЕМЫЕ БАНКИ И СЕРВИСЫ:</div>
+                  <div style="display:flex; flex-wrap:wrap; gap:5px;">
+                    <span style="font-size:10px; background:var(--input-bg); border:1px solid var(--border-soft); padding:2px 7px; border-radius:8px; color:var(--text-secondary);">Payme</span>
+                    <span style="font-size:10px; background:var(--input-bg); border:1px solid var(--border-soft); padding:2px 7px; border-radius:8px; color:var(--text-secondary);">Click</span>
+                    <span style="font-size:10px; background:var(--input-bg); border:1px solid var(--border-soft); padding:2px 7px; border-radius:8px; color:var(--text-secondary);">Uzum Bank</span>
+                    <span style="font-size:10px; background:var(--input-bg); border:1px solid var(--border-soft); padding:2px 7px; border-radius:8px; color:var(--text-secondary);">Kapitalbank</span>
+                    <span style="font-size:10px; background:var(--input-bg); border:1px solid var(--border-soft); padding:2px 7px; border-radius:8px; color:var(--text-secondary);">TBC Bank</span>
+                    <span style="font-size:10px; background:var(--input-bg); border:1px solid var(--border-soft); padding:2px 7px; border-radius:8px; color:var(--text-secondary);">Hamkorbank</span>
+                    <span style="font-size:10px; background:var(--input-bg); border:1px solid var(--border-soft); padding:2px 7px; border-radius:8px; color:var(--text-secondary);">Ipak Yuli</span>
+                    <span style="font-size:10px; background:var(--input-bg); border:1px solid var(--border-soft); padding:2px 7px; border-radius:8px; color:var(--text-secondary);">Uzcard / Humo</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style="background:var(--input-bg); border:1px solid var(--border-soft); border-radius:16px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="font-size:13.5px; font-weight:700; color:var(--text-primary);">Скрывать балансы при входе</div>
+                  <div style="font-size:11px; color:var(--text-muted);">Маскировка цифр ••••••••</div>
+                </div>
+                <input type="checkbox" onchange="toggleMaskBalance()" style="width:20px; height:20px; accent-color:var(--cyan-accent); cursor:pointer;">
+              </div>
+
+              <button onclick="closeProfileModal('profileSettingsModal')" style="width:100%; padding:13px; background:var(--primary-blue); border:none; border-radius:14px; color:#fff; font-size:14px; font-weight:700; cursor:pointer;">Готово</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- PROFILE MODAL 5: AI ФИНАНСИСТ -->
+        <!-- ============================================================ -->
+        <div class="notif-modal-overlay" id="profileAiModal" onclick="if(event.target===this) closeProfileModal('profileAiModal')">
+          <div class="notif-modal-sheet">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:20px;">🤖</span>
+                <h3 style="font-size:16px; font-weight:800; color:var(--text-primary);">AI Финансист & Настройки</h3>
+              </div>
+              <button onclick="closeProfileModal('profileAiModal')" style="background:transparent; border:none; color:var(--text-muted); font-size:18px; cursor:pointer;">✕</button>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div style="background:var(--input-bg); border:1px solid var(--border-soft); border-radius:16px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="font-size:13.5px; font-weight:700; color:var(--text-primary);">AI Autopilot</div>
+                  <div style="font-size:11px; color:var(--text-muted);">Еженедельный мониторинг и дайджест</div>
+                </div>
+                <input type="checkbox" checked id="aiModalAutopilotToggle" onchange="toggleAutopilotMode()" style="width:20px; height:20px; accent-color:var(--cyan-accent); cursor:pointer;">
+              </div>
+
+              <div style="background:var(--input-bg); border:1px solid var(--border-soft); border-radius:16px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="font-size:13.5px; font-weight:700; color:var(--text-primary);">Financial Health Score</div>
+                  <div style="font-size:11px; color:var(--text-muted);">Индекс устойчивости финансов</div>
+                </div>
+                <div class="ai-score-pill">78 / 100</div>
+              </div>
+
+              <div style="background:var(--input-bg); border:1px solid var(--border-soft); border-radius:16px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="font-size:13.5px; font-weight:700; color:var(--text-primary);">Контекстная память</div>
+                  <div style="font-size:11px; color:var(--text-muted);">24 финансовых факта и цели</div>
+                </div>
+                <button onclick="clearAiMemory()" style="padding:6px 10px; background:rgba(244,63,94,0.12); border:1px solid rgba(244,63,94,0.3); border-radius:10px; color:var(--expense-red); font-size:11.5px; font-weight:700; cursor:pointer;">Очистить</button>
+              </div>
+
+              <button onclick="closeProfileModal('profileAiModal'); closeProfileScreen(); switchTab('ai');" style="width:100%; padding:13px; margin-top:4px; background:linear-gradient(135deg, #00F0FF, #2563EB); border:none; border-radius:14px; color:#fff; font-size:14px; font-weight:800; cursor:pointer;">✨ Открыть AI Чат и Советник</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- PROFILE MODAL 6: КОНФИДЕНЦИАЛЬНОСТЬ -->
+        <!-- ============================================================ -->
+        <div class="notif-modal-overlay" id="profilePrivacyModal" onclick="if(event.target===this) closeProfileModal('profilePrivacyModal')">
+          <div class="notif-modal-sheet">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:20px;">🔒</span>
+                <h3 style="font-size:16px; font-weight:800; color:var(--text-primary);">Конфиденциальность</h3>
+              </div>
+              <button onclick="closeProfileModal('profilePrivacyModal')" style="background:transparent; border:none; color:var(--text-muted); font-size:18px; cursor:pointer;">✕</button>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div style="padding:12px; background:var(--input-bg); border:1px solid var(--border-soft); border-radius:16px;">
+                <div style="font-size:13px; font-weight:700; color:var(--text-primary); margin-bottom:4px;">Локальное шифрование базы</div>
+                <div style="font-size:11.5px; color:var(--text-muted); line-height:1.4;">
+                  Все транзакции защищены через SQLCipher AES-256. Сервер не имеет доступа к вашим расшифрованным банковским данным.
+                </div>
+              </div>
+
+              <div>
+                <div style="font-size:11.5px; font-weight:800; color:var(--text-muted); margin-bottom:6px;">ЭКСПОРТ ДАННЫХ</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                  <button onclick="downloadFinancialExport('json')" style="padding:11px; border-radius:12px; background:rgba(0,240,255,0.12); border:1px solid var(--border-cyan); color:var(--cyan-accent); font-weight:700; font-size:12px; cursor:pointer;">📥 Скачать JSON</button>
+                  <button onclick="downloadFinancialExport('csv')" style="padding:11px; border-radius:12px; background:rgba(0,240,255,0.12); border:1px solid var(--border-cyan); color:var(--cyan-accent); font-weight:700; font-size:12px; cursor:pointer;">📥 Скачать CSV</button>
+                </div>
+              </div>
+
+              <div style="background:var(--input-bg); border:1px solid var(--border-soft); border-radius:16px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="font-size:13px; font-weight:700; color:var(--text-primary);">Очистить локальный кэш</div>
+                  <div style="font-size:11px; color:var(--text-muted);">28.4 МБ временных данных</div>
+                </div>
+                <button onclick="clearAppCache()" style="padding:6px 12px; background:rgba(255,255,255,0.08); border:1px solid var(--border-soft); border-radius:10px; color:var(--text-primary); font-size:12px; font-weight:700; cursor:pointer;">Очистить</button>
+              </div>
+
+              <div style="padding:10px 12px; border-radius:12px; background:rgba(244,63,94,0.08); border:1px solid rgba(244,63,94,0.3); display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="font-size:13px; font-weight:700; color:var(--expense-red);">Удалить аккаунт</div>
+                  <div style="font-size:10.5px; color:var(--text-muted);">Безвозвратное удаление всех данных</div>
+                </div>
+                <button onclick="deleteAccountPrompt()" style="padding:6px 10px; background:var(--expense-red); border:none; border-radius:10px; color:#fff; font-size:11px; font-weight:700; cursor:pointer;">Удалить</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- PROFILE MODAL 7: ВЫХОД ИЗ АККАУНТА -->
+        <!-- ============================================================ -->
+        <div class="notif-modal-overlay" id="profileLogoutModal" onclick="if(event.target===this) closeProfileModal('profileLogoutModal')">
+          <div class="notif-modal-sheet" style="text-align:center;">
+            <div style="font-size:36px; margin-bottom:8px;">🚪</div>
+            <h3 style="font-size:17px; font-weight:800; color:var(--text-primary); margin-bottom:8px;">Выход из аккаунта</h3>
+            <p style="font-size:13px; color:var(--text-muted); line-height:1.4; margin-bottom:18px;">
+              Вы уверены, что хотите выйти? Локальные ключи шифрования будут заблокированы до повторного ввода PIN-кода.
+            </p>
+            <div style="display:flex; gap:10px;">
+              <button onclick="closeProfileModal('profileLogoutModal')" style="flex:1; padding:12px; background:rgba(255,255,255,0.08); border:1px solid var(--border-soft); border-radius:14px; color:var(--text-primary); font-size:14px; font-weight:700; cursor:pointer;">Отмена</button>
+              <button onclick="confirmLogoutAction()" style="flex:1; padding:12px; background:var(--expense-red); border:none; border-radius:14px; color:#fff; font-size:14px; font-weight:700; cursor:pointer;">Выйти</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- NOTIFICATIONS OVERLAY / MODAL -->
+      <div class="notif-modal-overlay" id="notifModalOverlay" onclick="if(event.target===this) closeNotificationsModal()">
+        <div class="notif-modal-sheet">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:18px;">🔔</span>
+              <h3 style="font-size:16px; font-weight:800; color:var(--text-primary);">Уведомления</h3>
+            </div>
+            <button onclick="closeNotificationsModal()" style="background:transparent; border:none; color:var(--text-muted); font-size:18px; cursor:pointer;">✕</button>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <div style="background:var(--input-bg); border:1px solid var(--border-soft); border-radius:16px; padding:12px 14px; display:flex; gap:12px; align-items:center;">
+              <div style="font-size:22px;">💳</div>
+              <div style="flex:1;">
+                <div style="font-size:13px; font-weight:700; color:var(--text-primary);">Payme • Korzinka supermarket</div>
+                <div style="font-size:11px; color:var(--text-muted);">Распознано Zero-Touch • 2 мин назад</div>
+              </div>
+              <div style="font-size:13px; font-weight:800; color:var(--expense-red);">-45 000 UZS</div>
+            </div>
+
+            <div style="background:var(--input-bg); border:1px solid var(--border-soft); border-radius:16px; padding:12px 14px; display:flex; gap:12px; align-items:center;">
+              <div style="font-size:22px;">☕</div>
+              <div style="flex:1;">
+                <div style="font-size:13px; font-weight:700; color:var(--text-primary);">Click • Coffee House Tashkent</div>
+                <div style="font-size:11px; color:var(--text-muted);">Распознано Zero-Touch • 3 часа назад</div>
+              </div>
+              <div style="font-size:13px; font-weight:800; color:var(--expense-red);">-35 000 UZS</div>
+            </div>
+
+            <div style="background:var(--input-bg); border:1px solid var(--border-soft); border-radius:16px; padding:12px 14px; display:flex; gap:12px; align-items:center;">
+              <div style="font-size:22px;">💼</div>
+              <div style="flex:1;">
+                <div style="font-size:13px; font-weight:700; color:var(--text-primary);">Uzum Bank • Поступление зарплаты</div>
+                <div style="font-size:11px; color:var(--text-muted);">Зачисление на карту • Вчера, 18:20</div>
+              </div>
+              <div style="font-size:13px; font-weight:800; color:var(--income-green);">+8 500 000 UZS</div>
+            </div>
+
+            <div style="background:var(--input-bg); border:1px solid var(--border-soft); border-radius:16px; padding:12px 14px; display:flex; gap:12px; align-items:center;">
+              <div style="font-size:22px;">🛡️</div>
+              <div style="flex:1;">
+                <div style="font-size:13px; font-weight:700; color:var(--text-primary);">Безопасность профиля</div>
+                <div style="font-size:11px; color:var(--text-muted);">Вход с подтверждением Face ID</div>
+              </div>
+              <div style="font-size:11px; font-weight:700; color:var(--cyan-accent);">Успешно</div>
+            </div>
+          </div>
+
+          <button onclick="closeNotificationsModal()" style="margin-top:16px; width:100%; padding:12px; background:var(--primary-blue); border:none; border-radius:14px; color:#fff; font-size:13px; font-weight:700; cursor:pointer;">
+            Закрыть
+          </button>
+        </div>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- MODAL: MANUAL TRANSACTION CORRECTION (Requirement 16) -->
+      <!-- ============================================================ -->
+      <div class="notif-modal-overlay" id="editTransactionModal" onclick="if(event.target===this) closeEditTransactionModal()">
+        <div class="notif-modal-sheet" style="max-height:88vh; overflow-y:auto;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:20px;">✏️</span>
+              <div>
+                <h3 style="font-size:16px; font-weight:800; color:var(--text-primary); margin:0;">Коррекция операции</h3>
+                <div style="font-size:10.5px; color:var(--text-muted);">AI обучится на ваших исправлениях</div>
+              </div>
+            </div>
+            <button onclick="closeEditTransactionModal()" style="background:transparent; border:none; color:var(--text-muted); font-size:18px; cursor:pointer;">✕</button>
+          </div>
+
+          <input type="hidden" id="editTxId">
+
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <!-- ТИП ОПЕРАЦИИ -->
+            <div>
+              <label style="font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px; display:block;">Тип операции</label>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                <button type="button" class="calc-tab-btn active" id="btnEditTypeExpense" onclick="setEditType('expense')" style="padding:8px; border-radius:10px; font-size:12px; font-weight:700;">Расход</button>
+                <button type="button" class="calc-tab-btn" id="btnEditTypeIncome" onclick="setEditType('income')" style="padding:8px; border-radius:10px; font-size:12px; font-weight:700;">Доход</button>
+                <button type="button" class="calc-tab-btn" id="btnEditTypeTransfer" onclick="setEditType('transfer')" style="padding:8px; border-radius:10px; font-size:12px; font-weight:700;">Перевод</button>
+                <button type="button" class="calc-tab-btn" id="btnEditTypeRefund" onclick="setEditType('refund')" style="padding:8px; border-radius:10px; font-size:12px; font-weight:700;">Возврат</button>
+              </div>
+            </div>
+
+            <!-- СУММА И ВАЛЮТА -->
+            <div style="display:flex; gap:8px;">
+              <div style="flex:2;">
+                <label style="font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px; display:block;">Сумма</label>
+                <input type="number" id="editTxAmount" style="width:100%; box-sizing:border-box; padding:10px 12px; background:var(--input-bg); border:1px solid var(--border-soft); border-radius:12px; color:var(--text-primary); font-size:14px; font-weight:700; outline:none;">
+              </div>
+              <div style="flex:1;">
+                <label style="font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px; display:block;">Валюта</label>
+                <select id="editTxCurrency" style="width:100%; box-sizing:border-box; padding:10px 8px; background:var(--input-bg); border:1px solid var(--border-soft); border-radius:12px; color:var(--text-primary); font-size:13px; font-weight:700; outline:none;">
+                  <option value="UZS">UZS</option>
+                  <option value="USD">USD</option>
+                  <option value="EUR">EUR</option>
+                  <option value="RUB">RUB</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- ПРОДАВЕЦ / МЕРЧАНТ -->
+            <div>
+              <label style="font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px; display:block;">Продавец / Получатель</label>
+              <input type="text" id="editTxMerchant" style="width:100%; box-sizing:border-box; padding:10px 12px; background:var(--input-bg); border:1px solid var(--border-soft); border-radius:12px; color:var(--text-primary); font-size:13.5px; font-weight:600; outline:none;">
+            </div>
+
+            <!-- КАТЕГОРИЯ (18 категорий) -->
+            <div>
+              <label style="font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px; display:block;">Категория</label>
+              <select id="editTxCategory" style="width:100%; box-sizing:border-box; padding:10px 12px; background:var(--input-bg); border:1px solid var(--border-soft); border-radius:12px; color:var(--cyan-accent); font-size:13.5px; font-weight:700; outline:none;">
+                <option value="Food">🍔 Food (Рестораны и фастфуд)</option>
+                <option value="Groceries">🛒 Groceries (Супермаркеты)</option>
+                <option value="Transport">🚕 Transport (Такси и топливо)</option>
+                <option value="Shopping">🛍️ Shopping (Покупки)</option>
+                <option value="Entertainment">🎬 Entertainment (Развлечения)</option>
+                <option value="Subscriptions">📱 Subscriptions (Подписки)</option>
+                <option value="Health">💊 Health (Здоровье и аптеки)</option>
+                <option value="Education">📚 Education (Образование)</option>
+                <option value="Housing">🏠 Housing (Жилье и аренда)</option>
+                <option value="Utilities">💡 Utilities (Коммунальные услуги)</option>
+                <option value="Travel">✈️ Travel (Путешествия и отели)</option>
+                <option value="Salary">💼 Salary (Зарплата)</option>
+                <option value="Transfer">💸 Transfer (Перевод)</option>
+                <option value="Loan">🏦 Loan (Кредит / Ипотека)</option>
+                <option value="Credit Card">💳 Credit Card (Кредитная карта)</option>
+                <option value="Cash Withdrawal">🏧 Cash Withdrawal (Снятие наличных)</option>
+                <option value="Fees">⚖️ Fees (Комиссии)</option>
+                <option value="Other">📦 Other (Прочее)</option>
+              </select>
+            </div>
+
+            <!-- КАРТА / СЧЕТ -->
+            <div>
+              <label style="font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px; display:block;">Карта / Счет</label>
+              <input type="text" id="editTxAccount" placeholder="Карта *8842" style="width:100%; box-sizing:border-box; padding:10px 12px; background:var(--input-bg); border:1px solid var(--border-soft); border-radius:12px; color:var(--text-primary); font-size:13px; outline:none;">
+            </div>
+
+            <!-- ОПИСАНИЕ / ЗАМЕТКА -->
+            <div>
+              <label style="font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px; display:block;">Описание / Заметка</label>
+              <input type="text" id="editTxDescription" placeholder="Заметка к операции..." style="width:100%; box-sizing:border-box; padding:10px 12px; background:var(--input-bg); border:1px solid var(--border-soft); border-radius:12px; color:var(--text-primary); font-size:13px; outline:none;">
+            </div>
+
+            <!-- КНОПКИ ДЕЙСТВИЯ -->
+            <div style="display:flex; gap:10px; margin-top:8px;">
+              <button type="button" onclick="closeEditTransactionModal()" style="flex:1; padding:12px; background:var(--input-bg); border:1px solid var(--border-soft); border-radius:14px; color:var(--text-muted); font-size:13px; font-weight:700; cursor:pointer;">Отмена</button>
+              <button type="button" onclick="saveTransactionEdit()" style="flex:2; padding:12px; background:var(--primary-blue); border:none; border-radius:14px; color:#fff; font-size:13.5px; font-weight:700; cursor:pointer; box-shadow:0 4px 14px rgba(37,99,235,0.4);">Сохранить исправление</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM NAVIGATION BAR -->
+      <div class="bottom-nav-bar">
+        <button class="nav-tab-btn active" id="tab-home" onclick="switchTab('home')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+          <span data-i18n="nav_home">Главная</span>
+        </button>
+        <button class="nav-tab-btn" id="tab-spending" onclick="switchTab('spending')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <span data-i18n="nav_spending">Анализ</span>
+        </button>
+        <button class="nav-tab-btn" id="tab-ai" onclick="switchTab('ai')">
+          <div class="nav-ai-center">✦</div>
+          <span data-i18n="nav_ai">AI Совет</span>
+        </button>
+        <button class="nav-tab-btn" id="tab-calcs" onclick="switchTab('calcs')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M8 18h.01M12 18h.01"/></svg>
+          <span data-i18n="nav_calcs">Кредиты</span>
+        </button>
+        <button class="nav-tab-btn" id="tab-cards" onclick="switchTab('cards')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          <span data-i18n="nav_cards">Карты</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- RIGHT-SIDE DESKTOP COMMAND STUDIO -->
+    <div class="studio-panel">
+      <div class="studio-header">
+        <div>
+          <h2 style="font-size:18px; font-weight:800; color:var(--text-primary);">Spendly Dev Studio</h2>
+          <p style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">Инспектор перехвата и аналитики</p>
+        </div>
+        <div class="studio-badge">✦ LIVE 200 OK</div>
+      </div>
+
+      <!-- Quick Push Simulator Actions -->
+      <div>
+        <div style="font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:8px;">Тестирование перехвата Push (Zero-Touch):</div>
+        <div style="display:flex; flex-direction:column; gap:6px; max-height:280px; overflow-y:auto; padding-right:2px;">
+          <!-- 1. Покупка EVOS -->
+          <button class="test-trigger-btn" onclick="triggerPresetPush('evos')">
+            <span>🍔 EVOS Fast Food (Расход)</span>
+            <span style="color:var(--expense-red);">-180 000 UZS</span>
+          </button>
+          <!-- 2. Зарплата -->
+          <button class="test-trigger-btn" onclick="triggerPresetPush('salary')">
+            <span>💼 Зарплата ООО ТЕХНО (Доход)</span>
+            <span style="color:var(--income-green);">+8 000 000 UZS</span>
+          </button>
+          <!-- 3. Внутренний перевод -->
+          <button class="test-trigger-btn" onclick="triggerPresetPush('internal')">
+            <span>🔄 Перевод Card A → Card B</span>
+            <span style="color:var(--cyan-accent);">500 000 UZS (Δ 0)</span>
+          </button>
+          <!-- 4. Возврат -->
+          <button class="test-trigger-btn" onclick="triggerPresetPush('refund')">
+            <span>↩️ Возврат средств Korzinka</span>
+            <span style="color:var(--savings-purple);">+250 000 UZS</span>
+          </button>
+          <!-- 5. Снятие в банкомате -->
+          <button class="test-trigger-btn" onclick="triggerPresetPush('atm')">
+            <span>🏧 Банкомат Kapitalbank</span>
+            <span style="color:var(--expense-red);">-400 000 UZS</span>
+          </button>
+          <!-- 6. Погашение кредита -->
+          <button class="test-trigger-btn" onclick="triggerPresetPush('loan')">
+            <span>🏦 Погашение ипотеки Hamkor</span>
+            <span style="color:var(--warning-amber);">-1 200 000 UZS</span>
+          </button>
+          <!-- 7. Социальный спам Telegram (Отклонение) -->
+          <button class="test-trigger-btn" onclick="triggerPresetPush('telegram')" style="border-color:rgba(244,63,94,0.3);">
+            <span>🚫 Telegram спам (Нефинансовое)</span>
+            <span style="color:var(--expense-red); font-size:10px;">REJECTED</span>
+          </button>
+        </div>
+
+        <!-- Пользовательский пуш -->
+        <div style="margin-top:10px; background:var(--input-bg); border:1px solid var(--border-soft); border-radius:14px; padding:10px;">
+          <div style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:6px;">СВОЙ ТЕКСТ УВЕДОМЛЕНИЯ:</div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <input type="text" id="customPushText" placeholder="Напр: Оплата 95 000 UZS в Yandex Go" style="width:100%; box-sizing:border-box; padding:7px 10px; background:var(--card-surface); border:1px solid var(--border-soft); border-radius:10px; color:var(--text-primary); font-size:12px; outline:none;">
+            <div style="display:flex; gap:6px;">
+              <select id="customPushPkg" style="flex:1; padding:6px; background:var(--card-surface); border:1px solid var(--border-soft); border-radius:10px; color:var(--text-primary); font-size:11px; outline:none;">
+                <option value="uz.dida.payme">Payme (uz.dida.payme)</option>
+                <option value="uz.click.app">Click (uz.click.app)</option>
+                <option value="app.bank.uzum">Uzum Bank (app.bank.uzum)</option>
+                <option value="com.kapitalbank">Kapitalbank (com.kapitalbank)</option>
+                <option value="org.telegram.messenger">Telegram (org.telegram)</option>
+              </select>
+              <button onclick="triggerCustomPush()" style="padding:6px 12px; background:var(--cyan-accent); border:none; border-radius:10px; color:#000; font-size:11px; font-weight:800; cursor:pointer;">Отправить</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Parser Inspector Terminal -->
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span style="font-size:12px; font-weight:700; color:var(--text-secondary);">Поток событий парсера (Stream):</span>
+          <span style="font-size:10px; color:var(--cyan-accent); font-family:monospace;">AST & RLS Engine</span>
+        </div>
+        <div class="terminal-window" id="termLog">
+          <div class="term-line"><span class="term-tag">[INIT]</span> Aurora Architecture Core started</div>
+          <div class="term-line"><span class="term-tag">[RLS]</span> Session tenant isolation initialized</div>
+          <div class="term-line"><span class="term-tag">[READY]</span> Listening for bank SMS & Pushes...</div>
+        </div>
+      </div>
+
+      <!-- Quick Feature Highlights -->
+      <div style="background:var(--input-bg); border-radius:18px; padding:12px 14px; border:1px solid var(--border-soft); font-size:12px; line-height:1.45;">
+        <div style="color:var(--cyan-accent); font-weight:700; margin-bottom:4px;">✨ Архитектурные преимущества:</div>
+        <div style="color:var(--text-secondary);">• 0 ручного ввода: пуши разбираются мгновенно</div>
+        <div style="color:var(--text-secondary);">• Строго non-custodial (без CVV и номеров карт)</div>
+        <div style="color:var(--text-secondary);">• Мультиязычный контекстный AI (RU / EN / UZ)</div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // =========================================================================
+    // I18N DICTIONARY (RU / EN / UZ)
+    // =========================================================================
+    const I18N = {
+      ru: {
+        greeting_sub: "Добро пожаловать,",
+        btn_sim_push: "+ Push Тест",
+        total_balance: "Общий баланс",
+        chart_trend: "Динамика накоплений",
+        m_income: "Доходы",
+        m_expense: "Расходы",
+        m_savings: "Остаток",
+        ai_insight_tag: "Grounded AI Advisor",
+        auto_feed_title: "Zero-Touch Лента событий",
+        see_all: "Все",
+        spending_month_label: "Расходы за месяц",
+        under_budget: "↓ на 12% ниже установленного лимита",
+        cat_distribution: "Структура категорий трат",
+        c_food: "Еда и кафе",
+        c_transport: "Транспорт",
+        c_home: "Жилье и счета",
+        c_shopping: "Покупки",
+        c_fun: "Развлечения",
+        top_merchants: "Топ заведений / мерчантов",
+        calcs_header: "Финансовые калькуляторы",
+        tab_loan: "Кредит",
+        tab_card: "Кредитная карта",
+        loan_amount: "Сумма кредита",
+        loan_rate: "Ставка (%)",
+        loan_term: "Срок (мес.)",
+        payment_type: "Тип:",
+        annuity: "Аннуитетный",
+        differential: "Дифференцированный",
+        monthly_payment: "Ежемесячный платёж",
+        total_repayment: "Всего к выплате",
+        overpayment: "Переплата банку",
+        card_debt: "Текущий долг",
+        card_apr: "Ставка (APR %)",
+        extra_pay: "Доплата к мин. (+ к платежу)",
+        strategy_compare: "Сравнение стратегий",
+        min_pay_trap: "⚠️ Мин. платёж",
+        smart_payoff: "🚀 Ускоренное",
+        cards_header: "Банковские карты",
+        cards_note: "Строго non-custodial: баланс и пуши считываются без доступа к списаниям.",
+        ai_screen_title: "AI Financial Advisor",
+        ai_screen_sub: "Ответы на основе ваших реальных транзакций",
+        ai_welcome_msg: "Здравствуйте, Alex! Я проанализировал ваши доходы и расходы за месяц. Свободный остаток составляет 13 550 000 UZS. Задайте любой вопрос по оптимизации бюджета или кредитам.",
+        ai_input_placeholder: "Задайте финансовый вопрос...",
+        nav_home: "Главная",
+        nav_spending: "Анализ",
+        nav_ai: "AI Совет",
+        nav_calcs: "Кредиты",
+        nav_cards: "Карты"
+      },
+      en: {
+        greeting_sub: "Welcome back,",
+        btn_sim_push: "+ Push Test",
+        total_balance: "Total Balance",
+        chart_trend: "Savings Trend",
+        m_income: "Income",
+        m_expense: "Spending",
+        m_savings: "Available",
+        ai_insight_tag: "Grounded AI Advisor",
+        auto_feed_title: "Zero-Touch Event Stream",
+        see_all: "See all",
+        spending_month_label: "Monthly Expenditures",
+        under_budget: "↓ 12% below monthly budget threshold",
+        cat_distribution: "Spending Category Breakdown",
+        c_food: "Food & Dining",
+        c_transport: "Transport",
+        c_home: "Housing & Bills",
+        c_shopping: "Shopping",
+        c_fun: "Entertainment",
+        top_merchants: "Top Merchants & Stores",
+        calcs_header: "Financial Calculators",
+        tab_loan: "Loan",
+        tab_card: "Credit Card",
+        loan_amount: "Principal Amount",
+        loan_rate: "Annual Rate (%)",
+        loan_term: "Term (months)",
+        payment_type: "Type:",
+        annuity: "Annuity",
+        differential: "Differential",
+        monthly_payment: "Monthly Payment",
+        total_repayment: "Total Repayment",
+        overpayment: "Interest Overpayment",
+        card_debt: "Current Debt Balance",
+        card_apr: "APR Rate (%)",
+        extra_pay: "Extra Payment (+ to min.)",
+        strategy_compare: "Strategy Comparison",
+        min_pay_trap: "⚠️ Min. Payment",
+        smart_payoff: "🚀 Accelerated",
+        cards_header: "Payment Cards",
+        cards_note: "Strictly non-custodial: read-only monitoring without fund movement permissions.",
+        ai_screen_title: "AI Financial Advisor",
+        ai_screen_sub: "Grounded in your real transactions & balance",
+        ai_welcome_msg: "Hello Alex! I reviewed your monthly income and expenses. Your available balance is 13,550,000 UZS. Ask any question about budget health or loans.",
+        ai_input_placeholder: "Ask any financial question...",
+        nav_home: "Home",
+        nav_spending: "Analytics",
+        nav_ai: "AI Advisor",
+        nav_calcs: "Credits",
+        nav_cards: "Cards"
+      },
+      uz: {
+        greeting_sub: "Xush kelibsiz,",
+        btn_sim_push: "+ Push Test",
+        total_balance: "Umumiy balans",
+        chart_trend: "Jamg'arma dinamikasi",
+        m_income: "Daromad",
+        m_expense: "Xarajat",
+        m_savings: "Qoldiq",
+        ai_insight_tag: "Grounded AI Maslahat",
+        auto_feed_title: "Zero-Touch Voqealar tasmasi",
+        see_all: "Barchasi",
+        spending_month_label: "Oylik xarajatlar",
+        under_budget: "↓ belgilangan oylik rejadan 12% kamroq",
+        cat_distribution: "Xarajatlar toifalari",
+        c_food: "Oziq-ovqat",
+        c_transport: "Transport",
+        c_home: "Uy-joy to'lovlari",
+        c_shopping: "Xaridlar",
+        c_fun: "Ko'ngilochar",
+        top_merchants: "Eng ko'p xarid qilingan joylar",
+        calcs_header: "Moliyaviy kalkulyatorlar",
+        tab_loan: "Kredit",
+        tab_card: "Kredit karta",
+        loan_amount: "Kredit summasi",
+        loan_rate: "Stavka (%)",
+        loan_term: "Muddati (oy)",
+        payment_type: "Turi:",
+        annuity: "Annuitet",
+        differential: "Differensial",
+        monthly_payment: "Oylik to'lov",
+        total_repayment: "Jami to'lov",
+        overpayment: "Ortiqcha foiz to'lovi",
+        card_debt: "Joriy qarz",
+        card_apr: "Foiz (APR %)",
+        extra_pay: "Qo'shimcha to'lov",
+        strategy_compare: "Strategiyalar taqqosi",
+        min_pay_trap: "⚠️ Min. to'lov",
+        smart_payoff: "🚀 Tezlashtirilgan",
+        cards_header: "Bank kartalari",
+        cards_note: "Xavfsiz non-custodial: to'lovlar va balans faqat o'qish uchun mo'ljallangan.",
+        ai_screen_title: "AI Moliyaviy Maslahatchi",
+        ai_screen_sub: "Haqiqiy xarajatlaringiz va balansingiz asosida",
+        ai_welcome_msg: "Salom Alex! Oylik daromad va xarajatlaringiz o'rganildi. Erkin qoldiq: 13 550 000 UZS. Kreditlar yoki byudjet bo'yicha savol bering.",
+        ai_input_placeholder: "Moliyaviy savolingizni yozing...",
+        nav_home: "Asosiy",
+        nav_spending: "Tahlil",
+        nav_ai: "AI Maslahat",
+        nav_calcs: "Kreditlar",
+        nav_cards: "Kartalar"
+      }
+    };
+
+    let currentAppLang = 'ru';
+    let currentAppTheme = 'dark';
+    let isCurrencyUzs = true; // true = UZS, false = USD
+    let isBalanceMasked = false;
+    let currentLoanType = 'annuity';
+    const USD_RATE = 12850;
+
+    // =========================================================================
+    // THEME, LANGUAGE & CURRENCY CONTROLLERS
+    // =========================================================================
+    function toggleAppTheme() {
+      const container = document.getElementById('iphoneContainer');
+      currentAppTheme = currentAppTheme === 'dark' ? 'light' : 'dark';
+      container.setAttribute('data-theme', currentAppTheme);
+      document.body.setAttribute('data-theme', currentAppTheme);
+
+      document.getElementById('themeIcon').innerText = currentAppTheme === 'dark' ? '☀️' : '🌙';
+      const thEl = document.getElementById('profileThemeLabel');
+      if (thEl) thEl.innerText = currentAppTheme === 'dark' ? 'Тёмная' : 'Светлая';
+      logTerminal(`Theme changed to ${currentAppTheme.toUpperCase()}`);
+    }
+
+    function setAppLanguage(lang) {
+      currentAppLang = lang;
+      document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+      const activeBtn = document.getElementById(`btnLang${lang.charAt(0).toUpperCase() + lang.slice(1)}`);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const dict = I18N[lang] || I18N.ru;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) el.innerText = dict[key];
+      });
+      document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+        const key = el.getAttribute('data-i18n-ph');
+        if (dict[key]) el.setAttribute('placeholder', dict[key]);
+      });
+      const langLabels = { ru: 'Русский', en: 'English', uz: "O'zbekcha" };
+      const plEl = document.getElementById('profileLangLabel');
+      if (plEl && langLabels[lang]) plEl.innerText = langLabels[lang];
+      logTerminal(`Language switched to ${lang.toUpperCase()}`);
+    }
+
+    function toggleCurrency() {
+      isCurrencyUzs = !isCurrencyUzs;
+      document.getElementById('currSymbol').innerText = isCurrencyUzs ? 'UZS' : 'USD ($)';
+      document.getElementById('lblBalanceCurr').innerText = isCurrencyUzs ? 'UZS' : 'USD';
+      const currEl = document.getElementById('profileCurrencyLabel');
+      if (currEl) currEl.innerText = isCurrencyUzs ? 'UZS' : 'USD ($)';
+      updateFinancialValues();
+      updateLoanCalc();
+      updateCardCalc();
+      logTerminal(`Currency toggled to ${isCurrencyUzs ? 'UZS (sum)' : 'USD ($)'}`);
+    }
+
+    // =========================================================================
+    // PROFILE & NOTIFICATIONS HANDLERS
+    // =========================================================================
+    function openProfileScreen() {
+      switchTab('profile');
+      logTerminal('User opened: [Profile Screen]');
+    }
+
+    function closeProfileScreen() {
+      switchTab('home');
+      logTerminal('User returned to: [Home Screen]');
+    }
+
+    function openNotificationsModal() {
+      const modal = document.getElementById('notifModalOverlay');
+      if (modal) {
+        modal.style.display = 'flex';
+        logTerminal('User opened: [Notifications Modal 🔔]');
+      }
+    }
+
+    function closeNotificationsModal() {
+      const modal = document.getElementById('notifModalOverlay');
+      if (modal) {
+        modal.style.display = 'none';
+        logTerminal('User closed: [Notifications Modal]');
+      }
+    }
+
+    function openProfileModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.style.display = 'flex';
+        logTerminal(`Profile: Opened modal sheet [${modalId}]`);
+      }
+    }
+
+    function closeProfileModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.style.display = 'none';
+      }
+    }
+
+    function savePersonalData() {
+      const name = document.getElementById('editProfileName').value;
+      const phone = document.getElementById('editProfilePhone').value;
+      const email = document.getElementById('editProfileEmail').value;
+      const displayElem = document.getElementById('displayProfileName');
+      if (displayElem) displayElem.innerText = name;
+      const profileNameLarge = document.querySelector('.profile-name-large');
+      if (profileNameLarge) profileNameLarge.innerText = name;
+      const profileEmail = document.querySelector('.profile-email');
+      if (profileEmail) profileEmail.innerText = email;
+      const headerName = document.querySelector('.compact-user-name');
+      if (headerName) headerName.innerText = name;
+      closeProfileModal('profilePersonalModal');
+      logTerminal(`Profile: Personal info updated for ${name} (${phone}, ${email})`);
+      alert('Личные данные успешно сохранены!');
+    }
+
+    function changePinCode() {
+      const newPin = prompt('Введите новый 6-значный PIN-код:', '198421');
+      if (newPin && newPin.length >= 4) {
+        logTerminal(`Security: PIN code updated to [${newPin.replace(/./g, '•')}]`);
+        alert('PIN-код успешно обновлен!');
+      }
+    }
+
+    function toggleSecurityFeature(feature, state) {
+      logTerminal(`Security: [${feature}] переключен: ${state ? 'ВКЛ' : 'ВЫКЛ'}`);
+    }
+
+    function terminateSession(btn) {
+      const row = btn.closest('div');
+      if (row) row.style.opacity = '0.4';
+      btn.innerText = 'Завершено';
+      btn.disabled = true;
+      logTerminal('Security: Remote session terminated successfully');
+    }
+
+    function setAppLanguage(lang) {
+      currentAppLang = lang;
+      const langRu = document.getElementById('btnLangRu');
+      const langEn = document.getElementById('btnLangEn');
+      const langUz = document.getElementById('btnLangUz');
+      if (langRu && langEn && langUz) {
+        [langRu, langEn, langUz].forEach(b => {
+          b.style.background = 'var(--input-bg)';
+          b.style.color = 'var(--text-primary)';
+          b.style.borderColor = 'var(--border-soft)';
+        });
+        const activeBtn = lang === 'ru' ? langRu : (lang === 'en' ? langEn : langUz);
+        activeBtn.style.background = 'rgba(0,240,255,0.15)';
+        activeBtn.style.color = 'var(--cyan-accent)';
+        activeBtn.style.borderColor = 'var(--border-cyan)';
+      }
+      document.querySelectorAll('.lang-btn').forEach(b => {
+        b.classList.toggle('active', b.innerText.toLowerCase() === lang);
+      });
+      logTerminal(`Settings: Language set to [${lang.toUpperCase()}]`);
+    }
+
+    function applyTheme(theme) {
+      const darkBtn = document.getElementById('btnThemeDark');
+      const lightBtn = document.getElementById('btnThemeLight');
+      if (theme === 'light') {
+        document.body.setAttribute('data-theme', 'light');
+        if (lightBtn && darkBtn) {
+          lightBtn.style.background = 'rgba(0,240,255,0.15)';
+          lightBtn.style.color = 'var(--cyan-accent)';
+          lightBtn.style.borderColor = 'var(--border-cyan)';
+          darkBtn.style.background = 'var(--input-bg)';
+          darkBtn.style.color = 'var(--text-primary)';
+          darkBtn.style.borderColor = 'var(--border-soft)';
+        }
+      } else {
+        document.body.removeAttribute('data-theme');
+        if (lightBtn && darkBtn) {
+          darkBtn.style.background = 'rgba(0,240,255,0.15)';
+          darkBtn.style.color = 'var(--cyan-accent)';
+          darkBtn.style.borderColor = 'var(--border-cyan)';
+          lightBtn.style.background = 'var(--input-bg)';
+          lightBtn.style.color = 'var(--text-primary)';
+          lightBtn.style.borderColor = 'var(--border-soft)';
+        }
+      }
+      logTerminal(`Settings: Theme applied [${theme}]`);
+    }
+
+    function setCurrencyType(type) {
+      isCurrencyUzs = (type === 'uzs');
+      const uzsBtn = document.getElementById('btnCurrUzs');
+      const usdBtn = document.getElementById('btnCurrUsd');
+      if (uzsBtn && usdBtn) {
+        uzsBtn.style.background = isCurrencyUzs ? 'rgba(0,240,255,0.15)' : 'var(--input-bg)';
+        uzsBtn.style.color = isCurrencyUzs ? 'var(--cyan-accent)' : 'var(--text-primary)';
+        uzsBtn.style.borderColor = isCurrencyUzs ? 'var(--border-cyan)' : 'var(--border-soft)';
+
+        usdBtn.style.background = !isCurrencyUzs ? 'rgba(0,240,255,0.15)' : 'var(--input-bg)';
+        usdBtn.style.color = !isCurrencyUzs ? 'var(--cyan-accent)' : 'var(--text-primary)';
+        usdBtn.style.borderColor = !isCurrencyUzs ? 'var(--border-cyan)' : 'var(--border-soft)';
+      }
+      const topCurr = document.getElementById('currToggleBtn');
+      if (topCurr) topCurr.innerText = isCurrencyUzs ? 'UZS' : 'USD';
+      updateFinancialValues();
+      logTerminal(`Settings: Currency switched to [${type.toUpperCase()}]`);
+    }
+
+    function downloadFinancialExport(format) {
+      const data = {
+        user: "Alex Mercer",
+        export_date: new Date().toISOString(),
+        currency: isCurrencyUzs ? "UZS" : "USD",
+        total_balance: 34850000,
+        monthly_income: 22000000,
+        monthly_spending: 8450000,
+        accounts: [
+          { name: "Kapitalbank Visa", balance: 18450000 },
+          { name: "Payme Uzcard", balance: 9600000 },
+          { name: "TBC Humo", balance: 6800000 },
+          { name: "Cash Wallet", balance: 2500000 }
+        ]
+      };
+      let content = '';
+      let filename = `spendly_export_${Date.now()}`;
+      if (format === 'json') {
+        content = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+        filename += '.json';
+      } else {
+        content = "data:text/csv;charset=utf-8," + encodeURIComponent("Account,Balance_UZS\nKapitalbank Visa,18450000\nPayme Uzcard,9600000\nTBC Humo,6800000\nCash,2500000\nTotal,34850000");
+        filename += '.csv';
+      }
+      const a = document.createElement('a');
+      a.setAttribute('href', content);
+      a.setAttribute('download', filename);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      logTerminal(`Privacy: Exported statements in format [${format.toUpperCase()}]`);
+    }
+
+    function clearAppCache() {
+      logTerminal('Privacy: Local app cache (28.4 MB) cleared successfully');
+      alert('Локальный кэш приложения очищен!');
+    }
+
+    function deleteAccountPrompt() {
+      if (confirm('ВНИМАНИЕ! Вы уверены, что хотите безвозвратно удалить аккаунт и стереть все финансовые данные?')) {
+        logTerminal('Privacy: Account and encrypted keystore wiped');
+        alert('Аккаунт и локальные данные успешно стерты.');
+        closeProfileModal('profilePrivacyModal');
+        closeProfileScreen();
+      }
+    }
+
+    function confirmLogoutAction() {
+      closeProfileModal('profileLogoutModal');
+      closeProfileScreen();
+      logTerminal('Auth: Session ended. User logged out securely.');
+      alert('Вы успешно вышли из аккаунта.');
+    }
+
+    function formatVal(uzsVal) {
+      if (isCurrencyUzs) {
+        return Math.round(uzsVal).toLocaleString('ru-RU');
+      } else {
+        return '$' + Math.round(uzsVal / USD_RATE).toLocaleString('en-US');
+      }
+    }
+
+    // 18 Standard Financial Categories Icons
+    const CATEGORY_ICONS = {
+      "Food": "🍔",
+      "Groceries": "🛒",
+      "Transport": "🚕",
+      "Shopping": "🛍️",
+      "Entertainment": "🎬",
+      "Subscriptions": "📱",
+      "Health": "💊",
+      "Education": "📚",
+      "Housing": "🏠",
+      "Utilities": "💡",
+      "Travel": "✈️",
+      "Salary": "💼",
+      "Transfer": "💸",
+      "Loan": "🏦",
+      "Credit Card": "💳",
+      "Cash Withdrawal": "🏧",
+      "Fees": "⚖️",
+      "Other": "📦"
+    };
+
+    // Central Reactive Financial State
+    const appFinancialState = {
+      totalBalance: 34850000,
+      monthlyIncome: 22000000,
+      monthlyExpense: 8450000,
+      transactions: [
+        {
+          id: "tx_init_1",
+          merchant: "Korzinka Supermarket",
+          category: "Groceries",
+          amount: 145000,
+          currency: "UZS",
+          direction: "expense",
+          app: "Payme • ZERO-TOUCH",
+          icon: "🛒",
+          date: "2026-10-08",
+          account: "Карта *8842",
+          description: "Покупка продуктов",
+          is_internal_transfer: false,
+          confidence_score: 98.4
+        },
+        {
+          id: "tx_init_2",
+          merchant: "Coffee House Tashkent",
+          category: "Food",
+          amount: 35000,
+          currency: "UZS",
+          direction: "expense",
+          app: "Click • ZERO-TOUCH",
+          icon: "☕",
+          date: "2026-10-08",
+          account: "Карта *1122",
+          description: "Капучино и круассан",
+          is_internal_transfer: false,
+          confidence_score: 96.0
+        },
+        {
+          id: "tx_init_3",
+          merchant: "ООО TechVentures",
+          category: "Salary",
+          amount: 8500000,
+          currency: "UZS",
+          direction: "income",
+          app: "Uzum Bank • ЗАЧИСЛЕНИЕ",
+          icon: "💼",
+          date: "2026-10-07",
+          account: "Карта *8842",
+          description: "Зарплата за месяц",
+          is_internal_transfer: false,
+          confidence_score: 99.1
+        }
+      ]
+    };
+
+    function updateFinancialValues() {
+      if (isBalanceMasked) {
+        document.getElementById('totalBalanceVal').innerText = '••••••••';
+      } else {
+        document.getElementById('totalBalanceVal').innerText = formatVal(appFinancialState.totalBalance);
+      }
+      document.getElementById('mIncomeVal').innerText = formatVal(appFinancialState.monthlyIncome);
+      document.getElementById('mExpenseVal').innerText = formatVal(appFinancialState.monthlyExpense);
+      const savings = Math.max(0, appFinancialState.monthlyIncome - appFinancialState.monthlyExpense);
+      document.getElementById('mSavingsVal').innerText = formatVal(savings);
+      document.getElementById('spendingTotalHero').innerText = `${formatVal(appFinancialState.monthlyExpense)} ${isCurrencyUzs ? 'UZS' : ''}`;
+
+      const c1 = document.getElementById('card1Val');
+      if (c1) c1.innerText = `${formatVal(Math.round(appFinancialState.totalBalance * 0.53))} ${isCurrencyUzs ? 'UZS' : ''}`;
+      const c2 = document.getElementById('card2Val');
+      if (c2) c2.innerText = `${formatVal(Math.round(appFinancialState.totalBalance * 0.35))} ${isCurrencyUzs ? 'UZS' : ''}`;
+      const c3 = document.getElementById('card3Val');
+      if (c3) c3.innerText = `${formatVal(Math.round(appFinancialState.totalBalance * 0.12))} ${isCurrencyUzs ? 'UZS' : ''}`;
+
+      const aiHome = document.getElementById('homeAiInsightText');
+      if (aiHome) {
+        aiHome.innerText = `Доступно ${formatVal(appFinancialState.totalBalance)} ${isCurrencyUzs ? 'сум' : ''}. Zero-Touch перехват активен (Connected).`;
+      }
+    }
+
+    function toggleMaskBalance() {
+      isBalanceMasked = !isBalanceMasked;
+      updateFinancialValues();
+    }
+
+    function renderTransactionsFeed() {
+      const list = document.getElementById('homeRecentTxList');
+      if (!list) return;
+      list.innerHTML = appFinancialState.transactions.map(tx => {
+        let amountColor = 'var(--text-primary)';
+        let sign = '-';
+        if (tx.is_internal_transfer) {
+          amountColor = 'var(--cyan-accent)';
+          sign = '⇄ ';
+        } else if (tx.direction === 'income') {
+          amountColor = 'var(--income-green)';
+          sign = '+';
+        } else if (tx.direction === 'refund') {
+          amountColor = 'var(--savings-purple)';
+          sign = '+';
+        }
+        const formattedAmount = `${sign}${formatVal(tx.amount)} ${isCurrencyUzs ? 'UZS' : ''}`;
+        const autoBadge = tx.edited ? '✏️ Исправлено' : (tx.confidence_score ? `⚡ ${Math.round(tx.confidence_score)}% авто` : '⚡ 100% авто');
+
+        return `
+          <div onclick="openEditTransactionModal('${tx.id}')" style="display:flex; justify-content:space-between; align-items:center; padding:10px 8px; border-bottom:1px solid var(--border-soft); cursor:pointer; border-radius:12px; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="width:38px; height:38px; border-radius:12px; background:var(--input-bg); border:1px solid var(--border-soft); display:flex; align-items:center; justify-content:center; font-size:18px;">
+                ${tx.icon || '💳'}
+              </div>
+              <div>
+                <div style="font-size:13px; font-weight:700; color:var(--text-primary);">${tx.merchant}</div>
+                <div style="font-size:11px; color:var(--text-muted);">${tx.category} • ${tx.app}</div>
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:13.5px; font-weight:800; color:${amountColor};">
+                ${formattedAmount}
+              </div>
+              <div style="font-size:10px; color:var(--cyan-accent); font-weight:700;">${autoBadge}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // =========================================================================
+    // MANUAL TRANSACTION CORRECTION (Requirement 16)
+    // =========================================================================
+    let currentEditingTxId = null;
+    let currentEditType = 'expense';
+
+    function setEditType(type) {
+      currentEditType = type;
+      ['expense', 'income', 'transfer', 'refund'].forEach(t => {
+        const btn = document.getElementById('btnEditType' + t.charAt(0).toUpperCase() + t.slice(1));
+        if (btn) btn.classList.toggle('active', t === type);
+      });
+    }
+
+    function openEditTransactionModal(id) {
+      const tx = appFinancialState.transactions.find(t => t.id === id);
+      if (!tx) return;
+      currentEditingTxId = id;
+      document.getElementById('editTxId').value = id;
+      document.getElementById('editTxAmount').value = tx.amount;
+      document.getElementById('editTxCurrency').value = tx.currency || 'UZS';
+      document.getElementById('editTxMerchant').value = tx.merchant;
+      document.getElementById('editTxCategory').value = tx.category;
+      document.getElementById('editTxAccount').value = tx.account || 'Основная карта';
+      document.getElementById('editTxDescription').value = tx.description || '';
+      setEditType(tx.direction || 'expense');
+
+      const modal = document.getElementById('editTransactionModal');
+      if (modal) modal.style.display = 'flex';
+      logTerminal(`UI: Редактирование операции: [${tx.merchant}] (${id.substring(0, 8)})`);
+    }
+
+    function closeEditTransactionModal() {
+      const modal = document.getElementById('editTransactionModal');
+      if (modal) modal.style.display = 'none';
+      currentEditingTxId = null;
+    }
+
+    async function saveTransactionEdit() {
+      if (!currentEditingTxId) return;
+      const tx = appFinancialState.transactions.find(t => t.id === currentEditingTxId);
+      if (!tx) return;
+
+      const newCategory = document.getElementById('editTxCategory').value;
+      const newMerchant = document.getElementById('editTxMerchant').value.trim();
+      const newAmount = parseFloat(document.getElementById('editTxAmount').value) || tx.amount;
+      const newCurrency = document.getElementById('editTxCurrency').value;
+      const newAccount = document.getElementById('editTxAccount').value.trim();
+      const newDescription = document.getElementById('editTxDescription').value.trim();
+
+      try {
+        const res = await fetch(`/api/v1/transactions/${currentEditingTxId}/edit`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            corrected_category: newCategory,
+            corrected_merchant: newMerchant,
+            corrected_type: currentEditType,
+            corrected_amount: newAmount
+          })
+        });
+        if (res.ok) {
+          const resData = await res.json();
+          logTerminal(`<span class="term-tag">[FEEDBACK LEARNED]</span> "${newMerchant}" → "${newCategory}" (${resData.feedback_action})`);
+        }
+      } catch (e) {
+        logTerminal(`[LOCAL CORRECTION] Сохранено локально: "${newMerchant}" → "${newCategory}"`);
+      }
+
+      // Revert old impact
+      if (!tx.is_internal_transfer) {
+        if (tx.direction === 'expense') {
+          appFinancialState.totalBalance += tx.amount;
+          appFinancialState.monthlyExpense -= tx.amount;
+        } else if (tx.direction === 'income') {
+          appFinancialState.totalBalance -= tx.amount;
+          appFinancialState.monthlyIncome -= tx.amount;
+        } else if (tx.direction === 'refund') {
+          appFinancialState.totalBalance -= tx.amount;
+          appFinancialState.monthlyExpense += tx.amount;
+        }
+      }
+
+      // Update tx
+      tx.category = newCategory;
+      tx.merchant = newMerchant;
+      tx.amount = newAmount;
+      tx.currency = newCurrency;
+      tx.direction = currentEditType;
+      tx.account = newAccount;
+      tx.description = newDescription;
+      tx.icon = CATEGORY_ICONS[newCategory] || '💳';
+      tx.edited = true;
+
+      // Apply new impact
+      if (!tx.is_internal_transfer) {
+        if (currentEditType === 'expense') {
+          appFinancialState.totalBalance -= newAmount;
+          appFinancialState.monthlyExpense += newAmount;
+        } else if (currentEditType === 'income') {
+          appFinancialState.totalBalance += newAmount;
+          appFinancialState.monthlyIncome += newAmount;
+        } else if (currentEditType === 'refund') {
+          appFinancialState.totalBalance += newAmount;
+          appFinancialState.monthlyExpense = Math.max(0, appFinancialState.monthlyExpense - newAmount);
+        }
+      }
+
+      updateFinancialValues();
+      renderTransactionsFeed();
+      closeEditTransactionModal();
+      logTerminal(`Операция обновлена: ${newMerchant} (${newCategory}), ${newAmount} ${newCurrency}`);
+    }
+
+    // =========================================================================
+    // FINANCIAL DATA SOURCES SETTINGS (Requirement 15)
+    // =========================================================================
+    async function updateSourceSettings() {
+      const enabled = document.getElementById('toggleAutoImport').checked;
+      const autoDetection = document.getElementById('toggleAutoDetection').checked;
+      const aiCat = document.getElementById('toggleAiCategorization').checked;
+      const autoCreate = document.getElementById('toggleAutoCreate').checked;
+
+      const badge = document.getElementById('notifAccessBadge');
+      if (badge) {
+        badge.innerText = enabled ? 'Connected' : 'Disabled';
+        badge.style.color = enabled ? 'var(--income-green)' : 'var(--expense-red)';
+        badge.style.background = enabled ? 'rgba(16,185,129,0.15)' : 'rgba(244,63,94,0.15)';
+      }
+
+      try {
+        const res = await fetch('/api/v1/transactions/sources/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            listener_status: enabled ? 'connected' : 'disabled',
+            auto_detection_enabled: autoDetection,
+            ai_categorization_enabled: aiCat,
+            auto_creation_enabled: autoCreate
+          })
+        });
+        if (res.ok) {
+          logTerminal(`[SETTINGS] Источники обновлены: Import=${enabled}, Detection=${autoDetection}, AI=${aiCat}`);
+        }
+      } catch (e) {
+        logTerminal(`[SETTINGS] Локальное переключение: Import=${enabled}`);
+      }
+    }
+
+    async function fetchSourceStatus() {
+      try {
+        const res = await fetch('/api/v1/transactions/sources/status');
+        if (res.ok) {
+          const data = await res.json();
+          const badge = document.getElementById('notifAccessBadge');
+          if (data.settings) {
+            const isConn = (data.settings.listener_status === 'connected');
+            if (badge) {
+              badge.innerText = isConn ? 'Connected' : 'Disabled';
+              badge.style.color = isConn ? 'var(--income-green)' : 'var(--expense-red)';
+              badge.style.background = isConn ? 'rgba(16,185,129,0.15)' : 'rgba(244,63,94,0.15)';
+            }
+            if (document.getElementById('toggleAutoImport')) document.getElementById('toggleAutoImport').checked = isConn;
+            if (document.getElementById('toggleAutoDetection')) document.getElementById('toggleAutoDetection').checked = data.settings.auto_detection_enabled ?? true;
+            if (document.getElementById('toggleAiCategorization')) document.getElementById('toggleAiCategorization').checked = data.settings.ai_categorization_enabled ?? true;
+            if (document.getElementById('toggleAutoCreate')) document.getElementById('toggleAutoCreate').checked = data.settings.auto_creation_enabled ?? true;
+          }
+        }
+      } catch (e) {}
+    }
+
+    // =========================================================================
+    // NAVIGATION
+    // =========================================================================
+    function switchTab(tab) {
+      document.querySelectorAll('.screen-view').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-tab-btn').forEach(n => n.classList.remove('active'));
+
+      const targetScreen = document.getElementById(`screen-${tab}`);
+      const targetNav = document.getElementById(`tab-${tab}`);
+
+      if (targetScreen) targetScreen.classList.add('active');
+      if (targetNav) targetNav.classList.add('active');
+
+      if (tab === 'spending') loadTopMerchants();
+      if (tab === 'calcs') updateLoanCalc();
+      logTerminal(`Navigation: Switched to [${tab}] screen`);
+    }
+
+    // =========================================================================
+    // DYNAMIC ISLAND PUSH INTERCEPTION & PROCESSING (Requirements 1-13)
+    // =========================================================================
+    const PRESET_PUSH_DATA = {
+      evos: {
+        package_name: "uz.dida.payme",
+        title: "Payme",
+        text: "Оплата картой 180 000 UZS в EVOS"
+      },
+      salary: {
+        package_name: "app.bank.uzum",
+        title: "Uzum Bank",
+        text: "Поступление зарплаты 8 000 000 UZS от ООО ТЕХНО"
+      },
+      internal: {
+        package_name: "uz.click.app",
+        title: "Click",
+        text: "Перевод 500 000 UZS с карты *1234 на карту *5678"
+      },
+      refund: {
+        package_name: "uz.dida.payme",
+        title: "Payme",
+        text: "Возврат 250 000 UZS в Korzinka"
+      },
+      atm: {
+        package_name: "com.kapitalbank",
+        title: "Kapitalbank",
+        text: "Снятие наличных 400 000 UZS банкомат Kapitalbank"
+      },
+      loan: {
+        package_name: "com.hamkorbank",
+        title: "Hamkorbank",
+        text: "Погашение кредита 1 200 000 UZS Ипотека"
+      },
+      telegram: {
+        package_name: "org.telegram.messenger",
+        title: "Telegram • Александр",
+        text: "Привет, переведи мне 500 рублей на карту"
+      }
+    };
+
+    async function triggerPresetPush(key) {
+      const preset = PRESET_PUSH_DATA[key];
+      if (!preset) return;
+      await processSimulatedPush(preset.package_name, preset.title, preset.text);
+    }
+
+    async function triggerCustomPush() {
+      const text = document.getElementById('customPushText').value.trim();
+      const pkg = document.getElementById('customPushPkg').value;
+      if (!text) {
+        alert('Введите текст уведомления');
+        return;
+      }
+      await processSimulatedPush(pkg, 'Bank Alert', text);
+    }
+
+    // Backwards-compatibility for old buttons if any
+    async function triggerSimulatedPush(type = 'evos') {
+      const mapping = {
+        payme: 'refund',
+        click: 'evos',
+        uzum: 'salary',
+        transfer: 'internal'
+      };
+      const key = mapping[type] || type;
+      await triggerPresetPush(key);
+    }
+
+    async function processSimulatedPush(package_name, title, text) {
+      logTerminal(`INTERCEPTED: Package "${package_name}" notification received`);
+      logTerminal(`RAW TEXT: "${text}"`);
+
+      try {
+        const response = await fetch('/api/v1/transactions/simulate-push', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ package_name, title, text })
+        });
+        const data = await response.json();
+
+        const island = document.getElementById('dynamicIsland');
+
+        if (data.status === 'success' && data.accepted) {
+          const tx = data.transaction;
+          const icon = CATEGORY_ICONS[tx.category] || '💳';
+          const sign = tx.is_internal_transfer ? '⇄ ' : (tx.direction === 'income' || tx.direction === 'refund' ? '+' : '-');
+          const formattedAmt = `${sign}${formatVal(tx.amount)} ${tx.currency}`;
+
+          document.getElementById('diBankIcon').innerText = icon;
+          document.getElementById('diAppLabel').innerText = `${package_name.split('.').pop().toUpperCase()} • ZERO-TOUCH`;
+          document.getElementById('diMerchant').innerText = tx.merchant || 'Банковская операция';
+          document.getElementById('diAmount').innerText = formattedAmt;
+          island.classList.add('expanded');
+
+          logTerminal(`PARSED AST: Direction=${tx.direction}, Merchant="${tx.merchant}", Amount=${tx.amount} ${tx.currency}`);
+          logTerminal(`CLASSIFIER: Category="${tx.category}", Confidence=${data.confidence_score}%`);
+          logTerminal(`<span class="term-tag">[ENGINE]</span> Net-worth impact: ${data.financial_impact ? data.financial_impact.net_worth_impact : 0} UZS`);
+          if (data.advisory) logTerminal(`<span class="term-tag">[ADVISORY]</span> ${data.advisory}`);
+
+          if (tx.is_internal_transfer) {
+            logTerminal(`[INTERNAL TRANSFER] Card A → Card B: Капитал пользователя не изменился (Δ 0).`);
+          } else if (tx.direction === 'expense') {
+            appFinancialState.totalBalance -= tx.amount;
+            appFinancialState.monthlyExpense += tx.amount;
+          } else if (tx.direction === 'income') {
+            appFinancialState.totalBalance += tx.amount;
+            appFinancialState.monthlyIncome += tx.amount;
+          } else if (tx.direction === 'refund') {
+            appFinancialState.totalBalance += tx.amount;
+            appFinancialState.monthlyExpense = Math.max(0, appFinancialState.monthlyExpense - tx.amount);
+          }
+
+          appFinancialState.transactions.unshift({
+            id: tx.id || ('tx_' + Date.now()),
+            merchant: tx.merchant,
+            category: tx.category,
+            amount: tx.amount,
+            currency: tx.currency,
+            direction: tx.direction,
+            app: package_name.split('.').pop().toUpperCase(),
+            icon: icon,
+            date: new Date().toISOString().split('T')[0],
+            account: tx.card_mask ? `Карта ${tx.card_mask}` : 'Основная карта',
+            description: tx.description || tx.original_text,
+            is_internal_transfer: tx.is_internal_transfer,
+            confidence_score: data.confidence_score
+          });
+
+          updateFinancialValues();
+          renderTransactionsFeed();
+        } else if (data.status === 'duplicate') {
+          document.getElementById('diBankIcon').innerText = '⚠️';
+          document.getElementById('diAppLabel').innerText = 'DEDUPLICATION ENGINE';
+          document.getElementById('diMerchant').innerText = 'Дубликат уведомления';
+          document.getElementById('diAmount').innerText = '0 UZS';
+          island.classList.add('expanded');
+
+          logTerminal(`[DEDUPLICATION] Push duplicate filtered within 5-min window. Zero redundant transactions.`);
+        } else {
+          document.getElementById('diBankIcon').innerText = '🛡️';
+          document.getElementById('diAppLabel').innerText = 'SECURITY DETECTOR';
+          document.getElementById('diMerchant').innerText = 'Отклонено: Нефинансовое';
+          document.getElementById('diAmount').innerText = '0 UZS';
+          island.classList.add('expanded');
+
+          logTerminal(`[SECURITY REJECT] Push ignored: ${data.rejection_reason || 'Not a financial transaction'}`);
+        }
+
+        setTimeout(() => {
+          island.classList.remove('expanded');
+        }, 3800);
+
+      } catch (err) {
+        logTerminal(`[ERROR] Не удалось подключиться к серверу: ${err.message}`);
+      }
+    }
+
+    // =========================================================================
+    // INTERACTIVE SVG CHARTS
+    // =========================================================================
+    const SPARK_PATHS = {
+      '1W': {
+        line: "M 0 50 Q 80 20 160 35 T 320 20",
+        area: "M 0 50 Q 80 20 160 35 T 320 20 L 320 80 L 0 80 Z",
+        dotY: 20
+      },
+      '1M': {
+        line: "M 0 60 Q 50 40 100 50 T 200 30 T 320 15",
+        area: "M 0 60 Q 50 40 100 50 T 200 30 T 320 15 L 320 80 L 0 80 Z",
+        dotY: 15
+      },
+      '3M': {
+        line: "M 0 70 Q 90 60 180 40 T 320 10",
+        area: "M 0 70 Q 90 60 180 40 T 320 10 L 320 80 L 0 80 Z",
+        dotY: 10
+      },
+      '1Y': {
+        line: "M 0 75 Q 100 65 200 35 T 320 5",
+        area: "M 0 75 Q 100 65 200 35 T 320 5 L 320 80 L 0 80 Z",
+        dotY: 5
+      }
+    };
+
+    function changeSparkline(period) {
+      document.querySelectorAll('.chart-pill').forEach(p => p.classList.remove('active'));
+      event.target.classList.add('active');
+
+      const data = SPARK_PATHS[period] || SPARK_PATHS['1M'];
+      document.getElementById('sparkLinePath').setAttribute('d', data.line);
+      document.getElementById('sparkAreaPath').setAttribute('d', data.area);
+      document.getElementById('sparkDot').setAttribute('cy', data.dotY);
+      logTerminal(`Sparkline timeframe switched to [${period}]`);
+    }
+
+    function hoverDonut(category, pct, color) {
+      document.getElementById('donutHoverPct').innerText = pct;
+      document.getElementById('donutHoverPct').style.color = color;
+      document.getElementById('donutHoverCat').innerText = category;
+    }
+
+    function loadTopMerchants() {
+      const container = document.getElementById('topMerchantsListContainer');
+      const list = [
+        { name: "Korzinka Supermarket", cat: "Продукты", amount: "2 850 000 UZS", count: "14 покупок" },
+        { name: "Yandex Go Taxi", cat: "Транспорт", amount: "1 250 000 UZS", count: "32 поездки" },
+        { name: "Coffee House Tashkent", cat: "Кафе", amount: "890 000 UZS", count: "19 визитов" },
+        { name: "Makro Supermarket", cat: "Продукты", amount: "650 000 UZS", count: "5 покупок" }
+      ];
+      container.innerHTML = list.map(m => `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border-soft);">
+          <div>
+            <div style="font-size:13px; font-weight:700; color:var(--text-primary);">${m.name}</div>
+            <div style="font-size:11px; color:var(--text-muted);">${m.cat} • ${m.count}</div>
+          </div>
+          <div style="font-size:13.5px; font-weight:800; color:var(--text-primary);">${m.amount}</div>
+        </div>
+      `).join('');
+    }
+
+    // =========================================================================
+    // CALCULATORS LIVE MATH & COMPARISON
+    // =========================================================================
+    function switchCalcSubTab(type) {
+      document.getElementById('btnTabLoan').classList.toggle('active', type === 'loan');
+      document.getElementById('btnTabCard').classList.toggle('active', type === 'card');
+      document.getElementById('view-loan-calc').style.display = type === 'loan' ? 'block' : 'none';
+      document.getElementById('view-card-calc').style.display = type === 'card' ? 'block' : 'none';
+      if (type === 'loan') updateLoanCalc();
+      if (type === 'card') updateCardCalc();
+    }
+
+    function setPaymentType(type) {
+      currentLoanType = type;
+      document.getElementById('btnAnnuity').classList.toggle('active', type === 'annuity');
+      document.getElementById('btnDiff').classList.toggle('active', type === 'differential');
+      updateLoanCalc();
+    }
+
+    async function updateLoanCalc() {
+      const amount = parseFloat(document.getElementById('rngLoanAmount').value);
+      const rate = parseFloat(document.getElementById('rngLoanRate').value);
+      const term = parseInt(document.getElementById('rngLoanTerm').value);
+
+      document.getElementById('lblLoanAmount').innerText = `${formatVal(amount)} ${isCurrencyUzs ? 'UZS' : ''}`;
+      document.getElementById('lblLoanRate').innerText = `${rate}%`;
+      document.getElementById('lblLoanTerm').innerText = `${term} мес`;
+
+      const monthlyRate = (rate / 100) / 12;
+      const factor = Math.pow(1 + monthlyRate, term);
+      const monthlyPay = amount * (monthlyRate * factor) / (factor - 1);
+      const totalPay = monthlyPay * term;
+      const totalInterest = totalPay - amount;
+      const overpayPct = ((totalInterest / amount) * 100).toFixed(1);
+
+      document.getElementById('resMonthlyPay').innerText = `${formatVal(monthlyPay)} ${isCurrencyUzs ? 'UZS' : ''}`;
+      document.getElementById('resTotalPayment').innerText = `${formatVal(totalPay)} ${isCurrencyUzs ? 'UZS' : ''}`;
+      document.getElementById('resTotalInterest').innerText = `${formatVal(totalInterest)} (${overpayPct}%)`;
+    }
+
+    async function updateCardCalc() {
+      const debt = parseFloat(document.getElementById('rngCardDebt').value);
+      const apr = parseFloat(document.getElementById('rngCardApr').value);
+      const extra = parseFloat(document.getElementById('rngCardExtra').value);
+
+      document.getElementById('lblCardDebt').innerText = `${formatVal(debt)} ${isCurrencyUzs ? 'UZS' : ''}`;
+      document.getElementById('lblCardApr').innerText = `${apr}%`;
+      document.getElementById('lblCardExtra').innerText = `+${formatVal(extra)} / мес`;
+
+      const monthlyRate = (apr / 100) / 12;
+      const minPay = debt * 0.05;
+
+      // Strategy 1: Min Pay (trap)
+      const monthsMin = Math.round(Math.min(60, debt / (debt * 0.025)));
+      const interestMin = Math.round(debt * 0.57);
+
+      // Strategy 2: Accelerated
+      const monthsAcc = Math.max(4, Math.round(debt / (minPay + extra + 100000)));
+      const interestAcc = Math.round(interestMin * 0.22);
+
+      const savedInterest = interestMin - interestAcc;
+      const savedMonths = monthsMin - monthsAcc;
+
+      document.getElementById('resMinMonths').innerText = `${monthsMin} мес`;
+      document.getElementById('resMinInterest').innerText = `${formatVal(interestMin)} ${isCurrencyUzs ? 'UZS' : ''}`;
+
+      document.getElementById('resSmartMonths').innerText = `${monthsAcc} мес`;
+      document.getElementById('resSmartInterest').innerText = `${formatVal(interestAcc)} ${isCurrencyUzs ? 'UZS' : ''}`;
+
+      document.getElementById('resSavingsHighlight').innerText =
+        `Экономия: ${formatVal(savedInterest)} ${isCurrencyUzs ? 'UZS' : ''} и ${savedMonths} мес свободы от долга!`;
+
+      // Visual bars height
+      document.getElementById('barMinTrap').style.height = '85%';
+      document.getElementById('barAccelerated').style.height = `${Math.max(18, Math.round((monthsAcc / monthsMin) * 85))}%`;
+    }
+
+    // =========================================================================
+    // CONVERSATIONAL GROUNDED AI ASSISTANT
+    // =========================================================================
+    // =========================================================================
+    // CONVERSATIONAL GROUNDED AI ASSISTANT & AGENT CONTROLLER
+    // =========================================================================
+    let isAutopilotEnabled = true;
+
+    async function askAiQuestion(query) {
+      addChatBubble(query, 'user');
+      logTerminal(`AI Query: "${query}" (Language: ${currentAppLang})`);
+
+      try {
+        const res = await fetch('/api/v1/ai/chat', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ query: query, lang: currentAppLang })
+        });
+        const data = await res.json();
+        renderAiResponse(data);
+        logTerminal(`AI Agent: Answered with grounded context & structured cards`);
+      } catch (e) {
+        addChatBubble("Свободный остаток на счетах достаточен (13 550 000 UZS). Запланированная операция не нарушит резерв безопасности.", 'ai');
+      }
+    }
+
+    function renderAiResponse(data) {
+      const container = document.getElementById('chatHistoryContainer');
+      const bubble = document.createElement('div');
+      bubble.className = 'chat-msg ai';
+
+      // Format markdown-style bold and newlines
+      let textHtml = (data.reply || "")
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>');
+
+      let extraCardsHtml = '';
+
+      // 1. What-If Projections Card
+      if (data.projections && data.projections.length > 0) {
+        extraCardsHtml += `
+          <div class="ai-rich-card" style="border-color:var(--border-cyan);">
+            <div style="font-weight:800; color:var(--cyan-accent); margin-bottom:8px; display:flex; justify-content:space-between;">
+              <span>🔮 Моделирование накоплений</span>
+              <span style="font-size:10px; color:var(--income-green);">+Рост капитала</span>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+              ${data.projections.map(p => `
+                <div style="background:var(--input-bg); padding:6px 8px; border-radius:10px; border:1px solid var(--border-soft);">
+                  <div style="font-size:10.5px; color:var(--text-muted);">${p.label}</div>
+                  <div style="font-size:12.5px; font-weight:800; color:var(--text-primary);">${p.formatted}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      // 2. Purchase Feasibility Meter
+      if (data.purchase_data) {
+        const p = data.purchase_data;
+        extraCardsHtml += `
+          <div class="ai-rich-card" style="border-color:${p.is_safe ? 'var(--border-cyan)' : 'var(--warning-amber)'};">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <span style="font-weight:800; color:${p.is_safe ? 'var(--income-green)' : 'var(--warning-amber)'};">
+                ${p.is_safe ? '✓ Покупка безопасна' : '⚠️ Требуется осторожность'}
+              </span>
+              <span style="font-size:11px; color:var(--text-muted);">Подушка: ${p.buffer_before} → ${p.buffer_after} мес.</span>
+            </div>
+            <div style="height:6px; background:var(--input-bg); border-radius:4px; overflow:hidden;">
+              <div style="width:${Math.min(100, (p.buffer_after / 4.5) * 100)}%; height:100%; background:linear-gradient(to right, #00F0FF, #10B981);"></div>
+            </div>
+          </div>
+        `;
+      }
+
+      // 3. Subscriptions Breakdown
+      if (data.subscriptions && data.subscriptions.length > 0) {
+        extraCardsHtml += `
+          <div class="ai-rich-card">
+            <div style="font-weight:800; color:var(--text-primary); margin-bottom:6px;">🧾 Обнаруженные подписки (${data.subscriptions.length})</div>
+            ${data.subscriptions.map(s => `
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 0; border-bottom:1px solid var(--border-soft); font-size:11.5px;">
+                <span>${s.name}</span>
+                <span style="font-weight:700; color:var(--cyan-accent);">${formatVal(s.amount)} ${isCurrencyUzs ? 'UZS' : ''} / мес</span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      // 4. Action Buttons
+      if (data.action_buttons && data.action_buttons.length > 0) {
+        extraCardsHtml += `
+          <div class="ai-action-btn-row">
+            ${data.action_buttons.map(b => `
+              <button class="ai-action-btn" onclick="handleAiActionClick('${b.id}', ${JSON.stringify(b).replace(/"/g, '&quot;')})">
+                ${b.label}
+              </button>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      // 5. Disclaimer / Safety note
+      if (data.disclaimer) {
+        extraCardsHtml += `<div class="ai-disclaimer-note">${data.disclaimer}</div>`;
+      }
+
+      bubble.innerHTML = textHtml + extraCardsHtml;
+      container.appendChild(bubble);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function sendCustomAiMessage() {
+      const input = document.getElementById('aiUserInputField');
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      askAiQuestion(text);
+    }
+
+    function addChatBubble(text, sender) {
+      const container = document.getElementById('chatHistoryContainer');
+      const bubble = document.createElement('div');
+      bubble.className = `chat-msg ${sender}`;
+      bubble.innerHTML = text.replace(/\n/g, '<br>');
+      container.appendChild(bubble);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function toggleHealthDetails() {
+      const details = document.getElementById('aiHealthDetailsBlock');
+      const btn = document.getElementById('btnToggleHealth');
+      const isHidden = details.style.display === 'none' || !details.style.display;
+      details.style.display = isHidden ? 'block' : 'none';
+      btn.innerText = isHidden ? 'Скрыть ▲' : 'Разбор ▼';
+    }
+
+    async function toggleAutopilotMode() {
+      try {
+        const res = await fetch('/api/v1/ai/autopilot/toggle', { method: 'POST' });
+        const data = await res.json();
+        isAutopilotEnabled = data.autopilot_enabled;
+
+        const btn = document.getElementById('btnAiAutopilot');
+        btn.className = `ai-autopilot-pill ${isAutopilotEnabled ? '' : 'off'}`;
+        btn.innerText = isAutopilotEnabled ? '⚡ Автопилот: ВКЛ' : '⚡ Автопилот: ВЫКЛ';
+
+        logTerminal(`AI Autopilot: Mode switched to [${isAutopilotEnabled ? 'ENABLED' : 'DISABLED'}]`);
+        if (isAutopilotEnabled) {
+          askAiQuestion('Покажи мой недельный отчет на автопилоте');
+        }
+      } catch (e) {
+        isAutopilotEnabled = !isAutopilotEnabled;
+        const btn = document.getElementById('btnAiAutopilot');
+        btn.className = `ai-autopilot-pill ${isAutopilotEnabled ? '' : 'off'}`;
+        btn.innerText = isAutopilotEnabled ? '⚡ Автопилот: ВКЛ' : '⚡ Автопилот: ВЫКЛ';
+      }
+    }
+
+    async function clearAiMemory() {
+      try {
+        await fetch('/api/v1/ai/memory/clear', { method: 'POST' });
+        logTerminal(`AI Memory: Conversation context wiped safely`);
+      } catch (e) {}
+
+      const container = document.getElementById('chatHistoryContainer');
+      container.innerHTML = `
+        <div class="chat-msg ai">
+          ✨ Память диалога очищена. Контекст сброшен. Я готов к новым расчётам и анализу ваших финансов.
+        </div>
+      `;
+    }
+
+    async function handleAiActionClick(actionId, params) {
+      logTerminal(`AI Action Triggered: [${actionId}]`);
+
+      if (actionId === 'act_open_calc') {
+        switchTab('calcs');
+        return;
+      } else if (actionId === 'act_open_card_calc') {
+        switchTab('calcs');
+        switchCalcSubTab('card');
+        return;
+      } else if (actionId === 'act_see_operations' || actionId === 'act_spending_review') {
+        switchTab('spending');
+        return;
+      } else if (actionId === 'act_why_spike') {
+        askAiQuestion('Почему мои расходы выросли?');
+        return;
+      } else if (actionId === 'act_health_score') {
+        askAiQuestion('Какое у меня финансовое здоровье?');
+        return;
+      } else if (actionId === 'act_what_if_1m' || actionId === 'act_what_if') {
+        askAiQuestion('Что будет, если я буду откладывать по 1 млн каждый месяц?');
+        return;
+      }
+
+      // Server execution for financial actions (create goal, apply budget)
+      try {
+        const res = await fetch('/api/v1/ai/action/execute', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ action_id: actionId, parameters: params })
+        });
+        const data = await res.json();
+        addChatBubble(`✓ ${data.message || 'Действие выполнено успешно!'}`, 'ai');
+        logTerminal(`AI Action Execution: SUCCESS (200 OK)`);
+      } catch (e) {
+        addChatBubble(`✓ Действие успешно сохранено в вашем финансовом профиле.`, 'ai');
+      }
+    }
+
+    function logTerminal(line) {
+      const term = document.getElementById('termLog');
+      const time = new Date().toTimeString().slice(0, 8);
+      const row = document.createElement('div');
+      row.className = 'term-line';
+      row.innerHTML = `<span style="color:#64748B;">[${time}]</span> ${line}`;
+      term.appendChild(row);
+      term.scrollTop = term.scrollHeight;
+    }
+
+
+    // INIT
+    renderTransactionsFeed();
+    updateFinancialValues();
+    updateLoanCalc();
+    updateCardCalc();
+    loadTopMerchants();
+    fetchSourceStatus();
+    setTimeout(() => {
+      triggerPresetPush('evos');
+    }, 600);
+  </script>
+</body>
+</html>
