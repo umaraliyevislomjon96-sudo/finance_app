@@ -82,6 +82,7 @@ async def get_mobile_preview():
     return FileResponse(html_path, media_type="text/html")
 
 
+@app.get("/")
 @app.get("/pitch")
 @app.get("/presentation")
 async def get_pitch_deck():
