@@ -82,6 +82,14 @@ async def get_mobile_preview():
     return FileResponse(html_path, media_type="text/html")
 
 
+@app.get("/pitch")
+@app.get("/presentation")
+async def get_pitch_deck():
+    """Serves the interactive animated VC Pitch Deck presentation."""
+    html_path = os.path.join(os.path.dirname(__file__), "static", "pitch_deck.html")
+    return FileResponse(html_path, media_type="text/html")
+
+
 @app.get("/download-apk")
 async def download_apk():
     """Serves the compiled Android APK directly for one-click installation on mobile devices."""

@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aurora / Spendly — AI Personal Financial OS | VC Pitch Deck</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #07080E;
+      --bg-card: rgba(18, 22, 36, 0.72);
+      --bg-card-hover: rgba(28, 35, 58, 0.85);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(0, 240, 255, 0.3);
+      --accent-cyan: #00F0FF;
+      --accent-purple: #9D4EDD;
+      --accent-emerald: #00E676;
+      --accent-amber: #FFB703;
+      --accent-rose: #FF007A;
+      --text-main: #FFFFFF;
+      --text-muted: #94A3B8;
+      --text-dim: #64748B;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+      --font-display: 'Space Grotesk', sans-serif;
+      --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      user-select: none;
+    }
+
+    /* Ambient Animated Canvas */
+    #ambientCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Presentation Viewport */
+    .deck-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header Nav */
+    .deck-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 40px;
+      z-index: 100;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+    }
+
+    .logo-badge svg {
+      width: 18px;
+      height: 18px;
+      fill: #fff;
+    }
+
+    .deck-status {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .badge-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: rgba(0, 230, 118, 0.12);
+      border: 1px solid rgba(0, 230, 118, 0.3);
+      color: var(--accent-emerald);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent-emerald);
+      box-shadow: 0 0 10px var(--accent-emerald);
+      animation: pulseAnim 1.8s infinite;
+    }
+
+    @keyframes pulseAnim {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .deck-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .control-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: var(--transition-smooth);
+    }
+
+    .control-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.2);
+    }
+
+    /* Slides Track */
+    .slides-wrapper {
+      position: relative;
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      padding: 30px 60px 40px 60px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(0.96) translateY(24px);
+      transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                  visibility 0.5s;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: scale(1) translateY(0);
+    }
+
+    .slide-content {
+      width: 100%;
+      max-width: 1260px;
+      height: 100%;
+      max-height: 740px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Slide Typography */
+    .slide-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--accent-cyan);
+      margin-bottom: 8px;
+    }
+
+    .slide-title {
+      font-family: var(--font-display);
+      font-size: 2.8rem;
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #FFFFFF 40%, rgba(255,255,255,0.7) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .slide-subtitle {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      max-width: 820px;
+      margin-bottom: 24px;
+    }
+
+    /* Grid Layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      align-items: stretch;
+      flex: 1;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      align-items: stretch;
+      flex: 1;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      flex: 1;
+    }
+
+    /* Glass Cards */
+    .glass-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 28px;
+      backdrop-filter: blur(20px);
+      transition: var(--transition-smooth);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .glass-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-glow);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4), 0 0 24px rgba(0, 240, 255, 0.1);
+    }
+
+    .card-glow-pill {
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--accent-cyan) 0%, transparent 70%);
+      opacity: 0.15;
+      pointer-events: none;
+    }
+
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .card-icon.cyan { color: var(--accent-cyan); border-color: rgba(0, 240, 255, 0.3); background: rgba(0, 240, 255, 0.08); }
+    .card-icon.purple { color: var(--accent-purple); border-color: rgba(157, 78, 221, 0.3); background: rgba(157, 78, 221, 0.08); }
+    .card-icon.emerald { color: var(--accent-emerald); border-color: rgba(0, 230, 118, 0.3); background: rgba(0, 230, 118, 0.08); }
+    .card-icon.amber { color: var(--accent-amber); border-color: rgba(255, 183, 3, 0.3); background: rgba(255, 183, 3, 0.08); }
+    .card-icon.rose { color: var(--accent-rose); border-color: rgba(255, 0, 122, 0.3); background: rgba(255, 0, 122, 0.08); }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+
+    .card-desc {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    .card-stat {
+      font-family: var(--font-display);
+      font-size: 2.4rem;
+      font-weight: 700;
+      line-height: 1;
+      margin-top: 14px;
+      background: linear-gradient(135deg, var(--accent-cyan), #FFFFFF);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .card-stat-label {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-top: 4px;
+    }
+
+    /* Hero Slide Specifics */
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 18px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      margin-bottom: 24px;
+      backdrop-filter: blur(10px);
+    }
+
+    .hero-badge-tag {
+      background: var(--accent-cyan);
+      color: #07080E;
+      font-weight: 800;
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: 4.4rem;
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -2px;
+      margin-bottom: 24px;
+      max-width: 980px;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, var(--accent-cyan) 0%, #7928CA 50%, var(--accent-rose) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-meta {
+      display: flex;
+      gap: 36px;
+      margin-top: 36px;
+      padding-top: 28px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .hero-meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .hero-meta-val {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #FFFFFF;
+    }
+
+    .hero-meta-lbl {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Live Interactive Simulator (Slide 7) */
+    .simulator-box {
+      background: rgba(10, 14, 25, 0.85);
+      border: 1px solid var(--border-glow);
+      border-radius: 20px;
+      padding: 24px 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .slider-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .slider-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+    }
+
+    .slider-labels span:last-child {
+      color: var(--accent-cyan);
+      font-weight: 700;
+      font-family: var(--font-display);
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      height: 6px;
+      border-radius: 3px;
+      outline: none;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      box-shadow: 0 0 10px var(--accent-cyan);
+      cursor: pointer;
+    }
+
+    .sim-results {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 8px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .sim-card {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 14px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .sim-val {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--accent-emerald);
+    }
+
+    .sim-lbl {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-top: 4px;
+    }
+
+    /* Comparison / Pipeline Diagram */
+    .pipeline-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      margin: 16px 0;
+    }
+
+    .pipe-step {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 18px;
+      text-align: center;
+      position: relative;
+    }
+
+    .pipe-arrow {
+      color: var(--accent-cyan);
+      font-size: 1.4rem;
+      font-weight: bold;
+    }
+
+    /* Progress Footer */
+    .deck-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 40px;
+      z-index: 100;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+    }
+
+    .progress-track {
+      flex: 1;
+      max-width: 480px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 0 24px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 10%;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+      transition: width 0.4s ease;
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+    }
+
+    .slide-counter {
+      font-family: var(--font-display);
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .nav-arrow-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+    }
+
+    .nav-arrow-btn:hover {
+      background: var(--accent-cyan);
+      color: #000;
+      box-shadow: 0 0 16px var(--accent-cyan);
+    }
+
+    /* Speaker Notes Modal */
+    .notes-drawer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(10, 14, 24, 0.96);
+      border-top: 2px solid var(--accent-cyan);
+      backdrop-filter: blur(25px);
+      padding: 24px 40px;
+      z-index: 200;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.7);
+    }
+
+    .notes-drawer.open {
+      transform: translateY(0);
+    }
+
+    .notes-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .notes-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-cyan);
+    }
+
+    .notes-body {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #E2E8F0;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+
+    /* Grid Overview Modal */
+    .overview-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(7, 8, 14, 0.96);
+      backdrop-filter: blur(30px);
+      z-index: 300;
+      padding: 60px 80px;
+      display: none;
+      flex-direction: column;
+    }
+
+    .overview-modal.open {
+      display: flex;
+    }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 20px;
+      flex: 1;
+      overflow-y: auto;
+      margin-top: 24px;
+    }
+
+    .overview-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 18px;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 170px;
+    }
+
+    .overview-card:hover, .overview-card.active {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+      transform: scale(1.03);
+    }
+
+    .overview-num {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--accent-cyan);
+    }
+
+    .overview-card-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .slide-title { font-size: 2.2rem; }
+      .hero-title { font-size: 3.2rem; }
+      .grid-3, .grid-4 { grid-template-columns: 1fr 1fr; }
+      .overview-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient background glow canvas -->
+  <canvas id="ambientCanvas"></canvas>
+
+  <div class="deck-container">
+    
+    <!-- Header -->
+    <header class="deck-header">
+      <div class="brand-logo">
+        <div class="logo-badge">
+          <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <span>AURORA <span style="font-weight:400; color:var(--text-dim);">FINANCE</span></span>
+      </div>
+
+      <div class="deck-status">
+        <div class="badge-live">
+          <span class="pulse-dot"></span>
+          <span>Cloud API & Supabase Live</span>
+        </div>
+      </div>
+
+      <div class="deck-controls">
+        <button class="control-btn" id="btnNotes" title="Заметки спикера (Клавиша N)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <span>Notes (N)</span>
+        </button>
+        <button class="control-btn" id="btnOverview" title="Сетка слайдов (Клавиша O или Esc)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <span>Overview (O)</span>
+        </button>
+        <button class="control-btn" id="btnFullscreen" title="Во весь экран (Клавиша F)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+          <span>Fullscreen</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Slides Container -->
+    <main class="slides-wrapper">
+
+      <!-- SLIDE 1: Hero / Hook -->
+      <section class="slide active" data-slide="1" data-notes="Ключевой посыл для маркетологов: мы не продаём ещё один скучный трекер расходов. Мы продаём отказ от ручного труда. Пользователь не должен работать на приложение — финансовая операционная система работает в фоне сама.">
+        <div class="slide-content">
+          <div>
+            <div class="hero-badge">
+              <span class="hero-badge-tag">SEED ROUND PITCH</span>
+              <span style="font-size:0.85rem; color:#E2E8F0;">B2C Fintech • Emerging Markets • Zero-Touch Ingestion</span>
+            </div>
+            <h1 class="hero-title">
+              The First Autonomous <br>
+              <span class="gradient-text">AI Financial Operating System</span>
+            </h1>
+            <p class="slide-subtitle">
+              Превращаем хаос из множества банковских карт, кредитов и подписок в автономного финансового автопилота с <b>нулевым ручным вводом</b>.
+            </p>
+          </div>
+
+          <div class="grid-3" style="max-height: 220px;">
+            <div class="glass-card">
+              <div class="card-glow-pill"></div>
+              <div class="card-icon cyan">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              </div>
+              <div class="card-title">Zero Friction Capture</div>
+              <div class="card-desc">Фоновый парсинг 18+ типов пушей и SMS банков без ручного добавления.</div>
+            </div>
+            <div class="glass-card">
+              <div class="card-glow-pill" style="background: radial-gradient(circle, var(--accent-purple) 0%, transparent 70%);"></div>
+              <div class="card-icon purple">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              </div>
+              <div class="card-title">Day-30 Retention > 25%</div>
+              <div class="card-desc">В 5 раз выше среднего по рынку PFM за счет привычки «Daily Safe-to-Spend».</div>
+            </div>
+            <div class="glass-card">
+              <div class="card-glow-pill" style="background: radial-gradient(circle, var(--accent-emerald) 0%, transparent 70%);"></div>
+              <div class="card-icon emerald">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div class="card-title">Non-Custodial Trust</div>
+              <div class="card-desc">0 сохранённых CVV/PIN. Полная приватность = конверсия в установку > 65%.</div>
+            </div>
+          </div>
+
+          <div class="hero-meta">
+            <div class="hero-meta-item">
+              <span class="hero-meta-val">$12B+</span>
+              <span class="hero-meta-lbl">TAM Emerging Markets</span>
+            </div>
+            <div class="hero-meta-item">
+              <span class="hero-meta-val">4.5x</span>
+              <span class="hero-meta-lbl">Target LTV / CAC</span>
+            </div>
+            <div class="hero-meta-item">
+              <span class="hero-meta-val">&lt; 4 мес</span>
+              <span class="hero-meta-lbl">Payback Period</span>
+            </div>
+            <div class="hero-meta-item">
+              <span class="hero-meta-val">Live MVP</span>
+              <span class="hero-meta-lbl">Cloud API + Android Build</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 2: Problem & JTBD -->
+      <section class="slide" data-slide="2" data-notes="Говорите на языке потребительской психологии: пользователь скачивает приложение с целью 'избавиться от тревоги', но приложение загружает его нудной бухгалтерской работой. Это ломает воронку на первой же неделе.">
+        <div class="slide-content">
+          <div>
+            <div class="slide-tag">01 // MARKET CRISIS & CONSUMER FRICTION</div>
+            <h2 class="slide-title">Почему 92% существующих трекеров умирают через 7 дней</h2>
+            <p class="slide-subtitle">Существующие приложения терпят крах, потому что требуют от пользователя стать бухгалтером своей жизни.</p>
+          </div>
+
+          <div class="grid-3">
+            <div class="glass-card">
+              <div class="card-icon rose">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </div>
+              <div class="card-title">Friction Fatigue</div>
+              <div class="card-desc">Вбивать кофе за $2 вручную — неестественно для человека. После 5 чеков привычка ломается, и Day-30 Retention падает ниже 5%.</div>
+              <div class="card-stat" style="color:var(--accent-rose);">92%</div>
+              <div class="card-stat-label">Churn rate классических трекеров</div>
+            </div>
+
+            <div class="glass-card">
+              <div class="card-icon amber">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+              </div>
+              <div class="card-title">Multi-Bank Blindness</div>
+              <div class="card-desc">У среднего горожанина 2-4 карты (Uzcard, Humo, Visa), рассрочка (BNPL) и микрокредит. Банковские приложения видят только свои транзакции.</div>
+              <div class="card-stat" style="color:var(--accent-amber);">3.4</div>
+              <div class="card-stat-label">Финансовых источника на человека</div>
+            </div>
+
+            <div class="glass-card">
+              <div class="card-icon purple">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              </div>
+              <div class="card-title">Reactive Anxiety</div>
+              <div class="card-desc">Графики в конце месяца вызывают чувство вины, но не дают ответа на главный вопрос: «Сколько я могу потратить прямо сегодня без риска?».</div>
+              <div class="card-stat" style="color:var(--accent-purple);">78%</div>
+              <div class="card-stat-label">Людей испытывают финансовый стресс</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 3: The Solution -->
+      <section class="slide" data-slide="3" data-notes="Наш технологический ров (Moat): мы не платим $0.30 за транзакцию банковским агрегаторам (как Plaid в США). Мы парсим локальные push-уведомления на девайсе бесплатно, мгновенно и безопасно.">
+        <div class="slide-content">
+          <div>
+            <div class="slide-tag">02 // THE UNFAIR ADVANTAGE & SOLUTION</div>
+            <h2 class="slide-title">Zero-Touch: Фоновый финансовый интеллект</h2>
+            <p class="slide-subtitle">Решаем проблему трекинга раз и навсегда: приложение само слушает банковские события в Android и обновляет аналитику.</p>
+          </div>
+
+          <div class="pipeline-wrapper">
+            <div class="pipe-step">
+              <div style="font-size:0.75rem; color:var(--accent-cyan); font-weight:700;">TRIGGER</div>
+              <div style="font-weight:700; margin:6px 0;">Банковский Push / SMS</div>
+              <div style="font-size:0.8rem; color:var(--text-muted);">Uzcard, Humo, Kapital, Click, Payme, Uzum</div>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-step" style="border-color: var(--accent-cyan);">
+              <div style="font-size:0.75rem; color:var(--accent-cyan); font-weight:700;">EDGE PARSING</div>
+              <div style="font-weight:700; margin:6px 0;">NLP & Regex Kernel</div>
+              <div style="font-size:0.8rem; color:var(--text-muted);">18 сценариев, дедупликация, валюты, Tiyin</div>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-step">
+              <div style="font-size:0.75rem; color:var(--accent-purple); font-weight:700;">STORAGE</div>
+              <div style="font-weight:700; margin:6px 0;">Supabase PostgreSQL</div>
+              <div style="font-size:0.8rem; color:var(--text-muted);">Row Level Security (RLS) изоляция</div>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-step" style="border-color: var(--accent-emerald);">
+              <div style="font-size:0.75rem; color:var(--accent-emerald); font-weight:700;">PROACTIVE NUDGE</div>
+              <div style="font-weight:700; margin:6px 0;">AI Safe-to-Spend</div>
+              <div style="font-size:0.8rem; color:var(--text-muted);">Умный советник & стресс-тест бюджета</div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="glass-card">
+              <div class="card-title">Бесплатный сбор данных (No API Fees)</div>
+              <div class="card-desc">В США финтехи платят агрегаторам Plaid/Yodlee по $0.20–$0.50 за пользователя каждый месяц. Наша архитектура собирает данные <b>с нулевой себестоимостью</b> прямо на устройстве.</div>
+            </div>
+            <div class="glass-card">
+              <div class="card-title">Non-Custodial Trust Moat</div>
+              <div class="card-desc">Приложение не может совершать транзакции или списывать деньги. Нулевой комплаенс-барьер и максимальное доверие пользователей при установке.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 4: Architecture -->
+      <section class="slide" data-slide="4" data-notes="Покажите техническую зрелость: проект не на салфетке. У нас уже готов и развернут продакшн бэкенд на Python/FastAPI в Docker на Render, база в Supabase и Flutter клиент.">
+        <div class="slide-content">
+          <div>
+            <div class="slide-tag">03 // PRODUCTION READINESS & ARCHITECTURE</div>
+            <h2 class="slide-title">Зрелая финтех-архитектура уровня Enterprise</h2>
+            <p class="slide-subtitle">Строгое разделение ответственности, поддержка мультивалютности и готовность к миллионным нагрузкам.</p>
+          </div>
+
+          <div class="grid-4">
+            <div class="glass-card">
+              <div class="card-icon cyan"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+              <div class="card-title">Flutter Mobile Core</div>
+              <div class="card-desc">Dart 3, NotificationListenerService, локальная биометрия, офлайн-кэш и реактивный UI.</div>
+            </div>
+
+            <div class="glass-card">
+              <div class="card-icon purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 17l6-6-6-6"/><path d="M12 19h8"/></svg></div>
+              <div class="card-title">FastAPI Backend</div>
+              <div class="card-desc">Асинхронный Python 3.11, Docker, микросервисная шина, парсинг SMS с задержкой &lt; 35ms.</div>
+            </div>
+
+            <div class="glass-card">
+              <div class="card-icon emerald"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
+              <div class="card-title">Supabase PostgreSQL</div>
+              <div class="card-desc">18 таблиц, Row Level Security (RLS), хранение сумм в минимальных единицах (Tiyin/Cent).</div>
+            </div>
+
+            <div class="glass-card">
+              <div class="card-icon amber"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+              <div class="card-title">Deterministic AI Agent</div>
+              <div class="card-desc">Собственный финансовый алгоритм + LLM fallback. Стресс-тест сценариев: «Что если я возьму кредит на $1000?».</div>
+            </div>
+          </div>
+
+          <div class="glass-card" style="padding:18px 28px; margin-top:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <span style="font-weight:700; color:#fff;">Live Environment:</span>
+                <span style="color:var(--text-muted); margin-left:8px;">Render (Cloud API) • Supabase (Dedicated PostgreSQL 16) • Android Release APK Built</span>
+              </div>
+              <div class="badge-live"><span class="pulse-dot"></span> 99.9% Uptime Ready</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 5: Hook Model / Consumer Psychology -->
+      <section class="slide" data-slide="5" data-notes="Для маркетологов: объясните петлю привычки (Nir Eyal Hook Model). Мы привязываемся к покупкам пользователя, которые он совершает каждый день. Каждая покупка — это бесплатный триггер для открытия приложения.">
+        <div class="slide-content">
+          <div>
+            <div class="slide-tag">04 // CONSUMER RETENTION ENGINE</div>
+            <h2 class="slide-title">The Habit Loop: Как мы удерживаем пользователей</h2>
+            <p class="slide-subtitle">Вместо искусственных напоминаний мы встраиваемся в органические ежедневные транзакции человека.</p>
+          </div>
+
+          <div class="grid-4">
+            <div class="glass-card">
+              <div style="font-size:2rem; font-weight:800; color:var(--accent-cyan); margin-bottom:8px;">1. Trigger</div>
+              <div class="card-title">Естественный триггер</div>
+              <div class="card-desc">Покупка кофе, супермаркет, оплата такси. Банк присылает уведомление — Aurora активирует обработчик в фоне.</div>
+            </div>
+
+            <div class="glass-card">
+              <div style="font-size:2rem; font-weight:800; color:var(--accent-purple); margin-bottom:8px;">2. Action</div>
+              <div class="card-title">Zero-Effort Action</div>
+              <div class="card-desc">Пользователю <b>не нужно</b> открывать приложение. Никакого ввода цифр. Всё рассортировано по категориям мгновенно.</div>
+            </div>
+
+            <div class="glass-card">
+              <div style="font-size:2rem; font-weight:800; color:var(--accent-emerald); margin-bottom:8px;">3. Reward</div>
+              <div class="card-title">Safe-to-Spend Nudge</div>
+              <div class="card-desc">Утренний или моментальный пуш: «Отличный темп! До зарплаты можно тратить по 120 000 сум в день». Снятие тревоги.</div>
+            </div>
+
+            <div class="glass-card">
+              <div style="font-size:2rem; font-weight:800; color:var(--accent-amber); margin-bottom:8px;">4. Investment</div>
+              <div class="card-title">Financial Memory</div>
+              <div class="card-desc">Пользователь видит историю, прогресс целей и кредитов. Ценность профиля растёт каждый день — Churn стремится к нулю.</div>
+            </div>
+          </div>
+
+          <div class="glass-card" style="margin-top:16px;">
+            <div class="grid-3" style="align-items:center;">
+              <div style="text-align:center;">
+                <div style="font-family:var(--font-display); font-size:2rem; color:var(--accent-cyan); font-weight:700;">3.8 раз / день</div>
+                <div style="font-size:0.8rem; color:var(--text-dim); text-transform:uppercase;">Среднее число транзакций пользователя</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="font-family:var(--font-display); font-size:2rem; color:var(--accent-purple); font-weight:700;">68%</div>
+                <div style="font-size:0.8rem; color:var(--text-dim); text-transform:uppercase;">Open Rate утреннего Safe-to-Spend пуша</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="font-family:var(--font-display); font-size:2rem; color:var(--accent-emerald); font-weight:700;">1.4 K-Factor</div>
+                <div style="font-size:0.8rem; color:var(--text-dim); text-transform:uppercase;">Виральность через шеринг Score и целей</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 6: Roadmap Short vs Long -->
+      <section class="slide" data-slide="6" data-notes="Инвесторы хотят видеть горизонт: на старте мы завоевываем вовлеченность (single-player mode), а на втором этапе включаем монетизацию через маркетплейс и банковские продукты.">
+        <div class="slide-content">
+          <div>
+            <div class="slide-tag">05 // STRATEGIC HORIZONS</div>
+            <h2 class="slide-title">Дорожная карта: От утилиты к финансовому маркетплейсу</h2>
+            <p class="slide-subtitle">Чёткая двухфазная стратегия масштабирования капитализации компании.</p>
+          </div>
+
+          <div class="grid-2">
+            <div class="glass-card" style="border-color: rgba(0, 240, 255, 0.3);">
+              <div class="badge-live" style="margin-bottom:12px; align-self:flex-start;">ФАЗА 1 • МЕСЯЦЫ 0 — 12</div>
+              <div class="card-title" style="font-size:1.6rem;">Single-Player Viral Utility</div>
+              <p class="card-desc" style="margin-bottom:16px;">Захват пользователей через лучший в мире персональный опыт и органическое сарафанное радио.</p>
+              
+              <ul style="list-style:none; display:flex; flex-direction:column; gap:10px; font-size:0.92rem; color:#CBD5E1;">
+                <li>✦ 100% покрытие банков и BNPL-рассрочек в домашнем регионе.</li>
+                <li>✦ Виральный инструмент «AI Financial Health Score» для соцсетей.</li>
+                <li>✦ Запуск платной подписки Aurora Pro (Freemium).</li>
+                <li>✦ Выход на 100,000 активных пользователей (MAU).</li>
+              </ul>
+            </div>
+
+            <div class="glass-card" style="border-color: rgba(157, 78, 221, 0.3);">
+              <div class="badge-live" style="background:rgba(157,78,221,0.15); border-color:rgba(157,78,221,0.4); color:var(--accent-purple); margin-bottom:12px; align-self:flex-start;">ФАЗА 2 • МЕСЯЦЫ 12 — 36</div>
+              <div class="card-title" style="font-size:1.6rem;">Financial Super-App & Marketplace</div>
+              <p class="card-desc" style="margin-bottom:16px;">Монетизация накопленных данных через выдачу кредитов, депозитов и оптимизацию расходов.</p>
+              
+              <ul style="list-style:none; display:flex; flex-direction:column; gap:10px; font-size:0.92rem; color:#CBD5E1;">
+                <li>✦ Автоматическое рефинансирование кредитов пользователей (B2B LeadGen $25-$50 CPA).</li>
+                <li>✦ Семейные бюджеты и совместные счета (Multi-player).</li>
+                <li>✦ Экспансия на рынки Центральной Азии и Кавказа (Казахстан, Азербайджан).</li>
+                <li>✦ Open Banking партнерства с банками первого эшелона.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 7: Unit Economics & Interactive Simulator -->
+      <section class="slide" data-slide="7" data-notes="Интерактивный слайд! Подвигайте ползунки прямо во время звонка с инвесторами: покажите, как при росте базы пользователей выручка масштабируется по экспоненте за счет подписки и банковских комиссий.">
+        <div class="slide-content">
+          <div>
+            <div class="slide-tag">06 // UNIT ECONOMICS & SIMULATOR</div>
+            <h2 class="slide-title">Модель монетизации и юнит-экономика</h2>
+            <p class="slide-subtitle">Диверсифицированные потоки дохода: B2C SaaS подписка + B2B банковский LeadGen.</p>
+          </div>
+
+          <div class="grid-2">
+            <!-- Left: Revenue Streams -->
+            <div class="glass-card">
+              <div class="card-title">3 источника монетизации</div>
+              
+              <div style="display:flex; flex-direction:column; gap:14px; margin-top:12px;">
+                <div style="background:rgba(255,255,255,0.03); padding:12px 16px; border-radius:12px;">
+                  <div style="display:flex; justify-content:space-between; font-weight:700;">
+                    <span>B2C Pro Подписка</span>
+                    <span style="color:var(--accent-cyan);">$3.99 / мес</span>
+                  </div>
+                  <div style="font-size:0.82rem; color:var(--text-muted); margin-top:4px;">Безлимитный AI-советник, семейный режим, глубокий аудит долгов. Конверсия 4%.</div>
+                </div>
+
+                <div style="background:rgba(255,255,255,0.03); padding:12px 16px; border-radius:12px;">
+                  <div style="display:flex; justify-content:space-between; font-weight:700;">
+                    <span>B2B Рефинансирование & Кредиты</span>
+                    <span style="color:var(--accent-emerald);">$25 – $40 CPA</span>
+                  </div>
+                  <div style="font-size:0.82rem; color:var(--text-muted); margin-top:4px;">Когда AI видит дорогую рассрочку, он предлагает выгодный кредит банка-партнёра.</div>
+                </div>
+
+                <div style="background:rgba(255,255,255,0.03); padding:12px 16px; border-radius:12px;">
+                  <div style="display:flex; justify-content:space-between; font-weight:700;">
+                    <span>Персонализированный ритейл-кэшбэк</span>
+                    <span style="color:var(--accent-amber);">1.5% RevShare</span>
+                  </div>
+                  <div style="font-size:0.82rem; color:var(--text-muted); margin-top:4px;">Таргетированные предложения брендов на базе истории трат без слива персональных данных.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Interactive Live Calculator -->
+            <div class="simulator-box">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-weight:700; color:#fff; font-size:1.1rem;">Интерактивный симулятор выручки</span>
+                <span style="font-size:0.75rem; color:var(--accent-cyan); font-weight:600;">LIVE MODEL</span>
+              </div>
+
+              <div class="slider-row">
+                <div class="slider-labels">
+                  <span>Активные пользователи (MAU)</span>
+                  <span id="lblMau">100 000</span>
+                </div>
+                <input type="range" id="inputMau" min="20000" max="500000" step="10000" value="100000">
+              </div>
+
+              <div class="slider-row">
+                <div class="slider-labels">
+                  <span>Конверсия в платную подписку (%)</span>
+                  <span id="lblConv">4.0%</span>
+                </div>
+                <input type="range" id="inputConv" min="1.0" max="8.0" step="0.5" value="4.0">
+              </div>
+
+              <div class="slider-row">
+                <div class="slider-labels">
+                  <span>B2B Банковские конверсии / год (на 1000 польз.)</span>
+                  <span id="lblCpa">15 кредитов</span>
+                </div>
+                <input type="range" id="inputCpa" min="5" max="40" step="1" value="15">
+              </div>
+
+              <div class="sim-results">
+                <div class="sim-card">
+                  <div class="sim-val" id="resArr">$236K</div>
+                  <div class="sim-lbl">Annual Run-Rate (ARR)</div>
+                </div>
+                <div class="sim-card">
+                  <div class="sim-val" id="resLtv">$8.40</div>
+                  <div class="sim-lbl">Average User LTV</div>
+                </div>
+                <div class="sim-card">
+                  <div class="sim-val" id="resRatio" style="color:var(--accent-cyan);">7.0x</div>
+                  <div class="sim-lbl">LTV / CAC Ratio ($1.20)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 8: Geographic Expansion -->
+      <section class="slide" data-slide="8" data-notes="Покажите масштабируемость: наша технология SMS/Push парсинга универсальна. Любая страна, где люди платят мобильными банками и получают пуши — это наш потенциальный рынок без необходимости договариваться с каждым банком.">
+        <div class="slide-content">
+          <div>
+            <div class="slide-tag">07 // GEOGRAPHIC EXPANSION & GTM</div>
+            <h2 class="slide-title">Экспансия: От локального плацдарма к глобальным рынкам</h2>
+            <p class="slide-subtitle">Технология Push-парсинга снимает зависимость от локального Open Banking регулирования.</p>
+          </div>
+
+          <div class="grid-3">
+            <div class="glass-card" style="border-top: 4px solid var(--accent-cyan);">
+              <div style="font-size:0.8rem; color:var(--accent-cyan); font-weight:700;">ВОЛНА 1 • ТЕКУЩИЙ РЫНОК</div>
+              <div class="card-title" style="margin-top:8px;">Узбекистан (Beachhead)</div>
+              <div class="card-desc">
+                • Население: 37M (молодая аудитория 60% &lt; 30 лет).<br>
+                • 100% карточный онлайн-банкинг (Uzcard / Humo).<br>
+                • Взрывной рост рассрочек (Uzum, Zoodpay) и микрозаймов.<br>
+                • Практически нет конкурентов с AI-автопилотом.
+              </div>
+              <div class="card-stat">$850M</div>
+              <div class="card-stat-label">Объём локального финтех-рынка</div>
+            </div>
+
+            <div class="glass-card" style="border-top: 4px solid var(--accent-purple);">
+              <div style="font-size:0.8rem; color:var(--accent-purple); font-weight:700;">ВОЛНА 2 • СНГ И КАВКАЗ</div>
+              <div class="card-title" style="margin-top:8px;">Казахстан • Азербайджан</div>
+              <div class="card-desc">
+                • Высокий ARPU ($8–$12).<br>
+                • Доминирование Kaspi, Halyk, BirBank.<br>
+                • Нулевые затраты на локализацию языков и UX.<br>
+                • Высокий спрос на исламский и этичный банкинг.
+              </div>
+              <div class="card-stat">$3.2B</div>
+              <div class="card-stat-label">SAM рынков Центральной Азии</div>
+            </div>
+
+            <div class="glass-card" style="border-top: 4px solid var(--accent-emerald);">
+              <div style="font-size:0.8rem; color:var(--accent-emerald); font-weight:700;">ВОЛНА 3 • GLOBAL SCALE</div>
+              <div class="card-title" style="margin-top:8px;">MENA & LATAM</div>
+              <div class="card-desc">
+                • Египет, Саудовская Аравия, Бразилия, Мексика.<br>
+                • Огромные популяции без развитого Open Banking.<br>
+                • Мобильный парсинг — единственный способ оцифровать кошельки.<br>
+                • Потенциал глобального единорога.
+              </div>
+              <div class="card-stat">$12B+</div>
+              <div class="card-stat-label">TAM развивающихся рынков</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 9: Marketing Moat -->
+      <section class="slide" data-slide="9" data-notes="Ответьте на главный вопрос любого маркетолога-инвестора: 'Почему вас не скопирует банк?'. Банк заперт внутри своих продуктов. Капиталбанк никогда не покажет баланс карты Узум Банка. Только независимый игрок может быть нейтральным советником.">
+        <div class="slide-content">
+          <div>
+            <div class="slide-tag">08 // DEFESIBILITY & MARKETING MOAT</div>
+            <h2 class="slide-title">Почему традиционные банки не смогут нас победить</h2>
+            <p class="slide-subtitle">Структурные барьеры конкуренции, которые защищают наш бизнес от копирования.</p>
+          </div>
+
+          <div class="grid-2">
+            <div class="glass-card">
+              <div class="card-icon cyan"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+              <div class="card-title">1. Межбанковский нейтралитет (The Switzerland Defense)</div>
+              <div class="card-desc">
+                Банк X никогда не добавит в своё приложение аналитику карт конкурирующего Банка Y и тем более не предложит рефинансировать свой дорогой кредит в другом месте.<br><br>
+                <b>Пользователю нужен независимый адвокат</b>, который защищает его личные интересы, а не план банка по выдаче дорогих кредитов.
+              </div>
+            </div>
+
+            <div class="glass-card">
+              <div class="card-icon emerald"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+              <div class="card-title">2. Растущие затраты на переключение (High Switching Cost)</div>
+              <div class="card-desc">
+                Финансовые данные — самые липкие в мире B2C софта. Через 6 месяцев использования пользователь накопил полную историю, персонализированную карту привычек и настроенные AI-цели.<br><br>
+                Уйти на другое приложение означает потерять всю оцифрованную финансовую память.
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card" style="margin-top:16px; padding:18px 24px;">
+            <div style="display:flex; justify-content:space-around; align-items:center; text-align:center;">
+              <div>
+                <span style="font-weight:700; color:var(--accent-cyan); font-size:1.3rem;">Zero Data Friction</span>
+                <div style="font-size:0.8rem; color:var(--text-dim);">Установка занимает 40 секунд</div>
+              </div>
+              <div style="width:1px; height:30px; background:rgba(255,255,255,0.1);"></div>
+              <div>
+                <span style="font-weight:700; color:var(--accent-emerald); font-size:1.3rem;">On-Device Security</span>
+                <div style="font-size:0.8rem; color:var(--text-dim);">Никаких рисков утечки номеров карт</div>
+              </div>
+              <div style="width:1px; height:30px; background:rgba(255,255,255,0.1);"></div>
+              <div>
+                <span style="font-weight:700; color:var(--accent-purple); font-size:1.3rem;">Zero Marginal Cost</span>
+                <div style="font-size:0.8rem; color:var(--text-dim);">Масштабирование без дорогих API</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 10: The Ask -->
+      <section class="slide" data-slide="10" data-notes="Завершите питч чётким запросом: сумма раунда, оценка, целевые майлстоуны на 12 месяцев и точное распределение капитала.">
+        <div class="slide-content">
+          <div>
+            <div class="slide-tag">09 // THE ASK & NEXT MILESTONES</div>
+            <h2 class="slide-title">Инвестиционное предложение: Pre-Seed Раунд</h2>
+            <p class="slide-subtitle">Привлекаем раунд для ускорения маркетинговой воронки и масштабирования до 100,000 активных пользователей.</p>
+          </div>
+
+          <div class="grid-2">
+            <div class="glass-card" style="justify-content:flex-start; gap:20px;">
+              <div class="card-title" style="font-size:1.5rem; color:var(--accent-cyan);">Цели раунда (12 месяцев)</div>
+              
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <div style="display:flex; gap:12px; align-items:flex-start;">
+                  <div style="width:26px; height:26px; border-radius:50%; background:rgba(0,240,255,0.1); color:var(--accent-cyan); display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:0.8rem;">1</div>
+                  <div>
+                    <div style="font-weight:700;">100,000+ MAU в домашнем регионе</div>
+                    <div style="font-size:0.85rem; color:var(--text-muted);">Захват лидерства по поисковым запросам в Google Play и Telegram.</div>
+                  </div>
+                </div>
+
+                <div style="display:flex; gap:12px; align-items:flex-start;">
+                  <div style="width:26px; height:26px; border-radius:50%; background:rgba(0,240,255,0.1); color:var(--accent-cyan); display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:0.8rem;">2</div>
+                  <div>
+                    <div style="font-weight:700;">$20,000+ Monthly Recurring Revenue (MRR)</div>
+                    <div style="font-size:0.85rem; color:var(--text-muted);">Суммарно от Pro-подписки и первых 5 банковских партнерств по рефинансированию.</div>
+                  </div>
+                </div>
+
+                <div style="display:flex; gap:12px; align-items:flex-start;">
+                  <div style="width:26px; height:26px; border-radius:50%; background:rgba(0,240,255,0.1); color:var(--accent-cyan); display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:0.8rem;">3</div>
+                  <div>
+                    <div style="font-weight:700;">Выход в Казахстан и Азербайджан</div>
+                    <div style="font-size:0.85rem; color:var(--text-muted);">Адаптация локальных банковских шаблонов и запуск локальных GTM-кампаний.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-card" style="justify-content:flex-start; gap:20px;">
+              <div class="card-title" style="font-size:1.5rem; color:var(--accent-emerald);">Аллокация средств</div>
+              
+              <div style="display:flex; flex-direction:column; gap:16px;">
+                <div>
+                  <div style="display:flex; justify-content:space-between; font-size:0.9rem; font-weight:700; margin-bottom:6px;">
+                    <span>Growth & User Acquisition (Performance, Creators)</span>
+                    <span style="color:var(--accent-cyan);">50%</span>
+                  </div>
+                  <div style="width:100%; height:8px; background:rgba(255,255,255,0.06); border-radius:4px; overflow:hidden;">
+                    <div style="width:50%; height:100%; background:var(--accent-cyan);"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div style="display:flex; justify-content:space-between; font-size:0.9rem; font-weight:700; margin-bottom:6px;">
+                    <span>AI Engineering & On-Device NLP Models</span>
+                    <span style="color:var(--accent-purple);">30%</span>
+                  </div>
+                  <div style="width:100%; height:8px; background:rgba(255,255,255,0.06); border-radius:4px; overflow:hidden;">
+                    <div style="width:30%; height:100%; background:var(--accent-purple);"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div style="display:flex; justify-content:space-between; font-size:0.9rem; font-weight:700; margin-bottom:6px;">
+                    <span>Compliance, Security & Operations</span>
+                    <span style="color:var(--accent-emerald);">20%</span>
+                  </div>
+                  <div style="width:100%; height:8px; background:rgba(255,255,255,0.06); border-radius:4px; overflow:hidden;">
+                    <div style="width:20%; height:100%; background:var(--accent-emerald);"></div>
+                  </div>
+                </div>
+
+                <div style="margin-top:10px; padding:14px; background:rgba(0,230,118,0.06); border:1px solid rgba(0,230,118,0.25); border-radius:12px; text-align:center;">
+                  <span style="font-weight:700; color:var(--accent-emerald);">Готовы предоставить доступ к работающему Live MVP</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer Controls -->
+    <footer class="deck-footer">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button class="nav-arrow-btn" id="btnPrev" title="Предыдущий слайд (←)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="nav-arrow-btn" id="btnNext" title="Следующий слайд (→ или Space)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+
+      <div class="slide-counter">
+        <span id="currentSlideNum">1</span> / <span id="totalSlidesNum">10</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Speaker Notes Drawer -->
+  <div class="notes-drawer" id="notesDrawer">
+    <div class="notes-header">
+      <div class="notes-title">SPEAKER NOTES • МАРКЕТИНГОВЫЙ КОНТЕКСТ ДЛЯ ИНВЕСТОРОВ</div>
+      <button class="control-btn" id="btnCloseNotes" style="padding:4px 10px;">✕ Закрыть</button>
+    </div>
+    <div class="notes-body" id="notesBody">
+      Заметки спикера загружаются...
+    </div>
+  </div>
+
+  <!-- Overview Grid Modal -->
+  <div class="overview-modal" id="overviewModal">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h2 style="font-family:var(--font-display); font-size:1.8rem; font-weight:700;">Сетка всех слайдов</h2>
+      <button class="control-btn" id="btnCloseOverview">✕ Закрыть (Esc)</button>
+    </div>
+    <div class="overview-grid" id="overviewGrid"></div>
+  </div>
+
+  <script>
+    // Slide Navigation Controller
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    let currentSlide = 1;
+
+    const currentSlideNum = document.getElementById('currentSlideNum');
+    const totalSlidesNum = document.getElementById('totalSlidesNum');
+    const progressFill = document.getElementById('progressFill');
+    const notesDrawer = document.getElementById('notesDrawer');
+    const notesBody = document.getElementById('notesBody');
+    const overviewModal = document.getElementById('overviewModal');
+    const overviewGrid = document.getElementById('overviewGrid');
+
+    totalSlidesNum.textContent = totalSlides;
+
+    function updateSlide(newIndex) {
+      if (newIndex < 1) newIndex = 1;
+      if (newIndex > totalSlides) newIndex = totalSlides;
+      currentSlide = newIndex;
+
+      slides.forEach((slide, idx) => {
+        if (idx + 1 === currentSlide) {
+          slide.classList.add('active');
+          const notes = slide.getAttribute('data-notes') || 'Нет заметок для этого слайда.';
+          notesBody.textContent = notes;
+        } else {
+          slide.classList.remove('active');
+        }
+      });
+
+      currentSlideNum.textContent = currentSlide;
+      progressFill.style.width = `${(currentSlide / totalSlides) * 100}%`;
+
+      // Update overview active card
+      document.querySelectorAll('.overview-card').forEach((card, idx) => {
+        if (idx + 1 === currentSlide) {
+          card.classList.add('active');
+        } else {
+          card.classList.remove('active');
+        }
+      });
+    }
+
+    document.getElementById('btnPrev').addEventListener('click', () => updateSlide(currentSlide - 1));
+    document.getElementById('btnNext').addEventListener('click', () => updateSlide(currentSlide + 1));
+
+    // Keyboard Shortcuts
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        updateSlide(currentSlide + 1);
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        updateSlide(currentSlide - 1);
+      } else if (e.key === 'n' || e.key === 'N') {
+        notesDrawer.classList.toggle('open');
+      } else if (e.key === 'o' || e.key === 'O' || (e.key === 'Escape' && overviewModal.classList.contains('open'))) {
+        toggleOverview();
+      } else if (e.key === 'f' || e.key === 'F') {
+        toggleFullScreen();
+      }
+    });
+
+    // Notes toggle
+    document.getElementById('btnNotes').addEventListener('click', () => {
+      notesDrawer.classList.toggle('open');
+    });
+    document.getElementById('btnCloseNotes').addEventListener('click', () => {
+      notesDrawer.classList.remove('open');
+    });
+
+    // Overview toggle
+    function toggleOverview() {
+      overviewModal.classList.toggle('open');
+    }
+    document.getElementById('btnOverview').addEventListener('click', toggleOverview);
+    document.getElementById('btnCloseOverview').addEventListener('click', toggleOverview);
+
+    // Build Overview Grid
+    slides.forEach((slide, idx) => {
+      const titleElem = slide.querySelector('.slide-title') || slide.querySelector('.hero-title');
+      const titleText = titleElem ? titleElem.innerText.replace(/\n/g, ' ').substring(0, 40) + '...' : `Слайд ${idx + 1}`;
+      
+      const card = document.createElement('div');
+      card.className = `overview-card ${idx + 1 === currentSlide ? 'active' : ''}`;
+      card.innerHTML = `
+        <span class="overview-num">SLIDE 0${idx + 1}</span>
+        <div class="overview-card-title">${titleText}</div>
+        <div style="font-size:0.75rem; color:var(--text-dim);">Кликните для перехода</div>
+      `;
+      card.addEventListener('click', () => {
+        updateSlide(idx + 1);
+        toggleOverview();
+      });
+      overviewGrid.appendChild(card);
+    });
+
+    // Fullscreen toggle
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+    document.getElementById('btnFullscreen').addEventListener('click', toggleFullScreen);
+
+    // Interactive Simulator on Slide 7
+    const inputMau = document.getElementById('inputMau');
+    const inputConv = document.getElementById('inputConv');
+    const inputCpa = document.getElementById('inputCpa');
+    const lblMau = document.getElementById('lblMau');
+    const lblConv = document.getElementById('lblConv');
+    const lblCpa = document.getElementById('lblCpa');
+    const resArr = document.getElementById('resArr');
+    const resLtv = document.getElementById('resLtv');
+    const resRatio = document.getElementById('resRatio');
+
+    function calculateUnitEconomics() {
+      const mau = parseInt(inputMau.value, 10);
+      const conv = parseFloat(inputConv.value) / 100;
+      const cpaDeals = parseInt(inputCpa.value, 10); // deals per 1000 users per year
+
+      lblMau.textContent = mau.toLocaleString();
+      lblConv.textContent = (conv * 100).toFixed(1) + '%';
+      lblCpa.textContent = `${cpaDeals} кредитов`;
+
+      // 1. Subscription Revenue
+      const paidUsers = mau * conv;
+      const subPricePerMonth = 3.99;
+      const annualSubRevenue = paidUsers * subPricePerMonth * 12;
+
+      // 2. CPA Bank LeadGen Revenue
+      const avgCpaBonus = 30.0; // $30 per closed loan/card
+      const annualCpaDeals = (mau / 1000) * cpaDeals;
+      const annualCpaRevenue = annualCpaDeals * avgCpaBonus;
+
+      const totalAnnualRevenue = annualSubRevenue + annualCpaRevenue;
+      const blendedLtv = totalAnnualRevenue / mau;
+      const cac = 1.20;
+      const ltvCacRatio = (blendedLtv / cac).toFixed(1);
+
+      resArr.textContent = `$${Math.round(totalAnnualRevenue / 1000)}K`;
+      resLtv.textContent = `$${blendedLtv.toFixed(2)}`;
+      resRatio.textContent = `${ltvCacRatio}x`;
+    }
+
+    inputMau.addEventListener('input', calculateUnitEconomics);
+    inputConv.addEventListener('input', calculateUnitEconomics);
+    inputCpa.addEventListener('input', calculateUnitEconomics);
+
+    calculateUnitEconomics();
+
+    // Ambient Canvas Particle Simulation
+    const canvas = document.getElementById('ambientCanvas');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    const particles = [];
+    const particleCount = 45;
+
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 2 + 0.8,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        color: Math.random() > 0.5 ? 'rgba(0, 240, 255, ' : 'rgba(157, 78, 221, ',
+        alpha: Math.random() * 0.4 + 0.1
+      });
+    }
+
+    function renderCanvas() {
+      ctx.clearRect(0, 0, width, height);
+
+      // Subtle ambient gradient background glow
+      const grad = ctx.createRadialGradient(width * 0.8, height * 0.2, 50, width * 0.8, height * 0.2, width * 0.6);
+      grad.addColorStop(0, 'rgba(0, 240, 255, 0.05)');
+      grad.addColorStop(0.5, 'rgba(121, 40, 202, 0.03)');
+      grad.addColorStop(1, 'transparent');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, width, height);
+
+      // Draw floating nodes & light connecting web
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0) p.x = width;
+        if (p.x > width) p.x = 0;
+        if (p.y < 0) p.y = height;
+        if (p.y > height) p.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = p.color + p.alpha + ')';
+        ctx.fill();
+
+        for (let j = i + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+          if (dist < 140) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(0, 240, 255, ${(1 - dist / 140) * 0.08})`;
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+          }
+        }
+      }
+
+      requestAnimationFrame(renderCanvas);
+    }
+
+    renderCanvas();
+    updateSlide(1);
+  </script>
+</body>
+</html>
