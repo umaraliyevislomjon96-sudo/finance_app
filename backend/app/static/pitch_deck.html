@@ -1,155 +1,106 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Finora — AI-Powered Personal Finance Platform | VC Pitch Deck</title>
+  <title>Finora — Презентация мобильного приложения</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-dark: #07080E;
-      --bg-card: rgba(18, 22, 36, 0.75);
-      --bg-card-hover: rgba(28, 35, 58, 0.90);
-      --border-subtle: rgba(255, 255, 255, 0.08);
-      --border-glow: rgba(0, 240, 255, 0.35);
+      --bg: #090B10;
+      --card-bg: rgba(18, 22, 34, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
       --accent-cyan: #00F0FF;
       --accent-purple: #9D4EDD;
       --accent-emerald: #00E676;
       --accent-amber: #FFB703;
       --accent-rose: #FF007A;
-      --text-main: #FFFFFF;
+      --text: #FFFFFF;
       --text-muted: #94A3B8;
-      --text-dim: #64748B;
-      --font-body: 'Plus Jakarta Sans', sans-serif;
+      --font-main: 'Plus Jakarta Sans', sans-serif;
       --font-display: 'Space Grotesk', sans-serif;
-      --transition-smooth: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-      font-family: var(--font-body);
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-main);
       overflow: hidden;
       height: 100vh;
       width: 100vw;
       user-select: none;
     }
 
-    #ambientCanvas {
+    /* Ambient background */
+    .bg-glow {
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      z-index: 0;
+      background: radial-gradient(circle at 80% 20%, rgba(0, 240, 255, 0.08), transparent 40%),
+                  radial-gradient(circle at 20% 80%, rgba(157, 78, 221, 0.06), transparent 50%);
       pointer-events: none;
+      z-index: 0;
     }
 
-    .deck-container {
+    .container {
       position: relative;
-      width: 100vw; height: 100vh;
       z-index: 10;
+      width: 100vw;
+      height: 100vh;
       display: flex;
       flex-direction: column;
     }
 
-    /* Header Nav */
-    .deck-header {
+    /* Top Header */
+    header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 16px 40px;
-      z-index: 100;
+      padding: 18px 48px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(14px);
+      backdrop-filter: blur(12px);
     }
 
-    .brand-logo {
+    .logo {
       display: flex;
       align-items: center;
       gap: 12px;
       font-family: var(--font-display);
-      font-size: 1.3rem;
+      font-size: 1.4rem;
       font-weight: 800;
       letter-spacing: -0.5px;
     }
 
     .logo-badge {
-      width: 36px; height: 36px;
+      width: 38px; height: 38px;
       border-radius: 10px;
       background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 20px rgba(0, 240, 255, 0.45);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
     }
 
-    .logo-badge svg { width: 20px; height: 20px; fill: #07080E; }
+    .logo-badge svg { width: 22px; height: 22px; fill: #090B10; }
 
-    .deck-status {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .badge-live {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 5px 12px;
-      border-radius: 999px;
-      background: rgba(0, 230, 118, 0.1);
-      border: 1px solid rgba(0, 230, 118, 0.3);
-      color: var(--accent-emerald);
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
-
-    .pulse-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: var(--accent-emerald);
-      box-shadow: 0 0 10px var(--accent-emerald);
-      animation: pulse 1.8s infinite;
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(0.9); opacity: 0.8; }
-      50% { transform: scale(1.3); opacity: 1; }
-      100% { transform: scale(0.9); opacity: 0.8; }
-    }
-
-    .deck-controls {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .control-btn {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-subtle);
-      color: #fff;
-      padding: 7px 14px;
-      border-radius: 8px;
+    .header-tag {
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      color: var(--accent-cyan);
       font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: var(--transition-smooth);
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
     }
 
-    .control-btn:hover {
-      background: rgba(255, 255, 255, 0.12);
-      border-color: var(--accent-cyan);
-    }
-
-    /* Slides Viewport */
-    .slides-wrapper {
+    /* Slide area */
+    main {
       flex: 1;
       position: relative;
       overflow: hidden;
@@ -159,15 +110,15 @@
       position: absolute;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      padding: 32px 50px;
-      opacity: 0;
-      visibility: hidden;
-      transform: translateX(30px);
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 40px 60px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(40px);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .slide.active {
@@ -176,250 +127,176 @@
       transform: translateX(0);
     }
 
-    .slide-content {
+    .slide-box {
       width: 100%;
-      max-width: 1280px;
+      max-width: 1200px;
       height: 100%;
-      max-height: 740px;
+      max-height: 700px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
     }
 
-    /* Slide Typography */
-    .slide-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.78rem;
+    /* Headings */
+    .slide-num {
+      display: inline-block;
+      font-size: 0.82rem;
       font-weight: 800;
+      color: var(--accent-cyan);
       text-transform: uppercase;
       letter-spacing: 1.5px;
-      color: var(--accent-cyan);
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
 
     .slide-title {
       font-family: var(--font-display);
-      font-size: 2.5rem;
-      font-weight: 700;
+      font-size: 2.8rem;
+      font-weight: 800;
       line-height: 1.15;
-      letter-spacing: -0.8px;
-      margin-bottom: 8px;
-      background: linear-gradient(135deg, #FFFFFF 40%, rgba(255,255,255,0.7) 100%);
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #FFFFFF 30%, rgba(255,255,255,0.7) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
-    .slide-subtitle {
-      font-size: 1.05rem;
+    .slide-desc {
+      font-size: 1.2rem;
       color: var(--text-muted);
-      line-height: 1.45;
+      line-height: 1.5;
       max-width: 860px;
-      margin-bottom: 18px;
+      margin-bottom: 24px;
     }
 
-    /* Grids */
+    /* Layout Grids */
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; flex: 1; }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; flex: 1; }
-    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; flex: 1; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; flex: 1; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; flex: 1; }
 
-    /* Glass Cards */
-    .glass-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 18px;
-      padding: 24px;
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 28px;
       backdrop-filter: blur(20px);
-      transition: var(--transition-smooth);
-      position: relative;
-      overflow: hidden;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
     }
 
-    .glass-card:hover {
-      background: var(--bg-card-hover);
-      border-color: var(--border-glow);
-      transform: translateY(-3px);
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 240, 255, 0.1);
+    .card:hover {
+      border-color: rgba(0, 240, 255, 0.4);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
     }
 
     .card-icon {
-      width: 42px; height: 42px;
-      border-radius: 12px;
+      width: 48px; height: 48px;
+      border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 12px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 16px;
+      font-size: 1.5rem;
     }
 
-    .card-icon.cyan { color: var(--accent-cyan); border-color: rgba(0, 240, 255, 0.3); background: rgba(0, 240, 255, 0.08); }
-    .card-icon.purple { color: var(--accent-purple); border-color: rgba(157, 78, 221, 0.3); background: rgba(157, 78, 221, 0.08); }
-    .card-icon.emerald { color: var(--accent-emerald); border-color: rgba(0, 230, 118, 0.3); background: rgba(0, 230, 118, 0.08); }
-    .card-icon.amber { color: var(--accent-amber); border-color: rgba(255, 183, 3, 0.3); background: rgba(255, 183, 3, 0.08); }
-    .card-icon.rose { color: var(--accent-rose); border-color: rgba(255, 0, 122, 0.3); background: rgba(255, 0, 122, 0.08); }
+    .card-icon.cyan { background: rgba(0, 240, 255, 0.1); color: var(--accent-cyan); border: 1px solid rgba(0, 240, 255, 0.25); }
+    .card-icon.purple { background: rgba(157, 78, 221, 0.1); color: var(--accent-purple); border: 1px solid rgba(157, 78, 221, 0.25); }
+    .card-icon.emerald { background: rgba(0, 230, 118, 0.1); color: var(--accent-emerald); border: 1px solid rgba(0, 230, 118, 0.25); }
+    .card-icon.amber { background: rgba(255, 183, 3, 0.1); color: var(--accent-amber); border: 1px solid rgba(255, 183, 3, 0.25); }
+    .card-icon.rose { background: rgba(255, 0, 122, 0.1); color: var(--accent-rose); border: 1px solid rgba(255, 0, 122, 0.25); }
 
     .card-title {
-      font-size: 1.15rem;
+      font-size: 1.35rem;
       font-weight: 700;
-      margin-bottom: 8px;
       color: #fff;
+      margin-bottom: 10px;
     }
 
-    .card-desc {
-      font-size: 0.88rem;
+    .card-text {
+      font-size: 1rem;
       color: var(--text-muted);
-      line-height: 1.5;
+      line-height: 1.6;
     }
 
-    .card-stat {
+    .card-highlight {
       font-family: var(--font-display);
-      font-size: 2.1rem;
-      font-weight: 700;
-      line-height: 1;
-      margin-top: 12px;
-    }
-
-    .card-stat-label {
-      font-size: 0.75rem;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin-top: 4px;
-    }
-
-    /* Hero / Slide 1 */
-    .hero-title {
-      font-family: var(--font-display);
-      font-size: 4rem;
+      font-size: 2.2rem;
       font-weight: 800;
-      line-height: 1.05;
-      letter-spacing: -1.5px;
-      margin-bottom: 18px;
-      max-width: 950px;
+      margin-top: 14px;
+      color: var(--accent-cyan);
     }
-
-    .gradient-text {
-      background: linear-gradient(135deg, var(--accent-cyan) 0%, #7928CA 50%, var(--accent-rose) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .hero-meta {
-      display: flex;
-      gap: 32px;
-      margin-top: 28px;
-      padding-top: 22px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .hero-meta-item { display: flex; flex-direction: column; gap: 3px; }
-    .hero-meta-val { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: #fff; }
-    .hero-meta-lbl { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
-
-    /* Pipeline / Architecture diagram */
-    .pipeline-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      width: 100%;
-      margin: 14px 0;
-    }
-
-    .pipe-step {
-      flex: 1;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border-subtle);
-      border-radius: 14px;
-      padding: 16px;
-      text-align: center;
-    }
-
-    .pipe-arrow { color: var(--accent-cyan); font-size: 1.2rem; font-weight: bold; }
 
     /* Comparison Table */
-    .matrix-table {
+    .compare-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.88rem;
+      font-size: 1rem;
       text-align: left;
     }
 
-    .matrix-table th, .matrix-table td {
-      padding: 12px 14px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    .compare-table th, .compare-table td {
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    .matrix-table th {
-      color: var(--accent-cyan);
-      font-size: 0.78rem;
+    .compare-table th {
+      color: var(--text-muted);
+      font-size: 0.85rem;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
 
-    .matrix-highlight {
-      background: rgba(0, 240, 255, 0.06);
-      border-left: 2px solid var(--accent-cyan);
-      font-weight: 700;
+    .compare-table td.brand {
+      background: rgba(0, 240, 255, 0.07);
       color: #fff;
+      font-weight: 700;
+      border-left: 2px solid var(--accent-cyan);
     }
 
-    /* Simulator */
-    .simulator-box {
-      background: rgba(10, 14, 25, 0.85);
-      border: 1px solid var(--border-glow);
-      border-radius: 18px;
-      padding: 20px 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
+    .status-ok { color: var(--accent-emerald); font-weight: bold; }
+    .status-no { color: var(--accent-rose); font-weight: bold; }
+    .status-part { color: var(--accent-amber); font-weight: bold; }
 
-    .slider-row { display: flex; flex-direction: column; gap: 4px; }
-    .slider-labels { display: flex; justify-content: space-between; font-size: 0.82rem; }
-    .slider-labels span:last-child { color: var(--accent-cyan); font-weight: 700; font-family: var(--font-display); }
-
-    input[type=range] {
-      -webkit-appearance: none;
-      width: 100%; height: 6px;
-      border-radius: 3px;
-      background: rgba(255, 255, 255, 0.1);
-      outline: none;
-    }
-
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 16px; height: 16px;
-      border-radius: 50%;
-      background: var(--accent-cyan);
-      cursor: pointer;
-      box-shadow: 0 0 10px var(--accent-cyan);
-    }
-
-    .sim-results { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 6px; }
-    .sim-card { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 12px; text-align: center; }
-    .sim-val { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: #fff; }
-    .sim-lbl { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; margin-top: 2px; }
-
-    /* Footer */
-    .deck-footer {
+    /* Footer Nav */
+    footer {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 14px 40px;
-      z-index: 100;
+      padding: 18px 48px;
       border-top: 1px solid rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(14px);
+      backdrop-filter: blur(12px);
     }
 
-    .progress-track {
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--card-border);
+      color: #fff;
+      padding: 10px 22px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-btn:hover {
+      background: var(--accent-cyan);
+      color: #090B10;
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.4);
+    }
+
+    .progress-bar {
       flex: 1;
-      max-width: 480px;
-      height: 4px;
+      max-width: 400px;
+      height: 6px;
       background: rgba(255, 255, 255, 0.08);
       border-radius: 999px;
       overflow: hidden;
@@ -428,472 +305,202 @@
 
     .progress-fill {
       height: 100%;
-      width: 6.25%;
+      width: 12.5%;
       background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
       transition: width 0.35s ease;
-      box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
     }
 
-    .slide-counter { font-family: var(--font-display); font-size: 0.88rem; color: var(--text-muted); font-weight: 700; }
-
-    .nav-arrow-btn {
-      width: 38px; height: 38px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid var(--border-subtle);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: var(--transition-smooth);
+    .slide-counter {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-muted);
     }
-
-    .nav-arrow-btn:hover {
-      background: var(--accent-cyan);
-      color: #000;
-      box-shadow: 0 0 16px var(--accent-cyan);
-    }
-
-    /* Notes Drawer */
-    .notes-drawer {
-      position: fixed;
-      bottom: 0; left: 0;
-      width: 100%;
-      background: rgba(10, 14, 24, 0.98);
-      border-top: 2px solid var(--accent-cyan);
-      backdrop-filter: blur(25px);
-      padding: 22px 40px;
-      z-index: 200;
-      transform: translateY(100%);
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.8);
-      max-height: 45vh;
-      overflow-y: auto;
-    }
-
-    .notes-drawer.open { transform: translateY(0); }
-
-    .notes-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-
-    .notes-title { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; color: var(--accent-cyan); }
-    .notes-grid { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 20px; font-size: 0.88rem; line-height: 1.55; }
-    .notes-col h4 { font-size: 0.78rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; letter-spacing: 0.8px; }
-    .notes-col p { color: #E2E8F0; }
-
-    /* Overview Modal */
-    .overview-modal {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: rgba(7, 8, 14, 0.97);
-      backdrop-filter: blur(30px);
-      z-index: 300;
-      padding: 50px 70px;
-      display: none;
-      flex-direction: column;
-    }
-
-    .overview-modal.open { display: flex; }
-
-    .overview-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      flex: 1;
-      overflow-y: auto;
-      margin-top: 20px;
-      padding-right: 8px;
-    }
-
-    .overview-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 12px;
-      padding: 16px;
-      cursor: pointer;
-      transition: var(--transition-smooth);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      height: 140px;
-    }
-
-    .overview-card:hover, .overview-card.active {
-      border-color: var(--accent-cyan);
-      box-shadow: 0 0 18px rgba(0, 240, 255, 0.3);
-      transform: scale(1.02);
-    }
-
-    .overview-num { font-size: 0.72rem; font-weight: 800; color: var(--accent-cyan); }
-    .overview-card-title { font-size: 0.85rem; font-weight: 700; line-height: 1.3; color: #fff; }
   </style>
 </head>
 <body>
 
-  <canvas id="ambientCanvas"></canvas>
+  <div class="bg-glow"></div>
 
-  <div class="deck-container">
+  <div class="container">
     
     <!-- Header -->
-    <header class="deck-header">
-      <div class="brand-logo">
+    <header>
+      <div class="logo">
         <div class="logo-badge">
           <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
         </div>
-        <span>FINORA <span style="font-weight:400; color:var(--text-dim); font-size:0.9rem;">AI FINANCIAL PLATFORM</span></span>
+        <span>FINORA <span style="font-weight:400; color:var(--text-muted); font-size:1rem;">• Умные финансы</span></span>
       </div>
-
-      <div class="deck-status">
-        <div class="badge-live">
-          <span class="pulse-dot"></span>
-          <span>FastAPI Cloud Live • Flutter APK Ready</span>
-        </div>
-      </div>
-
-      <div class="deck-controls">
-        <button class="control-btn" id="btnNotes" title="Speaker Notes (Press N)">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-          <span>Notes (N)</span>
-        </button>
-        <button class="control-btn" id="btnOverview" title="Slide Overview (Press O or Esc)">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-          <span>Grid (O)</span>
-        </button>
-        <button class="control-btn" id="btnFullscreen" title="Fullscreen (Press F)">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-          <span>Fullscreen</span>
-        </button>
-      </div>
+      <div class="header-tag">Презентация приложения</div>
     </header>
 
-    <!-- Main Slides Container -->
-    <main class="slides-wrapper">
+    <!-- Slides Area -->
+    <main>
 
-      <!-- SLIDE 1: Vision & Positioning -->
-      <section class="slide active" data-slide="1"
-        data-en-script="Good morning. Today, we present Finora: the autonomous personal finance platform that turns multi-bank chaos into actionable intelligence with zero manual input. While traditional trackers ask users to do boring accounting work, Finora listens to financial events and provides instant proactive peace of mind."
-        data-ru-script="Мы представляем Finora — автономную платформу персональных финансов, которая устраняет хаос из множества банковских карт без ручного ввода чеков. Вместо нудной бухгалтерии пользователь получает умный финансовый автопилот."
-        data-vc-q="Why won't banks build this themselves?"
-        data-vc-a="Banks are locked in product silos. No single bank will ever aggregate and neutrally optimize loans or deposits from its direct competitors. Users demand a trusted, independent financial fiduciary.">
-        <div class="slide-content">
+      <!-- Слайд 1: Главный экран / Концепция -->
+      <section class="slide active" data-slide="1">
+        <div class="slide-box">
           <div>
-            <div class="slide-tag">01 // VISION & POSITIONING</div>
-            <h1 class="hero-title">
-              Autonomous Intelligence for <br>
-              <span class="gradient-text">Everyday Personal Finances</span>
+            <span class="slide-num">СЛАЙД 01 // О ПРОЕКТЕ</span>
+            <h1 class="slide-title" style="font-size: 3.6rem;">
+              Finora — Твой персональный <br>
+              <span style="background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">финансовый автопилот</span>
             </h1>
-            <p class="slide-subtitle">
-              Finora transforms fragmented bank accounts, loans, and recurring subscriptions into a unified, proactive AI copilot that requires <b>zero manual ledger entry</b>.
+            <p class="slide-desc">
+              Мобильное приложение на базе искусственного интеллекта, которое автоматически понимает, куда уходят деньги, и говорит, сколько можно безопасно потратить прямо сегодня — <b>без ручного ввода чеков</b>.
             </p>
           </div>
 
           <div class="grid-3" style="max-height: 220px;">
-            <div class="glass-card">
-              <div class="card-icon cyan"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
-              <div class="card-title">Zero Friction Capture</div>
-              <div class="card-desc">Automatic on-device parsing of financial push and SMS alerts across local banking apps.</div>
+            <div class="card">
+              <div class="card-icon cyan">⚡</div>
+              <div class="card-title">Ноль ручного ввода</div>
+              <div class="card-text">Приложение само считывает пуши и SMS от банков и записывает каждую покупку.</div>
             </div>
-            <div class="glass-card">
-              <div class="card-icon purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
-              <div class="card-title">Proactive Safe-to-Spend</div>
-              <div class="card-desc">Translates backward-looking expense charts into an actionable daily spending allowance.</div>
+            <div class="card-card card">
+              <div class="card-icon purple">🧠</div>
+              <div class="card-title">ИИ-советник</div>
+              <div class="card-text">Отвечает на любые вопросы: «Могу ли я купить ноутбук?» или «Почему я потратил больше?».</div>
             </div>
-            <div class="glass-card">
-              <div class="card-icon emerald"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-              <div class="card-title">Non-Custodial & Private</div>
-              <div class="card-desc">0 card credentials stored, no banking API dependencies, minimal privacy footprint.</div>
+            <div class="card">
+              <div class="card-icon emerald">🛡️</div>
+              <div class="card-title">Полная безопасность</div>
+              <div class="card-text">Не трогает деньги, не требует доступа к счетам и не хранит пароли от карт.</div>
             </div>
-          </div>
-
-          <div class="hero-meta">
-            <div class="hero-meta-item"><span class="hero-meta-val">"Your Money on Autopilot"</span><span class="hero-meta-lbl">Core Slogan</span></div>
-            <div class="hero-meta-item"><span class="hero-meta-val">37M</span><span class="hero-meta-lbl">Beachhead Population (UZ)</span></div>
-            <div class="hero-meta-item"><span class="hero-meta-val">100% Non-Custodial</span><span class="hero-meta-lbl">Zero Fund Access</span></div>
-            <div class="hero-meta-item"><span class="hero-meta-val">Live MVP</span><span class="hero-meta-lbl">FastAPI Cloud + Flutter APK</span></div>
           </div>
         </div>
       </section>
 
-      <!-- SLIDE 2: The Problem -->
-      <section class="slide" data-slide="2"
-        data-en-script="92% of traditional budgeting apps suffer user churn within the first 7 days. Why? Because manual tracking demands extreme discipline. Meanwhile, consumers hold 3 to 4 cards, multiple BNPL installments, and micro-loans, living in constant financial anxiety without understanding what is truly safe to spend."
-        data-ru-script="Существующие трекеры расходов терпят крах, потому что заставляют человека работать бухгалтером. В то же время потребители пользуются 3-4 картами и рассрочками, не зная точного лимита безопасных трат."
-        data-vc-q="Is manual tracking really the single point of failure?"
-        data-vc-a="Yes. App Annie and Adjust data show finance apps with high onboarding friction experience 85%+ Day-30 drop-off. By shifting capture to background event listeners, we eliminate the primary drop-off trigger entirely.">
-        <div class="slide-content">
+      <!-- Слайд 2: Проблема людей -->
+      <section class="slide" data-slide="2">
+        <div class="slide-box">
           <div>
-            <div class="slide-tag">02 // THE PROBLEM & CONSUMER PAIN POINTS</div>
-            <h2 class="slide-title">Why 92% of PFM Apps Fail Within 7 Days</h2>
-            <p class="slide-subtitle">Users download budgeting apps seeking anxiety relief, but are confronted with tedious bookkeeping work.</p>
+            <span class="slide-num">СЛАЙД 02 // ПРОБЛЕМА</span>
+            <h2 class="slide-title">Почему 9 из 10 людей бросают вести бюджет?</h2>
+            <p class="slide-desc">
+              Классические приложения требуют стать бухгалтером своей жизни, а в банках деньги разбросаны по разным счетам.
+            </p>
           </div>
 
           <div class="grid-3">
-            <div class="glass-card">
-              <div class="card-icon rose"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
-              <div class="card-title">Friction Fatigue</div>
-              <div class="card-desc">Entering a $2 coffee manually creates cognitive friction. Users miss 3 entries, feel guilt, and abandon the application permanently.</div>
-              <div class="card-stat" style="color:var(--accent-rose);">92%</div>
-              <div class="card-stat-label">Industry 30-Day Churn Rate</div>
+            <div class="card">
+              <div class="card-icon rose">😫</div>
+              <div class="card-title">Усталость от ручного ввода</div>
+              <div class="card-text">Вбивать кофе за 15 000 сум руками после работы — лень. Человек забывает 3 чека, всё сбивается, и приложение удаляют через 7 дней.</div>
+              <div class="card-highlight" style="color:var(--accent-rose);">92%</div>
+              <div style="font-size:0.85rem; color:var(--text-muted); margin-top:4px;">людей бросают обычные трекеры</div>
             </div>
 
-            <div class="glass-card">
-              <div class="card-icon amber"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
-              <div class="card-title">Multi-Account Blindness</div>
-              <div class="card-desc">The modern consumer juggles 2-4 payment cards (Uzcard, Humo, Visa), active BNPL split payments, and recurring utility bills across separate apps.</div>
-              <div class="card-stat" style="color:var(--accent-amber);">3.4x</div>
-              <div class="card-stat-label">Average Financial Sources / User</div>
+            <div class="card">
+              <div class="card-icon amber">💳</div>
+              <div class="card-title">Хаос из карт и рассрочек</div>
+              <div class="card-text">У человека 2-3 карты разных банков (Uzcard, Humo, Visa), рассрочка на телефон (Uzum) и коммуналка. Ни один банк не видит общую картину.</div>
+              <div class="card-highlight" style="color:var(--accent-amber);">3.4</div>
+              <div style="font-size:0.85rem; color:var(--text-muted); margin-top:4px;">финансовых сервиса у 1 человека</div>
             </div>
 
-            <div class="glass-card">
-              <div class="card-icon purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
-              <div class="card-title">Post-Factum Guilt vs Action</div>
-              <div class="card-desc">Existing apps show retrospective pie charts that trigger regret, but fail to answer the essential daily question: 'Can I afford this purchase right now?'.</div>
-              <div class="card-stat" style="color:var(--accent-purple);">78%</div>
-              <div class="card-stat-label">Report Recurring Financial Anxiety</div>
+            <div class="card">
+              <div class="card-icon purple">❓</div>
+              <div class="card-title">Стресс в конце месяца</div>
+              <div class="card-text">Обычные приложения показывают графики прошлого: «вы потратили много на еду». Но они не говорят: «сколько я могу потратить прямо сейчас?».</div>
+              <div class="card-highlight" style="color:var(--accent-purple);">78%</div>
+              <div style="font-size:0.85rem; color:var(--text-muted); margin-top:4px;">испытывают финансовую тревогу</div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- SLIDE 3: Target Audience -->
-      <section class="slide" data-slide="3"
-        data-en-script="We do not attempt to boil the ocean. Our primary beachhead target is the young tech-enabled urban professional aged 21 to 35 with multiple cards, subscriptions, and active installment debt. They have high digital literacy, acute awareness of cash leaks, and proven willingness to pay for software that saves time."
-        data-ru-script="Мы не продаём всем подряд. Наш основной начальный сегмент — молодые специалисты 21-35 лет с несколькими картами и рассрочками. Они ценят время и готовы платить за подписку, решающую проблему контроля."
-        data-vc-q="Are emerging market users willing to pay subscription fees?"
-        data-vc-a="Our unit economics assume a conservative 4% conversion to $3.99/month. Comparable services like Telegram Premium, Yandex Plus, and Spotify prove strong subscription appetite when value is delivered daily.">
-        <div class="slide-content">
+      <!-- Слайд 3: Целевая аудитория -->
+      <section class="slide" data-slide="3">
+        <div class="slide-box">
           <div>
-            <div class="slide-tag">03 // CUSTOMER SEGMENTATION & BEACHHEAD</div>
-            <h2 class="slide-title">Hyper-Focused Beachhead: Young Tech Urbanites</h2>
-            <p class="slide-subtitle">Targeting tech-forward consumers experiencing acute multi-channel financial fragmentation.</p>
+            <span class="slide-num">СЛАЙД 03 // ЦЕЛЕВАЯ АУДИТОРИЯ</span>
+            <h2 class="slide-title">Для кого создана Finora?</h2>
+            <p class="slide-desc">
+              Мы начинаем с самых активных пользователей смартфонов, у которых несколько карт и плотный график расходов.
+            </p>
           </div>
 
           <div class="grid-4">
-            <div class="glass-card" style="border-color: var(--accent-cyan);">
-              <div style="font-size:0.75rem; color:var(--accent-cyan); font-weight:800;">PRIMARY BEACHHEAD</div>
-              <div class="card-title" style="margin-top:6px;">Young Urban Professionals</div>
-              <div class="card-desc">21–34 yo; 2-4 cards, freelancers, corporate workers. High transaction frequency, smartphone dependent. Willingness to pay: <b>High ($3-$5/mo)</b>.</div>
-              <div style="margin-top:10px; font-size:0.75rem; color:var(--accent-cyan);">Acquisition: TikTok, Tech Telegram, Influencers</div>
+            <div class="card" style="border-color: var(--accent-cyan);">
+              <div style="font-size:0.75rem; color:var(--accent-cyan); font-weight:800; text-transform:uppercase;">Основное ядро</div>
+              <div class="card-title" style="margin-top:8px;">Молодые специалисты</div>
+              <div class="card-text">20–35 лет. Офис, IT, фриланс. Получают зарплату на карту, много тратят в кафе и доставках. Ценят время и не хотят вбивать чеки.</div>
             </div>
 
-            <div class="glass-card">
-              <div style="font-size:0.75rem; color:var(--text-dim); font-weight:700;">EXPANSION SEGMENT</div>
-              <div class="card-title" style="margin-top:6px;">BNPL & Micro-Loan Borrowers</div>
-              <div class="card-desc">Multiple concurrent installments (Uzum Nasiya, Zoodpay). Desperate for debt payoff schedules and cash runway alerts.</div>
-              <div style="margin-top:10px; font-size:0.75rem; color:var(--text-muted);">Acquisition: Search Ads, Financial Literacy Hubs</div>
+            <div class="card">
+              <div style="font-size:0.75rem; color:var(--accent-purple); font-weight:800; text-transform:uppercase;">Кредиты и BNPL</div>
+              <div class="card-title" style="margin-top:8px;">Пользователи рассрочек</div>
+              <div class="card-text">Купили технику в рассрочку (Uzum Nasiya, Zoodpay). Боятся пропустить дату платежа и попасть на штрафы и пени.</div>
             </div>
 
-            <div class="glass-card">
-              <div style="font-size:0.75rem; color:var(--text-dim); font-weight:700;">EXPANSION SEGMENT</div>
-              <div class="card-title" style="margin-top:6px;">Household Budget Managers</div>
-              <div class="card-desc">Couples managing rent, utilities, tuition, and family groceries. Value automated categorization and monthly forecasting.</div>
-              <div style="margin-top:10px; font-size:0.75rem; color:var(--text-muted);">Acquisition: Family content, referral loops</div>
+            <div class="card">
+              <div style="font-size:0.75rem; color:var(--accent-emerald); font-weight:800; text-transform:uppercase;">Семейный бюджет</div>
+              <div class="card-title" style="margin-top:8px;">Семьи и пары</div>
+              <div class="card-text">Оплачивают аренду, коммуналку, обучение детей, совместные покупки. Хотят видеть общие деньги и копить на отпуск.</div>
             </div>
 
-            <div class="glass-card">
-              <div style="font-size:0.75rem; color:var(--text-dim); font-weight:700;">EXPANSION SEGMENT</div>
-              <div class="card-title" style="margin-top:6px;">SMB Freelancers / Sole Traders</div>
-              <div class="card-desc">Mix personal and business cashflows on retail cards. Require invoice tagging, tax reserves, and cashflow sanity checks.</div>
-              <div style="margin-top:10px; font-size:0.75rem; color:var(--text-muted);">Acquisition: Professional communities, B2B perks</div>
+            <div class="card">
+              <div style="font-size:0.75rem; color:var(--accent-amber); font-weight:800; text-transform:uppercase;">Осознанные финансы</div>
+              <div class="card-title" style="margin-top:8px;">Студенты и начинающие</div>
+              <div class="card-text">Учатся распределять первые доходы, откладывать финансовую подушку и не залезать в долги до следующей стипендии.</div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- SLIDE 4: The Solution -->
-      <section class="slide" data-slide="4"
-        data-en-script="Here is how Finora works. When a user receives a transaction SMS or push notification from their bank, Finora's background engine extracts amount, currency, merchant, and category in under 35 milliseconds. We turn unstructured notifications into proactive Safe-to-Spend guidance."
-        data-ru-script="Механика Finora: фоновый движок за 35 миллисекунд распознаёт пуш или SMS любого банка, определяет категорию и пересчитывает персональный Safe-to-Spend без открывания приложения."
-        data-vc-q="What happens on iOS where background notification listening is restricted?"
-        data-vc-a="Our Android-first strategy captures 85%+ market share in emerging markets. On iOS, we deploy iOS 17 Shortcuts automation, interactive receipt OCR camera, and optional banking webhook forwarding.">
-        <div class="slide-content">
+      <!-- Слайд 4: В чём мы лучше конкурентов -->
+      <section class="slide" data-slide="4">
+        <div class="slide-box">
           <div>
-            <div class="slide-tag">04 // PRODUCT ENGINE & VALUE PIPELINE</div>
-            <h2 class="slide-title">Zero-Touch: From Push Notification to Action</h2>
-            <p class="slide-subtitle">Completely removes manual data entry through autonomous on-device event extraction.</p>
+            <span class="slide-num">СЛАЙД 04 // ПРЕИМУЩЕСТВА</span>
+            <h2 class="slide-title">В чём Finora лучше других решений?</h2>
+            <p class="slide-desc">
+              Мы объединяем полную автоматизацию, независимость от одного банка и понятные рекомендации вместо сухих таблиц.
+            </p>
           </div>
 
-          <div class="pipeline-wrapper">
-            <div class="pipe-step">
-              <div style="font-size:0.72rem; color:var(--accent-cyan); font-weight:800;">1. TRIGGER</div>
-              <div style="font-weight:700; margin:4px 0; font-size:0.95rem;">Bank Push / SMS</div>
-              <div style="font-size:0.78rem; color:var(--text-muted);">Uzcard, Humo, Visa, Click, Payme, Uzum</div>
-            </div>
-            <div class="pipe-arrow">→</div>
-            <div class="pipe-step" style="border-color: var(--accent-cyan);">
-              <div style="font-size:0.72rem; color:var(--accent-cyan); font-weight:800;">2. EDGE NLP PARSER</div>
-              <div style="font-weight:700; margin:4px 0; font-size:0.95rem;">Instant Regex / NLP</div>
-              <div style="font-size:0.78rem; color:var(--text-muted);">&lt; 35ms latency, deduplication, Tiyin precision</div>
-            </div>
-            <div class="pipe-arrow">→</div>
-            <div class="pipe-step">
-              <div style="font-size:0.72rem; color:var(--accent-purple); font-weight:800;">3. DATA ISOLATION</div>
-              <div style="font-weight:700; margin:4px 0; font-size:0.95rem;">Supabase RLS Storage</div>
-              <div style="font-size:0.78rem; color:var(--text-muted);">Encrypted, multi-currency, Row Level Security</div>
-            </div>
-            <div class="pipe-arrow">→</div>
-            <div class="pipe-step" style="border-color: var(--accent-emerald);">
-              <div style="font-size:0.72rem; color:var(--accent-emerald); font-weight:800;">4. PROACTIVE NUDGE</div>
-              <div style="font-weight:700; margin:4px 0; font-size:0.95rem;">Safe-to-Spend AI</div>
-              <div style="font-size:0.78rem; color:var(--text-muted);">Daily spend limit & cash reserve simulation</div>
-            </div>
-          </div>
-
-          <div class="grid-2">
-            <div class="glass-card">
-              <div class="card-title">Zero API Aggregator Costs</div>
-              <div class="card-desc">Unlike US apps paying Plaid/Yodlee $0.30/user/month, our edge-parsing model incurs <b>$0 marginal ingestion costs</b>.</div>
-            </div>
-            <div class="glass-card">
-              <div class="card-title">Immediate Measurable Outcome</div>
-              <div class="card-desc">Users save an estimated 45 minutes of manual bookkeeping every week while knowing exact liquidity before making purchases.</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SLIDE 5: Product Experience -->
-      <section class="slide" data-slide="5"
-        data-en-script="Finora's product experience is built around five pillars: Unified Financial Dashboard, Daily Safe-to-Spend calculation, an interactive AI Financial Copilot, recurring obligations calendar, and smart debt pay-off calculators. Users can ask conversational questions like 'Can I afford a $700 laptop today?'."
-        data-ru-script="Продуктовый интерфейс Finora включает единый дашборд, индикатор Safe-to-Spend, диалогового ИИ-советника, календарь подписок и кредитные калькуляторы. Пользователь может спросить: «Могу ли я купить ноутбук за $700?»."
-        data-vc-q="Does the AI hallucinates financial numbers?"
-        data-vc-a="No. Our architecture uses deterministic financial calculation algorithms for all math and balances. The LLM only acts as a natural language interface, grounded directly in verified database figures.">
-        <div class="slide-content">
-          <div>
-            <div class="slide-tag">05 // CORE PRODUCT SUITE & EXPERIENCE</div>
-            <h2 class="slide-title">An Intelligent OS, Not a Static Spreadsheet</h2>
-            <p class="slide-subtitle">Modular financial tools working in real-time synergy to drive daily active engagement.</p>
-          </div>
-
-          <div class="grid-4">
-            <div class="glass-card">
-              <div class="card-icon cyan"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg></div>
-              <div class="card-title">Safe-to-Spend Core</div>
-              <div class="card-desc">Calculates disposable income after reserving funds for upcoming rent, loan installments, and savings goals.</div>
-            </div>
-
-            <div class="glass-card">
-              <div class="card-icon purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-              <div class="card-title">AI Financial Copilot</div>
-              <div class="card-desc">Natural language queries: 'Why did I spend 20% more this month?' or 'How much can I spend before payday?'.</div>
-            </div>
-
-            <div class="glass-card">
-              <div class="card-icon emerald"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-              <div class="card-title">Recurring Obligations</div>
-              <div class="card-desc">Auto-detects subscriptions, utility schedules, and micro-loan dates to eliminate late payment penalties.</div>
-            </div>
-
-            <div class="glass-card">
-              <div class="card-icon amber"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
-              <div class="card-title">Smart Debt Payoff</div>
-              <div class="card-desc">Simulates avalanche vs snowball debt reduction strategies across BNPL contracts and credit lines.</div>
-            </div>
-          </div>
-
-          <div class="glass-card" style="padding:14px 22px; margin-top:12px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.88rem;">
-              <span><b>Supported Languages:</b> English, Uzbek, Russian</span>
-              <span style="color:var(--accent-cyan);">Light & Dark Adaptive Theme Engine</span>
-              <span><b>Platform:</b> Native Flutter Client + Cloud Backend</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SLIDE 6: Why Now? -->
-      <section class="slide" data-slide="6"
-        data-en-script="Why is now the exact moment for Finora? Three tectonic shifts: first, 95%+ cashless smartphone penetration in emerging markets; second, the massive explosion of BNPL and consumer micro-credit; and third, local LLMs and edge AI making natural language finance assistants affordable at scale."
-        data-ru-script="Почему именно сейчас? 3 фактора: 100% цифровизация платежей в регионе, взрывной рост рассрочек и появление доступных LLM, способных анализировать траты в реальном времени."
-        data-vc-q="Isn't open banking coming to emerging markets soon?"
-        data-vc-a="Open banking frameworks take 3-5 years to standardize and enforce. Our notification engine provides instant zero-dependency market capture today, while keeping our data model 100% Open Banking ready for tomorrow.">
-        <div class="slide-content">
-          <div>
-            <div class="slide-tag">06 // MACRO CONVERGENCE & TIMING</div>
-            <h2 class="slide-title">Why Now? The Perfect FinTech Storm</h2>
-            <p class="slide-subtitle">Three macroeconomic and technological catalysts creating an unprecedented market window.</p>
-          </div>
-
-          <div class="grid-3">
-            <div class="glass-card">
-              <div class="card-icon cyan"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-              <div class="card-title">1. Cashless Explosion</div>
-              <div class="card-desc">In emerging markets like Uzbekistan, 100% of card transactions (Uzcard/Humo) generate instant digital push/SMS notifications. Cash transactions have plummeted.</div>
-            </div>
-
-            <div class="glass-card">
-              <div class="card-icon purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
-              <div class="card-title">2. Proliferation of BNPL</div>
-              <div class="card-desc">Consumer installment loans have surged 400% in 24 months. Users are suffocating under multiple overlapping repayment deadlines.</div>
-            </div>
-
-            <div class="glass-card">
-              <div class="card-icon emerald"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
-              <div class="card-title">3. GenAI Cost Curve Collapse</div>
-              <div class="card-desc">Token inference costs have dropped 90% year-over-year. What cost $0.10 per query in 2023 now costs fractions of a cent, enabling high-margin consumer subscriptions.</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SLIDE 7: Value Proposition & Competitive Advantage -->
-      <section class="slide" data-slide="7"
-        data-en-script="Comparing Finora to alternatives reveals our defensible moats. Traditional budgeting apps require manual input; banking apps only see their own accounts; generic ChatGPT lacks context and real-time bank access. Finora unites multi-bank automation, privacy, and proactive forward-looking advice."
-        data-ru-script="Сравнение с конкурентами: обычные приложения требуют ручного ввода, банки заперты внутри одной экосистемы, а универсальный ChatGPT не имеет доступа к транзакциям. Finora объединяет нейтралитет и автоматизацию."
-        data-vc-q="Can't a well-funded competitor clone your regex/NLP parser?"
-        data-vc-a="The parser is just the ingestion pipe. Our long-term moat is consumer financial switching costs, localized multi-bank parsing heuristics, and the proprietary Safe-to-Spend recommendation algorithm.">
-        <div class="slide-content">
-          <div>
-            <div class="slide-tag">07 // COMPETITIVE ADVANTAGE & MOATS</div>
-            <h2 class="slide-title">Defensibility Matrix: Neutral & Autonomous</h2>
-            <p class="slide-subtitle">How Finora outperforms legacy alternatives across critical consumer vectors.</p>
-          </div>
-
-          <div class="glass-card" style="padding:16px;">
-            <table class="matrix-table">
+          <div class="card" style="padding: 10px 20px;">
+            <table class="compare-table">
               <thead>
                 <tr>
-                  <th>Feature Dimension</th>
-                  <th class="matrix-highlight">Finora AI</th>
-                  <th>Legacy PFM Apps</th>
-                  <th>Single Banking App</th>
-                  <th>Generic AI (ChatGPT)</th>
+                  <th>Критерий</th>
+                  <th class="brand">Finora AI</th>
+                  <th>Обычные трекеры (Monefy, 1Money)</th>
+                  <th>Приложение одного банка</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td><b>Zero Manual Input</b></td>
-                  <td class="matrix-highlight" style="color:var(--accent-emerald);">✓ Auto Push / SMS</td>
-                  <td style="color:var(--accent-rose);">✗ 100% Manual Typing</td>
-                  <td style="color:var(--accent-amber);">~ Own bank only</td>
-                  <td style="color:var(--accent-rose);">✗ Manual Copy-Paste</td>
+                  <td><b>Ввод расходов</b></td>
+                  <td class="brand status-ok">✓ 100% автоматически (пуши/SMS)</td>
+                  <td class="status-no">✗ Вручную вбивать каждый чек</td>
+                  <td class="status-part">~ Только свои карты банка</td>
                 </tr>
                 <tr>
-                  <td><b>Multi-Bank Aggregation</b></td>
-                  <td class="matrix-highlight" style="color:var(--accent-emerald);">✓ All Cards & BNPL</td>
-                  <td style="color:var(--accent-rose);">✗ Manual Sync</td>
-                  <td style="color:var(--accent-rose);">✗ Competitor Blind</td>
-                  <td style="color:var(--accent-rose);">✗ No Live Context</td>
+                  <td><b>Все карты в одном окне</b></td>
+                  <td class="brand status-ok">✓ Любые банки (Uzcard, Humo, Visa)</td>
+                  <td class="status-no">✗ Нужно вручную синхронизировать</td>
+                  <td class="status-no">✗ Не видит чужие карты и кредиты</td>
                 </tr>
                 <tr>
-                  <td><b>Safe-to-Spend Forecast</b></td>
-                  <td class="matrix-highlight" style="color:var(--accent-emerald);">✓ Predictive Engine</td>
-                  <td style="color:var(--accent-rose);">✗ Backward Graphs</td>
-                  <td style="color:var(--accent-rose);">✗ Balance Only</td>
-                  <td style="color:var(--accent-rose);">✗ Static Text</td>
+                  <td><b>Сколько можно тратить сегодня</b></td>
+                  <td class="brand status-ok">✓ Расчёт Safe to Spend на день</td>
+                  <td class="status-no">✗ Только графики за прошлый месяц</td>
+                  <td class="status-no">✗ Показывает только общий баланс</td>
                 </tr>
                 <tr>
-                  <td><b>Neutral Financial Fiduciary</b></td>
-                  <td class="matrix-highlight" style="color:var(--accent-emerald);">✓ 100% User Aligned</td>
-                  <td style="color:var(--accent-emerald);">✓ Neutral</td>
-                  <td style="color:var(--accent-rose);">✗ Sells Own Credit</td>
-                  <td style="color:var(--accent-emerald);">✓ Neutral</td>
+                  <td><b>ИИ-помощник в чате</b></td>
+                  <td class="brand status-ok">✓ Живой диалог и разбор покупок</td>
+                  <td class="status-no">✗ Нет искусственного интеллекта</td>
+                  <td class="status-no">✗ Шаблонные боты поддержки</td>
+                </tr>
+                <tr>
+                  <td><b>Защита интересов клиента</b></td>
+                  <td class="brand status-ok">✓ Независим, советует где выгоднее</td>
+                  <td class="status-ok">✓ Нейтрален</td>
+                  <td class="status-no">✗ Продает только свои кредиты</td>
                 </tr>
               </tbody>
             </table>
@@ -901,500 +508,138 @@
         </div>
       </section>
 
-      <!-- SLIDE 8: Short-Term Business Model -->
-      <section class="slide" data-slide="8"
-        data-en-script="For our initial 12 months, our business model is lean and disciplined: a Freemium B2C subscription. The free tier gives users automated tracking and basic summaries. The Pro tier at $3.99 per month unlocks the unlimited AI Copilot, multi-currency forecasting, and debt acceleration tools."
-        data-ru-script="Бизнес-модель первых 12 месяцев — прозрачный Freemium B2C. Базовый автоучёт бесплатен, а Pro-подписка за $3.99/месяц открывает безлимитного ИИ-ассистента и симуляции кредитов."
-        data-vc-q="Why not monetize via advertising on Day 1?"
-        data-vc-a="Advertising in personal finance destroys user trust immediately. A transparent SaaS subscription aligns our incentives directly with helping the user optimize their financial health.">
-        <div class="slide-content">
+      <!-- Слайд 5: Как работает приложение (Ключевые фичи) -->
+      <section class="slide" data-slide="5">
+        <div class="slide-box">
           <div>
-            <div class="slide-tag">08 // SHORT-TERM BUSINESS MODEL (MONTHS 0-12)</div>
-            <h2 class="slide-title">Lean B2C SaaS Freemium Monetization</h2>
-            <p class="slide-subtitle">Proving product-market fit and willingness to pay before scaling secondary revenue streams.</p>
-          </div>
-
-          <div class="grid-3">
-            <div class="glass-card">
-              <div style="font-size:0.8rem; color:var(--text-dim); font-weight:700;">FREE TIER</div>
-              <div class="card-title">Free Ingestion Tier</div>
-              <div class="card-stat" style="color:#fff;">$0</div>
-              <div class="card-desc" style="margin-top:10px;">
-                • Auto push & SMS parsing for up to 2 accounts.<br>
-                • Monthly spending summaries.<br>
-                • Basic category tracking.<br>
-                • Standard dark/light themes.
-              </div>
-              <div class="card-stat-label">Acquisition & Viral Hook</div>
-            </div>
-
-            <div class="glass-card" style="border-color: var(--accent-cyan);">
-              <div style="font-size:0.8rem; color:var(--accent-cyan); font-weight:800;">PRO TIER (CORE HYPOTHESIS)</div>
-              <div class="card-title">Finora Pro Monthly</div>
-              <div class="card-stat" style="color:var(--accent-cyan);">$3.99 <span style="font-size:1rem; color:var(--text-dim);">/ mo</span></div>
-              <div class="card-desc" style="margin-top:10px;">
-                • Unlimited accounts, cards & BNPL tracking.<br>
-                • Full Conversational AI Copilot.<br>
-                • Daily Safe-to-Spend dynamic forecasting.<br>
-                • Smart debt payoff simulator.
-              </div>
-              <div class="card-stat-label">Target Conversion: 4.0% of MAU</div>
-            </div>
-
-            <div class="glass-card">
-              <div style="font-size:0.8rem; color:var(--accent-purple); font-weight:700;">ANNUAL PLAN</div>
-              <div class="card-title">Finora Pro Annual</div>
-              <div class="card-stat" style="color:var(--accent-purple);">$29.99 <span style="font-size:1rem; color:var(--text-dim);">/ yr</span></div>
-              <div class="card-desc" style="margin-top:10px;">
-                • 37% discount to maximize Day-1 cashflow.<br>
-                • Reduces churn and improves CAC payback.<br>
-                • Priority access to multi-player family budgets.
-              </div>
-              <div class="card-stat-label">Improves Day-0 Cash Runway</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SLIDE 9: Long-Term Business Model -->
-      <section class="slide" data-slide="9"
-        data-en-script="In years 2 through 5, Finora scales from a consumer tool into a high-margin financial marketplace. By understanding real consumer debt and cashflow patterns, we can match users with cheaper bank refinancing at $25 to $50 CPA, family plans, and white-label enterprise solutions."
-        data-ru-script="В перспективе 2-5 лет Finora перерастает в маркетплейс финансовых продуктов. Мы сможем предлагать рефинансирование кредитов с комиссией $25-$50 CPA и семейные подписки."
-        data-vc-q="Does B2B lead generation conflict with your neutral fiduciary promise?"
-        data-vc-a="Only if offers are biased. We strictly display transparent math: if Bank A offers 22% APR to replace a 36% microloan, the user saves real money, and the bank pays a referral bonus. The user wins first.">
-        <div class="slide-content">
-          <div>
-            <div class="slide-tag">09 // LONG-TERM BUSINESS MODEL (YEARS 2-5)</div>
-            <h2 class="slide-title">Financial Super-App & B2B LeadGen</h2>
-            <p class="slide-subtitle">Unlocking lucrative B2B2C and marketplace economics on top of verified consumer engagement.</p>
-          </div>
-
-          <div class="grid-3">
-            <div class="glass-card">
-              <div class="card-icon emerald"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-              <div class="card-title">1. Multi-Player Family Accounts</div>
-              <div class="card-desc">Shared household wallets, shared savings goals, and teen allowances at $6.99/month. High stickiness and near-zero churn.</div>
-            </div>
-
-            <div class="glass-card">
-              <div class="card-icon cyan"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
-              <div class="card-title">2. B2B Debt Refinancing CPA</div>
-              <div class="card-desc">When our algorithm identifies expensive micro-loans, it connects pre-qualified users to partner banks for cheaper consolidation ($25-$50 CPA).</div>
-            </div>
-
-            <div class="glass-card">
-              <div class="card-icon purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
-              <div class="card-title">3. White-Label & Employer Wellness</div>
-              <div class="card-desc">B2B2C distribution via enterprise HR benefits (employee financial wellness) and white-label PFM modules for challenger digital banks.</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SLIDE 10: Go-To-Market Strategy -->
-      <section class="slide" data-slide="10"
-        data-en-script="Our customer acquisition playbook leverages organic creator partnerships and financial literacy micro-content. Our target Customer Acquisition Cost is under $1.20, driven by the viral AI Financial Health Score sharing on Telegram and Instagram."
-        data-ru-script="Наша маркетинговая стратегия: привлечение через авторов финансового контента, виральный калькулятор здоровья бюджета и таргетинг со стоимостью установки менее $1.20."
-        data-vc-q="How do you ensure organic K-factor remains above 1.0?"
-        data-vc-a="Finora includes an exportable, privacy-safe 'Financial Health Score' and 'Savings Streak' card designed specifically for social sharing in Telegram groups and Instagram stories.">
-        <div class="slide-content">
-          <div>
-            <div class="slide-tag">10 // GO-TO-MARKET & GROWTH ENGINE</div>
-            <h2 class="slide-title">Low-CAC Acquisition & Product Loops</h2>
-            <p class="slide-subtitle">Building an organic acquisition flywheel driven by content creators and natural user referral triggers.</p>
+            <span class="slide-num">СЛАЙД 05 // ФУНКЦИОНАЛ</span>
+            <h2 class="slide-title">Что умеет Finora в руках пользователя?</h2>
+            <p class="slide-desc">
+              Простые и понятные экраны, которые каждый день помогают экономить деньги и время.
+            </p>
           </div>
 
           <div class="grid-4">
-            <div class="glass-card">
-              <div style="font-size:1.5rem; font-weight:800; color:var(--accent-cyan); margin-bottom:6px;">01</div>
-              <div class="card-title">Creator Micro-Content</div>
-              <div class="card-desc">Short-form Reels/TikToks debunking hidden bank fees and BNPL interest rates, with Finora as the diagnostic tool.</div>
+            <div class="card">
+              <div class="card-icon cyan">📊</div>
+              <div class="card-title">Главный экран</div>
+              <div class="card-text">Единый баланс всех карт, наглядные категории расходов (еда, такси, шопинг) и последние операции за секунду.</div>
             </div>
 
-            <div class="glass-card">
-              <div style="font-size:1.5rem; font-weight:800; color:var(--accent-purple); margin-bottom:6px;">02</div>
-              <div class="card-title">Telegram Mini-Audit</div>
-              <div class="card-desc">Interactive Telegram bot offering a 60-second budget stress-test, routing users into the native mobile app download.</div>
+            <div class="card">
+              <div class="card-icon emerald">🎯</div>
+              <div class="card-title">Safe to Spend</div>
+              <div class="card-text">Умная сумма: сколько можно потратить сегодня, чтобы гарантированно хватило на аренду, рассрочки и накопления.</div>
             </div>
 
-            <div class="glass-card">
-              <div style="font-size:1.5rem; font-weight:800; color:var(--accent-emerald); margin-bottom:6px;">03</div>
-              <div class="card-title">Viral Referral Loop</div>
-              <div class="card-desc">Users earn 1 free month of Finora Pro for every 2 friends who successfully connect their first automated bank account.</div>
+            <div class="card">
+              <div class="card-icon purple">💬</div>
+              <div class="card-title">ИИ-помощник</div>
+              <div class="card-text">Прямой чат: «Куда ушли деньги в пятницу?», «Сколько я могу отложить?», «Посчитай переплату по рассрочке».</div>
             </div>
 
-            <div class="glass-card">
-              <div style="font-size:1.5rem; font-weight:800; color:var(--accent-amber); margin-bottom:6px;">04</div>
-              <div class="card-title">Campus & Co-Working Hubs</div>
-              <div class="card-desc">Direct onboarding workshops across IT universities and tech co-working spaces in Tashkent and regional hubs.</div>
+            <div class="card">
+              <div class="card-icon amber">📅</div>
+              <div class="card-title">Календарь и кредиты</div>
+              <div class="card-text">Напоминает о платежах за аренду и коммуналку. Калькулятор досрочного погашения кредитов без переплат.</div>
             </div>
           </div>
 
-          <div class="glass-card" style="margin-top:12px; padding:16px 24px;">
-            <div style="display:flex; justify-content:space-around; align-items:center;">
-              <div><span style="color:var(--accent-cyan); font-weight:700; font-size:1.3rem;">Target Blended CAC: $1.20</span></div>
-              <div style="width:1px; height:24px; background:rgba(255,255,255,0.1);"></div>
-              <div><span style="color:var(--accent-purple); font-weight:700; font-size:1.3rem;">Target Conversion to Pro: 4.0%</span></div>
-              <div style="width:1px; height:24px; background:rgba(255,255,255,0.1);"></div>
-              <div><span style="color:var(--accent-emerald); font-weight:700; font-size:1.3rem;">Target Payback: &lt; 3.5 Months</span></div>
+          <div class="card" style="padding: 16px 24px; margin-top: 8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.95rem;">
+              <span>🌐 <b>3 языка:</b> Русский, O'zbekcha, English</span>
+              <span>🌙 <b>Темы:</b> Светлая и стильная тёмная тема</span>
+              <span>⚡ <b>Скорость:</b> Распознавание уведомления за <b>0.03 секунды</b></span>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- SLIDE 11: Market Opportunity (TAM/SAM/SOM) -->
-      <section class="slide" data-slide="11"
-        data-en-script="We calculate our market opportunity bottom-up. In Uzbekistan, 7 million smartphone users hold multiple bank cards. Capturing just 2% of this beachhead yields 140,000 active users and $2.8 million in ARR. Across Central Asia and Caucasus, our SAM expands to $210 million."
-        data-ru-script="Оценка рынка снизу вверх: в Узбекистане 7 млн человек имеют несколько карт. 2% этого рынка дают 140 тыс. пользователей и $2.8 млн ARR. Рынок Центральной Азии расширяет SAM до $210 млн."
-        data-vc-q="Why avoid claiming the entire global $1.5 trillion fintech market?"
-        data-vc-a="Because investors discount top-down hype. We size specifically: number of multi-card smartphone owners multiplied by our verified annual ARPU expectation.">
-        <div class="slide-content">
+      <!-- Слайд 6: Стратегия роста и привлечения -->
+      <section class="slide" data-slide="6">
+        <div class="slide-box">
           <div>
-            <div class="slide-tag">11 // BOTTOM-UP MARKET SIZING</div>
-            <h2 class="slide-title">Clear, Methodical Market Opportunity</h2>
-            <p class="slide-subtitle">Sized through rigorous unit economics and addressable multi-card smartphone penetration.</p>
-          </div>
-
-          <div class="grid-3">
-            <div class="glass-card" style="border-top: 4px solid var(--accent-cyan);">
-              <div style="font-size:0.75rem; color:var(--accent-cyan); font-weight:800;">SOM // BEACHHEAD (12-24 MO)</div>
-              <div class="card-title">Uzbekistan Market</div>
-              <div class="card-desc">
-                • 7.0M multi-card urban smartphone owners.<br>
-                • Target capture: 2.0% penetration = 140,000 MAU.<br>
-                • Blended ARPU: $20.00 / year (SaaS + LeadGen).
-              </div>
-              <div class="card-stat" style="color:var(--accent-cyan);">$2.8M</div>
-              <div class="card-stat-label">Beachhead Serviceable Obtainable ARR</div>
-            </div>
-
-            <div class="glass-card" style="border-top: 4px solid var(--accent-purple);">
-              <div style="font-size:0.75rem; color:var(--accent-purple); font-weight:800;">SAM // CENTRAL ASIA & CAUCASUS</div>
-              <div class="card-title">Regional Expansion</div>
-              <div class="card-desc">
-                • Kazakhstan, Uzbekistan, Azerbaijan, Kyrgyzstan.<br>
-                • 22M eligible multi-card smartphone holders.<br>
-                • Blended regional ARPU: $28.00 / year.
-              </div>
-              <div class="card-stat" style="color:var(--accent-purple);">$210M</div>
-              <div class="card-stat-label">Regional Addressable Annual Market</div>
-            </div>
-
-            <div class="glass-card" style="border-top: 4px solid var(--accent-emerald);">
-              <div style="font-size:0.75rem; color:var(--accent-emerald); font-weight:800;">TAM // GLOBAL EMERGING MARKETS</div>
-              <div class="card-title">MENA, LATAM, SEA</div>
-              <div class="card-desc">
-                • High smartphone density, low Open Banking penetration.<br>
-                • 450M addressable middle-class consumers.<br>
-                • Autonomous notification PFM model scales globally.
-              </div>
-              <div class="card-stat" style="color:var(--accent-emerald);">$5.4B+</div>
-              <div class="card-stat-label">Total Addressable Market</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SLIDE 12: Geographic Expansion -->
-      <section class="slide" data-slide="12"
-        data-en-script="Our geographic expansion roadmap follows three disciplined phases with explicit entry and exit gates. We do not enter Phase 2 until we hit 50,000 MAU and proven retention in Uzbekistan. Phase 2 targets Kazakhstan and Azerbaijan; Phase 3 scales to high-growth MENA and LATAM economies."
-        data-ru-script="План экспансии разбит на 3 фазы с чёткими критериями перехода: мы не выходим в Казахстан и Азербайджан, пока не докажем retention и 50,000 пользователей в Узбекистане."
-        data-vc-q="What are the key technical risks of entering a new country?"
-        data-vc-a="Bank notification templates differ. However, our modular Regex/NLP engine requires only 3-5 days of rule mapping per new bank, with zero infrastructure changes.">
-        <div class="slide-content">
-          <div>
-            <div class="slide-tag">12 // INTERNATIONAL EXPANSION ROADMAP</div>
-            <h2 class="slide-title">Disciplined 3-Phase Geographic Strategy</h2>
-            <p class="slide-subtitle">Expanding strictly upon validating retention metrics and technical notification coverage.</p>
-          </div>
-
-          <div class="grid-3">
-            <div class="glass-card">
-              <div class="badge-live" style="margin-bottom:8px; align-self:flex-start;">PHASE 1: MONTHS 0-12</div>
-              <div class="card-title">Uzbekistan Beachhead</div>
-              <div class="card-desc">
-                <b>Focus:</b> 100% notification parser coverage (Uzcard, Humo, top 10 banks).<br>
-                <b>Exit Gate to Phase 2:</b> 50K MAU, Day-30 Retention &gt; 25%, 3.5%+ Pro subscription conversion.
-              </div>
-            </div>
-
-            <div class="glass-card">
-              <div class="badge-live" style="background:rgba(157,78,221,0.15); border-color:rgba(157,78,221,0.4); color:var(--accent-purple); margin-bottom:8px; align-self:flex-start;">PHASE 2: MONTHS 12-24</div>
-              <div class="card-title">Central Asia & Caucasus</div>
-              <div class="card-desc">
-                <b>Markets:</b> Kazakhstan (Kaspi, Halyk) & Azerbaijan (BirBank, Pasha).<br>
-                <b>Strategic Advantage:</b> Higher ARPU ($6-$10), zero language barrier, rapid digital card usage.
-              </div>
-            </div>
-
-            <div class="glass-card">
-              <div class="badge-live" style="background:rgba(0,230,118,0.15); border-color:rgba(0,230,118,0.4); color:var(--accent-emerald); margin-bottom:8px; align-self:flex-start;">PHASE 3: MONTHS 24-48</div>
-              <div class="card-title">Global Emerging Markets</div>
-              <div class="card-desc">
-                <b>Markets:</b> Egypt, Saudi Arabia, Brazil, Mexico.<br>
-                <b>Rationale:</b> Massive under-banked populations with high Android share and fragmented SMS/Push banking ecosystems.
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SLIDE 13: Revenue & Unit Economics (Interactive Simulator) -->
-      <section class="slide" data-slide="13"
-        data-en-script="Let's look at the numbers. On this slide, you can interact with our live unit economics simulator. At 100,000 active users and a 4% Pro conversion rate, our Annual Run Rate reaches $236,000 with an exceptional LTV-to-CAC ratio of 7.0x and payback under 4 months."
-        data-ru-script="Интерактивный симулятор экономики: при 100,000 пользователях и 4% конверсии годовая выручка составляет $236K, соотношение LTV к CAC равно 7x, а окупаемость — менее 4 месяцев."
-        data-vc-q="How sensitive is your model to churn?"
-        data-vc-a="We factored a monthly churn of 5% into the base model. Because our core feature saves money every single day, utility retention significantly outperforms discretionary entertainment apps.">
-        <div class="slide-content">
-          <div>
-            <div class="slide-tag">13 // UNIT ECONOMICS & FINANCIAL SIMULATOR</div>
-            <h2 class="slide-title">Capital-Efficient Unit Economics</h2>
-            <p class="slide-subtitle">High gross margin software profile paired with low emerging-market acquisition costs.</p>
-          </div>
-
-          <div class="grid-2">
-            <div class="glass-card">
-              <div class="card-title">Core Unit Economics (Base Case)</div>
-              <div style="display:flex; flex-direction:column; gap:8px; font-size:0.88rem; color:#CBD5E1; margin-top:8px;">
-                <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:6px;">
-                  <span>Blended CAC (Customer Acquisition Cost)</span>
-                  <span style="color:var(--accent-cyan); font-weight:700;">$1.20</span>
-                </div>
-                <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:6px;">
-                  <span>Subscription Price (Pro Plan)</span>
-                  <span style="color:#fff; font-weight:700;">$3.99 / mo</span>
-                </div>
-                <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:6px;">
-                  <span>Gross Margin</span>
-                  <span style="color:var(--accent-emerald); font-weight:700;">84%</span>
-                </div>
-                <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:6px;">
-                  <span>Monthly Churn (Hypothesis)</span>
-                  <span style="color:var(--accent-amber); font-weight:700;">5.0%</span>
-                </div>
-                <div style="display:flex; justify-content:space-between; padding-top:4px;">
-                  <span>Target LTV / CAC Ratio</span>
-                  <span style="color:var(--accent-cyan); font-weight:700;">&gt; 4.5x</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Interactive Live Simulator -->
-            <div class="simulator-box">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-weight:700; color:#fff; font-size:1rem;">Live Economics Simulator</span>
-                <span style="font-size:0.75rem; color:var(--accent-cyan); font-weight:700;">INTERACTIVE</span>
-              </div>
-
-              <div class="slider-row">
-                <div class="slider-labels">
-                  <span>Monthly Active Users (MAU)</span>
-                  <span id="lblMau">100,000</span>
-                </div>
-                <input type="range" id="inputMau" min="20000" max="500000" step="10000" value="100000">
-              </div>
-
-              <div class="slider-row">
-                <div class="slider-labels">
-                  <span>Conversion to Paid Pro (%)</span>
-                  <span id="lblConv">4.0%</span>
-                </div>
-                <input type="range" id="inputConv" min="1.0" max="8.0" step="0.5" value="4.0">
-              </div>
-
-              <div class="slider-row">
-                <div class="slider-labels">
-                  <span>Annual B2B LeadGen Deals / 1K users</span>
-                  <span id="lblCpa">15 deals</span>
-                </div>
-                <input type="range" id="inputCpa" min="5" max="40" step="1" value="15">
-              </div>
-
-              <div class="sim-results">
-                <div class="sim-card">
-                  <div class="sim-val" id="resArr">$236K</div>
-                  <div class="sim-lbl">Annual Run-Rate</div>
-                </div>
-                <div class="sim-card">
-                  <div class="sim-val" id="resLtv">$8.40</div>
-                  <div class="sim-lbl">Average User LTV</div>
-                </div>
-                <div class="sim-card">
-                  <div class="sim-val" id="resRatio" style="color:var(--accent-cyan);">7.0x</div>
-                  <div class="sim-lbl">LTV / CAC Ratio</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SLIDE 14: Trust, Privacy, Compliance & Risks -->
-      <section class="slide" data-slide="14"
-        data-en-script="Trust and privacy are our highest product priorities. Finora is completely non-custodial: we never touch user funds, we never store 16-digit card numbers, PINs, or CVVs. All parsing runs on-device, and database isolation uses strict Row Level Security."
-        data-ru-script="Безопасность: Finora не хранит номера карт, CVV и PIN-коды и не переводит средства. Парсинг происходит на устройстве, а база защищена строгой изоляцией Row Level Security."
-        data-vc-q="What if Google Play changes policy regarding NotificationListenerService?"
-        data-vc-a="Our permissions comply strictly with personal finance tools guidelines under Google Play policy. Additionally, our fallback receipt camera OCR and bank statement import ensure operational continuity regardless of OS changes.">
-        <div class="slide-content">
-          <div>
-            <div class="slide-tag">14 // TRUST, SECURITY & RISK MITIGATION</div>
-            <h2 class="slide-title">Enterprise Security & Non-Custodial Trust</h2>
-            <p class="slide-subtitle">Eliminating regulatory friction by designing a strictly non-custodial data architecture.</p>
-          </div>
-
-          <div class="grid-3">
-            <div class="glass-card">
-              <div class="card-icon emerald"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-              <div class="card-title">1. Non-Custodial Architecture</div>
-              <div class="card-desc">Finora cannot execute transactions or move funds. 0 PANs, 0 CVVs, 0 PINs ever touch our infrastructure. Zero banking license burden.</div>
-            </div>
-
-            <div class="glass-card">
-              <div class="card-icon cyan"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
-              <div class="card-title">2. Edge Privacy & Supabase RLS</div>
-              <div class="card-desc">Sensitive text matching occurs locally on the phone. Database transactions are isolated per user via strict Row Level Security (RLS) policies.</div>
-            </div>
-
-            <div class="glass-card">
-              <div class="card-icon amber"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
-              <div class="card-title">3. Active Risk Mitigation</div>
-              <div class="card-desc">Self-healing regex modules, deduplication kernels for parallel push/SMS alerts, and user-override category correction.</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SLIDE 15: Roadmap & Milestones -->
-      <section class="slide" data-slide="15"
-        data-en-script="Our execution roadmap spans four clear milestones: from our current working MVP through commercial monetization, multi-region scaling, and B2B marketplace leadership over the next 36 months, with explicit stop/go metrics at each gate."
-        data-ru-script="Дорожная карта: 0-6 месяцев — запуск бета-теста и отладка удержания; 6-12 месяцев — масштабирование Pro-подписки; 12-24 месяца — выход в Казахстан и запуск рефинансирования."
-        data-vc-q="What is the single biggest risk to this timeline?"
-        data-vc-a="Hiring top mobile engineering talent. We have mitigated this by keeping our stack unified in Flutter, Python, and Supabase, enabling rapid velocity with a lean team.">
-        <div class="slide-content">
-          <div>
-            <div class="slide-tag">15 // EXECUTION ROADMAP & GATES</div>
-            <h2 class="slide-title">Milestone Roadmap: From MVP to Regional Lead</h2>
-            <p class="slide-subtitle">Structured execution plan with objective verification gates between phases.</p>
+            <span class="slide-num">СЛАЙД 06 // СТРАТЕГИЯ ПРИВЛЕЧЕНИЯ</span>
+            <h2 class="slide-title">Как мы привлекаем пользователей?</h2>
+            <p class="slide-desc">
+              Вместо дорогой рекламы мы делаем ставку на виральный контент, финансовое образование и сарафанное радио.
+            </p>
           </div>
 
           <div class="grid-4">
-            <div class="glass-card" style="border-color: var(--accent-cyan);">
-              <div style="font-size:0.75rem; color:var(--accent-cyan); font-weight:800;">0 — 6 MONTHS</div>
-              <div class="card-title" style="margin-top:6px;">Beta & Product Validation</div>
-              <div class="card-desc">
-                • Public launch in Uzbekistan.<br>
-                • 10,000 active beta users.<br>
-                • Day-30 Retention target: &gt; 25%.<br>
-                • Parser accuracy rate: &gt; 97%.
-              </div>
+            <div class="card">
+              <div class="card-icon cyan">📱</div>
+              <div class="card-title">1. Контент в соцсетях</div>
+              <div class="card-text">Короткие ролики в Reels/TikTok: разбор скрытых процентов в рассрочках и лайфхаки экономии с Finora.</div>
             </div>
 
-            <div class="glass-card">
-              <div style="font-size:0.75rem; color:var(--accent-purple); font-weight:800;">6 — 12 MONTHS</div>
-              <div class="card-title" style="margin-top:6px;">Commercial Monetization</div>
-              <div class="card-desc">
-                • Rollout of Finora Pro ($3.99/mo).<br>
-                • Scale to 50,000 MAU.<br>
-                • Reach $15K+ MRR.<br>
-                • First bank refinancing pilot.
-              </div>
+            <div class="card">
+              <div class="card-icon purple">🤖</div>
+              <div class="card-title">2. Бот в Telegram</div>
+              <div class="card-text">Бесплатный мини-тест «Узнай уровень своего финансового здоровья за 1 минуту», ведущий на скачивание приложения.</div>
             </div>
 
-            <div class="glass-card">
-              <div style="font-size:0.75rem; color:var(--accent-emerald); font-weight:800;">12 — 24 MONTHS</div>
-              <div class="card-title" style="margin-top:6px;">Regional Expansion</div>
-              <div class="card-desc">
-                • Launch in Kazakhstan & Azerbaijan.<br>
-                • Scale to 200,000 MAU.<br>
-                • Multi-player family budget launch.<br>
-                • Series A readiness.
-              </div>
+            <div class="card">
+              <div class="card-icon emerald">👥</div>
+              <div class="card-title">3. Сарафанное радио</div>
+              <div class="card-text">Реферальная программа: «Пригласи друга — получи месяц умного ИИ-ассистента бесплатно».</div>
             </div>
 
-            <div class="glass-card">
-              <div style="font-size:0.75rem; color:var(--accent-amber); font-weight:800;">2 — 5 YEARS</div>
-              <div class="card-title" style="margin-top:6px;">Emerging Market Standard</div>
-              <div class="card-desc">
-                • MENA / LATAM market entry.<br>
-                • 1,000,000+ active users.<br>
-                • Full B2B embedded finance & white-label platform.
-              </div>
+            <div class="card">
+              <div class="card-icon amber">🎓</div>
+              <div class="card-title">4. Студенты и IT-хабы</div>
+              <div class="card-text">Презентации в вузах и коворкингах: вовлечение молодой аудитории, которая первой тестирует новые технологии.</div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- SLIDE 16: Investment Opportunity (The Ask) -->
-      <section class="slide" data-slide="16"
-        data-en-script="To execute this plan, we are raising our Pre-Seed Round of $350,000 for 18 months of runway. 50% is allocated to disciplined user acquisition, 30% to AI and mobile engineering, and 20% to security and operations. This capital will take us to 100,000 MAU and $20,000 in monthly recurring revenue."
-        data-ru-script="Инвестиционное предложение: Pre-Seed раунд на $350,000 на 18 месяцев работы. 50% пойдёт на привлечение пользователей, 30% — на инженерию и AI, 20% — на безопасность. Это выведет нас на 100K MAU и $20K MRR."
-        data-vc-q="What will trigger the next round of funding?"
-        data-vc-a="Achieving $20K MRR with healthy unit economics (CAC under $1.20, payback under 4 months) provides undeniable proof for our $2M-$3M Seed round to fuel regional expansion.">
-        <div class="slide-content">
+      <!-- Слайд 7: Монетизация и итог -->
+      <section class="slide" data-slide="7">
+        <div class="slide-box">
           <div>
-            <div class="slide-tag">16 // INVESTMENT OPPORTUNITY & THE ASK</div>
-            <h2 class="slide-title">Pre-Seed Round: Fueling Growth & Ingestion</h2>
-            <p class="slide-subtitle">Partnering with international growth investors to capture the emerging market AI financial OS opportunity.</p>
+            <span class="slide-num">СЛАЙД 07 // МОНЕТИЗАЦИЯ И ИТОГ</span>
+            <h2 class="slide-title">Как проект зарабатывает и почему он победит</h2>
+            <p class="slide-desc">
+              Понятная и прозрачная модель: бесплатный старт и полезные платные возможности без скрытых комиссий.
+            </p>
           </div>
 
-          <div class="grid-2">
-            <div class="glass-card">
-              <div class="card-title" style="color:var(--accent-cyan); font-size:1.4rem;">The Offering & Milestones</div>
-              <div style="display:flex; flex-direction:column; gap:12px; margin-top:12px;">
-                <div style="background:rgba(255,255,255,0.03); padding:12px 16px; border-radius:12px;">
-                  <div style="font-weight:700; color:#fff;">Target Investment Ask: $350,000</div>
-                  <div style="font-size:0.82rem; color:var(--text-muted); margin-top:2px;">18-month runway to reach self-sustaining operational metrics.</div>
-                </div>
-
-                <div style="background:rgba(255,255,255,0.03); padding:12px 16px; border-radius:12px;">
-                  <div style="font-weight:700; color:var(--accent-emerald);">Milestone Deliverables:</div>
-                  <div style="font-size:0.82rem; color:var(--text-muted); margin-top:2px;">
-                    ✦ 100,000 Monthly Active Users.<br>
-                    ✦ $20,000+ Monthly Recurring Revenue (MRR).<br>
-                    ✦ Live expansion into Kazakhstan.
-                  </div>
-                </div>
+          <div class="grid-3">
+            <div class="card">
+              <div style="font-size:0.8rem; color:var(--text-muted); font-weight:800;">БАЗОВЫЙ ТАРИФ</div>
+              <div class="card-title" style="font-size:1.8rem; margin-top:8px;">Бесплатно</div>
+              <div class="card-text" style="margin-top:10px;">
+                • Автоматический учет по 2 картам.<br>
+                • Категории расходов и баланс.<br>
+                • Базовые отчеты за месяц.<br>
+                • <i>Главный крючок для привлечения миллионов людей.</i>
               </div>
             </div>
 
-            <div class="glass-card">
-              <div class="card-title" style="color:var(--accent-emerald); font-size:1.4rem;">Use of Funds Allocation</div>
-              <div style="display:flex; flex-direction:column; gap:14px; margin-top:10px;">
-                <div>
-                  <div style="display:flex; justify-content:space-between; font-size:0.85rem; font-weight:700; margin-bottom:4px;">
-                    <span>Growth & User Acquisition (Performance, Creators)</span>
-                    <span style="color:var(--accent-cyan);">50%</span>
-                  </div>
-                  <div style="width:100%; height:6px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden;">
-                    <div style="width:50%; height:100%; background:var(--accent-cyan);"></div>
-                  </div>
-                </div>
-
-                <div>
-                  <div style="display:flex; justify-content:space-between; font-size:0.85rem; font-weight:700; margin-bottom:4px;">
-                    <span>AI Engineering & On-Device Parsers</span>
-                    <span style="color:var(--accent-purple);">30%</span>
-                  </div>
-                  <div style="width:100%; height:6px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden;">
-                    <div style="width:30%; height:100%; background:var(--accent-purple);"></div>
-                  </div>
-                </div>
-
-                <div>
-                  <div style="display:flex; justify-content:space-between; font-size:0.85rem; font-weight:700; margin-bottom:4px;">
-                    <span>Security, Operations & Compliance</span>
-                    <span style="color:var(--accent-emerald);">20%</span>
-                  </div>
-                  <div style="width:100%; height:6px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden;">
-                    <div style="width:20%; height:100%; background:var(--accent-emerald);"></div>
-                  </div>
-                </div>
-
-                <div style="padding:10px; background:rgba(0,230,118,0.06); border:1px solid rgba(0,230,118,0.2); border-radius:10px; text-align:center; font-size:0.85rem; color:var(--accent-emerald); font-weight:700;">
-                  Live FastAPI Cloud & Android Client Ready for Investor Testing
-                </div>
+            <div class="card" style="border-color: var(--accent-cyan);">
+              <div style="font-size:0.8rem; color:var(--accent-cyan); font-weight:800;">ПОДПИСКА PRO</div>
+              <div class="card-title" style="font-size:1.8rem; margin-top:8px; color:var(--accent-cyan);">$2.99 – $3.99 <span style="font-size:1rem; color:var(--text-muted);">/ мес</span></div>
+              <div class="card-text" style="margin-top:10px;">
+                • Безлимитный ИИ-советник в чате.<br>
+                • Умный расчёт Safe to Spend на каждый день.<br>
+                • Все карты и рассрочки без ограничений.<br>
+                • Симулятор досрочного закрытия долгов.
               </div>
             </div>
+
+            <div class="card" style="border-color: var(--accent-emerald);">
+              <div style="font-size:0.8rem; color:var(--accent-emerald); font-weight:800;">ПЕРСПЕКТИВА (B2B)</div>
+              <div class="card-title" style="font-size:1.8rem; margin-top:8px; color:var(--accent-emerald);">Выгода для всех</div>
+              <div class="card-text" style="margin-top:10px;">
+                • Банки платят комиссию, если пользователь выбирает выгодный кредит взамен дорогого микрозайма.<br>
+                • Пользователь экономит деньги, банк получает клиента, Finora получает прибыль.
+              </div>
+            </div>
+          </div>
+
+          <div style="text-align:center; margin-top:10px; font-weight:700; color:var(--accent-cyan);">
+            Finora — это реальная польза в кармане пользователя каждый день.
           </div>
         </div>
       </section>
@@ -1402,263 +647,61 @@
     </main>
 
     <!-- Footer Controls -->
-    <footer class="deck-footer">
-      <div style="display:flex; align-items:center; gap:10px;">
-        <button class="nav-arrow-btn" id="btnPrev" title="Previous Slide (←)">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <button class="nav-arrow-btn" id="btnNext" title="Next Slide (→ or Space)">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
-      </div>
+    <footer>
+      <button class="nav-btn" id="prevBtn">← Назад</button>
 
-      <div class="progress-track">
+      <div class="progress-bar">
         <div class="progress-fill" id="progressFill"></div>
       </div>
 
       <div class="slide-counter">
-        <span id="currentSlideNum">1</span> / <span id="totalSlidesNum">16</span>
+        Слайд <span id="currentNum">1</span> из <span id="totalNum">7</span>
       </div>
+
+      <button class="nav-btn" id="nextBtn">Вперёд →</button>
     </footer>
-  </div>
 
-  <!-- Speaker Notes Drawer -->
-  <div class="notes-drawer" id="notesDrawer">
-    <div class="notes-header">
-      <div class="notes-title">SPEAKER SCRIPT & FOUNDER CONTEXT</div>
-      <button class="control-btn" id="btnCloseNotes" style="padding:3px 8px;">✕ Close</button>
-    </div>
-    <div class="notes-grid">
-      <div class="notes-col">
-        <h4>English Pitch Script (30-45s)</h4>
-        <p id="noteEnScript">Loading script...</p>
-      </div>
-      <div class="notes-col">
-        <h4>Founder Notes (Russian)</h4>
-        <p id="noteRuScript">Загрузка...</p>
-      </div>
-      <div class="notes-col">
-        <h4>Toughest VC Question & Answer</h4>
-        <p id="noteVcA">Загрузка...</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Overview Grid Modal -->
-  <div class="overview-modal" id="overviewModal">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <h2 style="font-family:var(--font-display); font-size:1.6rem; font-weight:700;">Pitch Deck Slides Overview</h2>
-      <button class="control-btn" id="btnCloseOverview">✕ Close (Esc)</button>
-    </div>
-    <div class="overview-grid" id="overviewGrid"></div>
   </div>
 
   <script>
     const slides = document.querySelectorAll('.slide');
-    const totalSlides = slides.length;
-    let currentSlide = 1;
+    const total = slides.length;
+    let current = 1;
 
-    const currentSlideNum = document.getElementById('currentSlideNum');
-    const totalSlidesNum = document.getElementById('totalSlidesNum');
+    const currentNum = document.getElementById('currentNum');
+    const totalNum = document.getElementById('totalNum');
     const progressFill = document.getElementById('progressFill');
-    const notesDrawer = document.getElementById('notesDrawer');
-    const noteEnScript = document.getElementById('noteEnScript');
-    const noteRuScript = document.getElementById('noteRuScript');
-    const noteVcA = document.getElementById('noteVcA');
-    const overviewModal = document.getElementById('overviewModal');
-    const overviewGrid = document.getElementById('overviewGrid');
 
-    totalSlidesNum.textContent = totalSlides;
+    totalNum.textContent = total;
 
-    function updateSlide(newIndex) {
-      if (newIndex < 1) newIndex = 1;
-      if (newIndex > totalSlides) newIndex = totalSlides;
-      currentSlide = newIndex;
+    function goToSlide(n) {
+      if (n < 1) n = 1;
+      if (n > total) n = total;
+      current = n;
 
-      slides.forEach((slide, idx) => {
-        if (idx + 1 === currentSlide) {
-          slide.classList.add('active');
-          noteEnScript.textContent = slide.getAttribute('data-en-script') || '';
-          noteRuScript.textContent = slide.getAttribute('data-ru-script') || '';
-          const q = slide.getAttribute('data-vc-q') || '';
-          const a = slide.getAttribute('data-vc-a') || '';
-          noteVcA.innerHTML = `<b style="color:var(--accent-amber);">Q: ${q}</b><br><br><span style="color:#CBD5E1;">A: ${a}</span>`;
-        } else {
-          slide.classList.remove('active');
-        }
+      slides.forEach((s, idx) => {
+        if (idx + 1 === current) s.classList.add('active');
+        else s.classList.remove('active');
       });
 
-      currentSlideNum.textContent = currentSlide;
-      progressFill.style.width = `${(currentSlide / totalSlides) * 100}%`;
-
-      document.querySelectorAll('.overview-card').forEach((card, idx) => {
-        if (idx + 1 === currentSlide) card.classList.add('active');
-        else card.classList.remove('active');
-      });
+      currentNum.textContent = current;
+      progressFill.style.width = `${(current / total) * 100}%`;
     }
 
-    document.getElementById('btnPrev').addEventListener('click', () => updateSlide(currentSlide - 1));
-    document.getElementById('btnNext').addEventListener('click', () => updateSlide(currentSlide + 1));
+    document.getElementById('prevBtn').addEventListener('click', () => goToSlide(current - 1));
+    document.getElementById('nextBtn').addEventListener('click', () => goToSlide(current + 1));
 
     window.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
         e.preventDefault();
-        updateSlide(currentSlide + 1);
+        goToSlide(current + 1);
       } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
         e.preventDefault();
-        updateSlide(currentSlide - 1);
-      } else if (e.key === 'n' || e.key === 'N') {
-        notesDrawer.classList.toggle('open');
-      } else if (e.key === 'o' || e.key === 'O' || (e.key === 'Escape' && overviewModal.classList.contains('open'))) {
-        toggleOverview();
-      } else if (e.key === 'f' || e.key === 'F') {
-        toggleFullScreen();
+        goToSlide(current - 1);
       }
     });
 
-    document.getElementById('btnNotes').addEventListener('click', () => notesDrawer.classList.toggle('open'));
-    document.getElementById('btnCloseNotes').addEventListener('click', () => notesDrawer.classList.remove('open'));
-
-    function toggleOverview() { overviewModal.classList.toggle('open'); }
-    document.getElementById('btnOverview').addEventListener('click', toggleOverview);
-    document.getElementById('btnCloseOverview').addEventListener('click', toggleOverview);
-
-    // Build Overview Grid
-    slides.forEach((slide, idx) => {
-      const titleElem = slide.querySelector('.slide-title') || slide.querySelector('.hero-title');
-      const titleText = titleElem ? titleElem.innerText.replace(/\n/g, ' ').substring(0, 36) + '...' : `Slide ${idx + 1}`;
-      
-      const card = document.createElement('div');
-      card.className = `overview-card ${idx + 1 === currentSlide ? 'active' : ''}`;
-      card.innerHTML = `
-        <span class="overview-num">SLIDE ${idx < 9 ? '0' : ''}${idx + 1}</span>
-        <div class="overview-card-title">${titleText}</div>
-        <div style="font-size:0.7rem; color:var(--text-dim);">Click to navigate</div>
-      `;
-      card.addEventListener('click', () => {
-        updateSlide(idx + 1);
-        toggleOverview();
-      });
-      overviewGrid.appendChild(card);
-    });
-
-    function toggleFullScreen() {
-      if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
-      else if (document.exitFullscreen) document.exitFullscreen();
-    }
-    document.getElementById('btnFullscreen').addEventListener('click', toggleFullScreen);
-
-    // Simulator on Slide 13
-    const inputMau = document.getElementById('inputMau');
-    const inputConv = document.getElementById('inputConv');
-    const inputCpa = document.getElementById('inputCpa');
-    const lblMau = document.getElementById('lblMau');
-    const lblConv = document.getElementById('lblConv');
-    const lblCpa = document.getElementById('lblCpa');
-    const resArr = document.getElementById('resArr');
-    const resLtv = document.getElementById('resLtv');
-    const resRatio = document.getElementById('resRatio');
-
-    function calculateUnitEconomics() {
-      if (!inputMau) return;
-      const mau = parseInt(inputMau.value, 10);
-      const conv = parseFloat(inputConv.value) / 100;
-      const cpaDeals = parseInt(inputCpa.value, 10);
-
-      lblMau.textContent = mau.toLocaleString();
-      lblConv.textContent = (conv * 100).toFixed(1) + '%';
-      lblCpa.textContent = `${cpaDeals} deals`;
-
-      const paidUsers = mau * conv;
-      const subPricePerMonth = 3.99;
-      const annualSubRevenue = paidUsers * subPricePerMonth * 12;
-
-      const avgCpaBonus = 30.0;
-      const annualCpaDeals = (mau / 1000) * cpaDeals;
-      const annualCpaRevenue = annualCpaDeals * avgCpaBonus;
-
-      const totalAnnualRevenue = annualSubRevenue + annualCpaRevenue;
-      const blendedLtv = totalAnnualRevenue / mau;
-      const cac = 1.20;
-      const ltvCacRatio = (blendedLtv / cac).toFixed(1);
-
-      resArr.textContent = `$${Math.round(totalAnnualRevenue / 1000)}K`;
-      resLtv.textContent = `$${blendedLtv.toFixed(2)}`;
-      resRatio.textContent = `${ltvCacRatio}x`;
-    }
-
-    if (inputMau) {
-      inputMau.addEventListener('input', calculateUnitEconomics);
-      inputConv.addEventListener('input', calculateUnitEconomics);
-      inputCpa.addEventListener('input', calculateUnitEconomics);
-      calculateUnitEconomics();
-    }
-
-    // Ambient Particles Canvas
-    const canvas = document.getElementById('ambientCanvas');
-    const ctx = canvas.getContext('2d');
-    let width = canvas.width = window.innerWidth;
-    let height = canvas.height = window.innerHeight;
-
-    window.addEventListener('resize', () => {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-    });
-
-    const particles = [];
-    for (let i = 0; i < 40; i++) {
-      particles.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        radius: Math.random() * 2 + 0.8,
-        vx: (Math.random() - 0.5) * 0.35,
-        vy: (Math.random() - 0.5) * 0.35,
-        color: Math.random() > 0.5 ? 'rgba(0, 240, 255, ' : 'rgba(157, 78, 221, ',
-        alpha: Math.random() * 0.4 + 0.1
-      });
-    }
-
-    function renderCanvas() {
-      ctx.clearRect(0, 0, width, height);
-
-      const grad = ctx.createRadialGradient(width * 0.8, height * 0.2, 50, width * 0.8, height * 0.2, width * 0.6);
-      grad.addColorStop(0, 'rgba(0, 240, 255, 0.05)');
-      grad.addColorStop(0.5, 'rgba(121, 40, 202, 0.03)');
-      grad.addColorStop(1, 'transparent');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, width, height);
-
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-        p.x += p.vx; p.y += p.vy;
-        if (p.x < 0) p.x = width;
-        if (p.x > width) p.x = 0;
-        if (p.y < 0) p.y = height;
-        if (p.y > height) p.y = 0;
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = p.color + p.alpha + ')';
-        ctx.fill();
-
-        for (let j = i + 1; j < particles.length; j++) {
-          const p2 = particles[j];
-          const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-          if (dist < 130) {
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(0, 240, 255, ${(1 - dist / 130) * 0.08})`;
-            ctx.lineWidth = 0.8;
-            ctx.stroke();
-          }
-        }
-      }
-      requestAnimationFrame(renderCanvas);
-    }
-
-    renderCanvas();
-    updateSlide(1);
+    goToSlide(1);
   </script>
 </body>
 </html>
