@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
+import '../../../../core/theme/app_typography.dart';
 
+/// Physical-looking bank card. Intentionally theme-independent: a card keeps
+/// its own brand colors in both light and dark mode.
 class HolographicBankCard extends StatelessWidget {
   final String bankName;
   final String cardType;
@@ -21,133 +24,141 @@ class HolographicBankCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final p = context.palette;
     return Container(
       width: double.infinity,
-      height: 195,
-      padding: const EdgeInsets.all(22),
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(AppRadius.xl),
         gradient: LinearGradient(
           colors: gradientColors,
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        border: Border.all(color: Colors.white.withOpacity(0.2)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.4),
-            blurRadius: 24,
-            offset: const Offset(0, 12),
+            color: gradientColors[gradientColors.length ~/ 2].withValues(alpha: p.isDark ? 0.45 : 0.35),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Stack(
         children: [
-          // Top: Bank and Card Type
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                bankName.toUpperCase(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 15,
-                  letterSpacing: 0.8,
+          // Diagonal sheen
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: const Alignment(-1, -1),
+                  end: const Alignment(1, 1),
+                  colors: [
+                    Colors.white.withValues(alpha: 0.0),
+                    Colors.white.withValues(alpha: 0.10),
+                    Colors.white.withValues(alpha: 0.0),
+                  ],
+                  stops: const [0.35, 0.5, 0.65],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white.withOpacity(0.2)),
+            ),
+          ),
+          Positioned(
+            right: -30,
+            top: -30,
+            child: Container(
+              width: 140,
+              height: 140,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white.withValues(alpha: 0.08), width: 18),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        bankName,
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16),
+                      ),
+                    ),
+                    Text(
+                      cardType.toUpperCase(),
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.85),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ],
                 ),
-                child: Text(
-                  cardType.toUpperCase(),
+                Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 26,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(6),
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFE5C46A), Color(0xFFFDF2B3), Color(0xFFC9A13B)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Icon(Icons.contactless_outlined, color: Colors.white.withValues(alpha: 0.75), size: 22),
+                  ],
+                ),
+                Text(
+                  maskedPan,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 11,
-                    letterSpacing: 0.5,
+                    fontSize: 16,
+                    letterSpacing: 2,
+                    fontWeight: FontWeight.w600,
+                    fontFeatures: [FontFeature.tabularFigures()],
                   ),
                 ),
-              ),
-            ],
-          ),
-
-          // Chip & Contactless
-          Row(
-            children: [
-              Container(
-                width: 38,
-                height: 28,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(6),
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFD4AF37), Color(0xFFFEF08A), Color(0xFFCA8A04)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              const Icon(Icons.wifi_rounded, color: Colors.white70, size: 20),
-            ],
-          ),
-
-          // Number & Bottom row
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                maskedPan,
-                style: const TextStyle(
-                  fontFamily: 'SF Pro Display',
-                  color: Colors.white,
-                  fontSize: 17,
-                  letterSpacing: 2.2,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'ДЕРЖАТЕЛЬ',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.5),
-                          fontSize: 9,
-                          fontWeight: FontWeight.w600,
-                        ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Баланс',
+                            style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 11),
+                          ),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(balanceFormatted, style: AppTypography.money(18, Colors.white)),
+                          ),
+                        ],
                       ),
-                      Text(
-                        cardholderName,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    balanceFormatted,
-                    style: const TextStyle(
-                      color: AppColors.cyanAccent,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
                     ),
-                  ),
-                ],
-              ),
-            ],
+                    Text(
+                      cardholderName,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.75),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),

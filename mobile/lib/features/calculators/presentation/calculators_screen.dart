@@ -1,8 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/glass_card.dart';
+import '../../../../core/widgets/ui_kit.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/localization/currency_controller.dart';
 
@@ -92,66 +93,34 @@ class _CalculatorsScreenState extends State<CalculatorsScreen> {
     return AnimatedBuilder(
       animation: Listenable.merge([loc, curr]),
       builder: (context, _) {
+        final p = context.palette;
         return Scaffold(
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          backgroundColor: p.background,
           body: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            bottom: false,
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(AppSpacing.page, AppSpacing.md, AppSpacing.page, AppSpacing.xxxl),
               physics: const BouncingScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        loc.t('nav_calculators'),
-                        style: AppTypography.display2.copyWith(fontWeight: FontWeight.w800, fontSize: 24),
-                      ),
-                      // Currency Indicator
-                      GestureDetector(
-                        onTap: () => curr.toggleCurrency(),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryBlue.withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: AppColors.cyanAccent.withOpacity(0.3)),
-                          ),
-                          child: Text(
-                            curr.symbol,
-                            style: const TextStyle(
-                              color: AppColors.cyanAccent,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-
-                  // Subtabs
-                  Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.05),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: AppColors.softBorder),
-                    ),
-                    child: Row(
-                      children: [
-                        _buildTabButton(0, loc.t('loan_calculator')),
-                        _buildTabButton(1, loc.t('credit_card_calculator')),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  if (_selectedTab == 0) _buildLoanView(loc, curr) else _buildCreditCardView(loc, curr),
-                ],
-              ),
+              children: [
+                ScreenHeader(
+                  title: loc.t('nav_calculators'),
+                  subtitle: 'Посчитайте до того, как подписать договор',
+                  actions: [_currencyToggle(p, curr)],
+                ),
+                const SizedBox(height: AppSpacing.xl),
+                SegmentedTabs(
+                  labels: [loc.t('loan_calculator'), loc.t('credit_card_calculator')],
+                  index: _selectedTab,
+                  onChanged: (i) => setState(() => _selectedTab = i),
+                ),
+                const SizedBox(height: AppSpacing.xl),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 220),
+                  child: _selectedTab == 0
+                      ? KeyedSubtree(key: const ValueKey('loan'), child: _buildLoanView(loc, curr, p))
+                      : KeyedSubtree(key: const ValueKey('card'), child: _buildCreditCardView(loc, curr, p)),
+                ),
+              ],
             ),
           ),
         );
@@ -159,31 +128,66 @@ class _CalculatorsScreenState extends State<CalculatorsScreen> {
     );
   }
 
-  Widget _buildTabButton(int index, String title) {
-    final isSelected = _selectedTab == index;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => setState(() => _selectedTab = index),
+  Widget _currencyToggle(AppPalette p, CurrencyController curr) {
+    return Tooltip(
+      message: 'Сменить валюту',
+      child: InkWell(
+        onTap: curr.toggleCurrency,
+        borderRadius: BorderRadius.circular(AppRadius.pill),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          height: 36,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.primaryBlue : Colors.transparent,
-            borderRadius: BorderRadius.circular(10),
+            color: p.surface,
+            borderRadius: BorderRadius.circular(AppRadius.pill),
+            border: Border.all(color: p.border),
           ),
-          alignment: Alignment.center,
-          child: Text(
-            title,
-            style: AppTypography.caption.copyWith(
-              color: isSelected ? Colors.white : AppColors.textMuted,
-              fontWeight: FontWeight.bold,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.swap_horiz_rounded, size: 16, color: p.accent),
+              const SizedBox(width: 4),
+              Text(
+                curr.isUzs ? 'UZS' : 'USD',
+                style: TextStyle(color: p.textPrimary, fontWeight: FontWeight.w700, fontSize: 13),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildLoanView(LocalizationController loc, CurrencyController curr) {
+  Widget _resultCard({required AppPalette p, required List<Widget> children}) {
+    return GlassCard(
+      padding: const EdgeInsets.all(AppSpacing.xl),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
+    );
+  }
+
+  Widget _legendDot(Color color, String label, AppPalette p) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(width: 8, height: 8, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(3))),
+        const SizedBox(width: 6),
+        Text(label, style: TextStyle(fontSize: 12, color: p.textSecondary)),
+      ],
+    );
+  }
+
+  Widget _kv(String label, String value, Color valueColor, AppPalette p, {bool end = false}) {
+    return Column(
+      crossAxisAlignment: end ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      children: [
+        Text(label, style: TextStyle(color: p.textMuted, fontSize: 12)),
+        const SizedBox(height: 4),
+        Text(value, style: AppTypography.money(16, valueColor)),
+      ],
+    );
+  }
+
+  Widget _buildLoanView(LocalizationController loc, CurrencyController curr, AppPalette p) {
     final principal = _loanAmount;
     final overpayment = _totalLoanOverpayment;
     final total = _totalLoanPayment;
@@ -193,162 +197,104 @@ class _CalculatorsScreenState extends State<CalculatorsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Result Summary Card
-        GlassCard(
-          borderRadius: 22,
-          padding: const EdgeInsets.all(20),
-          borderColor: AppColors.primaryBlue.withOpacity(0.4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        _resultCard(p: p, children: [
+          Text(loc.t('monthly_payment'), style: TextStyle(color: p.textMuted, fontSize: 13, fontWeight: FontWeight.w500)),
+          const SizedBox(height: 6),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(curr.format(_monthlyAnnuityPayment), style: AppTypography.money(32, p.textPrimary)),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppRadius.pill),
+            child: SizedBox(
+              height: 10,
+              child: Row(
+                children: [
+                  Expanded(flex: max(1, (principalRatio * 100).round()), child: ColoredBox(color: p.primary)),
+                  const SizedBox(width: 2),
+                  Expanded(flex: max(1, (overpaymentRatio * 100).round()), child: ColoredBox(color: p.expense)),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                loc.t('monthly_payment'),
-                style: AppTypography.caption.copyWith(color: AppColors.cyanAccent, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                curr.format(_monthlyAnnuityPayment),
-                style: AppTypography.display1.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                  fontSize: 30,
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Visual Segmented Bar: Principal vs Overpayment
-              ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: SizedBox(
-                  height: 10,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: (principalRatio * 100).round(),
-                        child: Container(color: AppColors.primaryBlue),
-                      ),
-                      Expanded(
-                        flex: (overpaymentRatio * 100).round(),
-                        child: Container(color: AppColors.expenseRed),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Container(width: 8, height: 8, decoration: const BoxDecoration(color: AppColors.primaryBlue, shape: BoxShape.circle)),
-                      const SizedBox(width: 4),
-                      Text("Тело: ${(principalRatio * 100).toStringAsFixed(0)}%", style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Container(width: 8, height: 8, decoration: const BoxDecoration(color: AppColors.expenseRed, shape: BoxShape.circle)),
-                      const SizedBox(width: 4),
-                      Text("Проценты: ${(overpaymentRatio * 100).toStringAsFixed(0)}%", style: const TextStyle(fontSize: 11, color: AppColors.expenseRed)),
-                    ],
-                  ),
-                ],
-              ),
-
-              const Divider(height: 24, color: Colors.white12),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(loc.t('total_overpayment'), style: AppTypography.caption.copyWith(color: AppColors.textMuted)),
-                      const SizedBox(height: 2),
-                      Text(
-                        curr.format(_totalLoanOverpayment),
-                        style: AppTypography.titleMedium.copyWith(color: AppColors.expenseRed, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text("Всего выплат", style: AppTypography.caption.copyWith(color: AppColors.textMuted)),
-                      const SizedBox(height: 2),
-                      Text(
-                        curr.format(_totalLoanPayment),
-                        style: AppTypography.titleMedium.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+              _legendDot(p.primary, 'Основной долг ${(principalRatio * 100).toStringAsFixed(0)}%', p),
+              _legendDot(p.expense, 'Проценты ${(overpaymentRatio * 100).toStringAsFixed(0)}%', p),
             ],
           ),
-        ),
-        const SizedBox(height: 24),
-
-        // Sliders
-        _buildSlider(
-          label: loc.t('loan_amount'),
-          valueText: curr.format(_loanAmount),
-          min: 1000000,
-          max: 200000000,
-          currentValue: _loanAmount,
-          onChanged: (val) => setState(() => _loanAmount = val),
-        ),
-        const SizedBox(height: 18),
-
-        _buildSlider(
-          label: loc.t('interest_rate'),
-          valueText: "${_loanRate.toStringAsFixed(1)} %",
-          min: 5,
-          max: 50,
-          currentValue: _loanRate,
-          onChanged: (val) => setState(() => _loanRate = val),
-        ),
-        const SizedBox(height: 18),
-
-        _buildSlider(
-          label: loc.t('loan_term_months'),
-          valueText: "$_loanTermMonths мес.",
-          min: 3,
-          max: 120,
-          currentValue: _loanTermMonths.toDouble(),
-          onChanged: (val) => setState(() => _loanTermMonths = val.round()),
-        ),
-        const SizedBox(height: 20),
-
-        // Payment Type Switcher
-        Row(
-          children: [
-            Expanded(
-              child: ChoiceChip(
-                label: Center(child: Text(loc.t('annuity'))),
-                selected: _paymentType == 'annuity',
-                onSelected: (_) => setState(() => _paymentType = 'annuity'),
-                selectedColor: AppColors.primaryBlue,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: ChoiceChip(
-                label: Center(child: Text(loc.t('differential'))),
-                selected: _paymentType == 'differential',
-                onSelected: (_) => setState(() => _paymentType = 'differential'),
-                selectedColor: AppColors.primaryBlue,
-              ),
-            ),
-          ],
+          const SizedBox(height: AppSpacing.lg),
+          Divider(color: p.border, height: 1),
+          const SizedBox(height: AppSpacing.lg),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _kv(loc.t('total_overpayment'), curr.format(_totalLoanOverpayment), p.expense, p),
+              _kv('Всего выплат', curr.format(_totalLoanPayment), p.textPrimary, p, end: true),
+            ],
+          ),
+        ]),
+        const SizedBox(height: AppSpacing.xl),
+        _inputsCard(p, [
+          _buildSlider(
+            p: p,
+            label: loc.t('loan_amount'),
+            valueText: curr.format(_loanAmount),
+            min: 1000000,
+            max: 200000000,
+            currentValue: _loanAmount,
+            onChanged: (val) => setState(() => _loanAmount = (val / 100000).round() * 100000.0),
+          ),
+          _buildSlider(
+            p: p,
+            label: loc.t('interest_rate'),
+            valueText: '${_loanRate.toStringAsFixed(1)}%',
+            min: 5,
+            max: 50,
+            currentValue: _loanRate,
+            onChanged: (val) => setState(() => _loanRate = (val * 2).round() / 2),
+          ),
+          _buildSlider(
+            p: p,
+            label: loc.t('loan_term_months'),
+            valueText: '$_loanTermMonths мес.',
+            min: 3,
+            max: 120,
+            currentValue: _loanTermMonths.toDouble(),
+            onChanged: (val) => setState(() => _loanTermMonths = val.round()),
+          ),
+        ]),
+        const SizedBox(height: AppSpacing.lg),
+        Text('Тип платежа', style: TextStyle(color: p.textMuted, fontSize: 13, fontWeight: FontWeight.w500)),
+        const SizedBox(height: AppSpacing.sm),
+        SegmentedTabs(
+          labels: [loc.t('annuity'), loc.t('differential')],
+          index: _paymentType == 'annuity' ? 0 : 1,
+          onChanged: (i) => setState(() => _paymentType = i == 0 ? 'annuity' : 'differential'),
         ),
       ],
     );
   }
 
-  Widget _buildCreditCardView(LocalizationController loc, CurrencyController curr) {
+  Widget _inputsCard(AppPalette p, List<Widget> sliders) {
+    return GlassCard(
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.sm),
+      child: Column(
+        children: [
+          for (var i = 0; i < sliders.length; i++) ...[
+            if (i > 0) Divider(color: p.border, height: AppSpacing.lg),
+            sliders[i],
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCreditCardView(LocalizationController loc, CurrencyController curr, AppPalette p) {
     final sim = _creditCardSimulation;
     final double utilPct = sim['utilization_pct'];
     final bool isHighUtil = utilPct > 50.0;
@@ -356,193 +302,150 @@ class _CalculatorsScreenState extends State<CalculatorsScreen> {
     final int monthsMin = sim['months_min'];
     final int monthsAcc = sim['months_acc'];
     final double maxMonths = max(monthsMin.toDouble(), 1.0);
-    final double barMinHeight = (monthsMin / maxMonths).clamp(0.2, 1.0) * 110.0;
-    final double barAccHeight = (monthsAcc / maxMonths).clamp(0.15, 1.0) * 110.0;
+    final double barMin = (monthsMin / maxMonths).clamp(0.2, 1.0) * 120.0;
+    final double barAcc = (monthsAcc / maxMonths).clamp(0.12, 1.0) * 120.0;
+
+    Widget column(String months, double height, Color color, String title, String interest) {
+      return Expanded(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Text(months, style: AppTypography.money(15, color)),
+            const SizedBox(height: 6),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOutCubic,
+              width: 56,
+              height: height,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [color, color.withValues(alpha: 0.55)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(title, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: p.textPrimary)),
+            const SizedBox(height: 2),
+            Text('проценты: $interest', style: TextStyle(fontSize: 11, color: p.textMuted)),
+          ],
+        ),
+      );
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Savings & Trap Card
-        GlassCard(
-          borderRadius: 22,
-          padding: const EdgeInsets.all(20),
-          borderColor: AppColors.cyanAccent.withOpacity(0.3),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        _resultCard(p: p, children: [
+          Row(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    loc.t('cc_min_trap_warning'),
-                    style: AppTypography.caption.copyWith(color: AppColors.warningOrange, fontWeight: FontWeight.bold),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: isHighUtil ? AppColors.expenseRed.withOpacity(0.15) : AppColors.incomeGreen.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: isHighUtil ? AppColors.expenseRed.withOpacity(0.4) : AppColors.incomeGreen.withOpacity(0.4),
-                      ),
-                    ),
-                    child: Text(
-                      "Лимит занят: ${utilPct.toStringAsFixed(0)}%",
-                      style: AppTypography.caption.copyWith(
-                        color: isHighUtil ? AppColors.expenseRed : AppColors.incomeGreen,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              // Visual Overpayment Mountain / Columns
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    // Min Payment Trap Column
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          "$monthsMin мес.",
-                          style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.expenseRed, fontSize: 13),
-                        ),
-                        const SizedBox(height: 6),
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          width: 48,
-                          height: barMinHeight,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [AppColors.expenseRed, Color(0xFF991B1B)],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                            boxShadow: [
-                              BoxShadow(color: AppColors.expenseRed.withOpacity(0.3), blurRadius: 10),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text("⚠️ Мин. платёж", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textMuted)),
-                        Text(curr.format(sim['interest_min']), style: const TextStyle(fontSize: 10, color: AppColors.expenseRed, fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-
-                    // Accelerated Payoff Column
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          "$monthsAcc мес.",
-                          style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.incomeGreen, fontSize: 13),
-                        ),
-                        const SizedBox(height: 6),
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          width: 48,
-                          height: barAccHeight,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [AppColors.cyanAccent, AppColors.incomeGreen],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                            boxShadow: [
-                              BoxShadow(color: AppColors.incomeGreen.withOpacity(0.35), blurRadius: 10),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text("🚀 Ускоренное", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.incomeGreen)),
-                        Text(curr.format(sim['interest_acc']), style: const TextStyle(fontSize: 10, color: AppColors.incomeGreen, fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 14),
-
-              // Highlighted Savings Text
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.cyanAccent.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.cyanAccent.withOpacity(0.25)),
-                ),
+              Icon(Icons.warning_amber_rounded, size: 18, color: p.warning),
+              const SizedBox(width: 6),
+              Expanded(
                 child: Text(
-                  "Экономия: ${curr.format(sim['saved_interest'])} и ${sim['saved_months']} мес. свободы от долгов!",
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: AppColors.cyanAccent,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 12.5,
-                  ),
+                  loc.t('cc_min_trap_warning'),
+                  style: TextStyle(color: p.textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
                 ),
+              ),
+              StatusPill(
+                label: 'Лимит занят ${utilPct.toStringAsFixed(0)}%',
+                color: isHighUtil ? p.expense : p.income,
               ),
             ],
           ),
-        ),
-        const SizedBox(height: 24),
-
-        _buildSlider(
-          label: loc.t('cc_debt_balance'),
-          valueText: curr.format(_cardDebt),
-          min: 500000,
-          max: 50000000,
-          currentValue: _cardDebt,
-          onChanged: (val) => setState(() => _cardDebt = val),
-        ),
-        const SizedBox(height: 18),
-
-        _buildSlider(
-          label: loc.t('cc_credit_limit'),
-          valueText: curr.format(_cardLimit),
-          min: 1000000,
-          max: 100000000,
-          currentValue: _cardLimit,
-          onChanged: (val) => setState(() => _cardLimit = val),
-        ),
-        const SizedBox(height: 18),
-
-        _buildSlider(
-          label: "Процентная ставка (APR)",
-          valueText: "${_cardApr.toStringAsFixed(1)} %",
-          min: 10,
-          max: 60,
-          currentValue: _cardApr,
-          onChanged: (val) => setState(() => _cardApr = val),
-        ),
-        const SizedBox(height: 18),
-
-        _buildSlider(
-          label: "Доплата к мин. платежу (+)",
-          valueText: curr.format(_extraPay),
-          min: 50000,
-          max: 2000000,
-          currentValue: _extraPay,
-          onChanged: (val) => setState(() => _extraPay = val),
-        ),
+          const SizedBox(height: AppSpacing.lg),
+          Container(
+            padding: const EdgeInsets.fromLTRB(12, 16, 12, 14),
+            decoration: BoxDecoration(
+              color: p.surfaceSunken,
+              borderRadius: BorderRadius.circular(AppRadius.md),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                column('$monthsMin мес.', barMin, p.expense, 'Только минимум', curr.format(sim['interest_min'], compact: true)),
+                column('$monthsAcc мес.', barAcc, p.income, 'С доплатой', curr.format(sim['interest_acc'], compact: true)),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(
+              color: p.income.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(AppRadius.md),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.savings_outlined, color: p.income, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text.rich(
+                    TextSpan(
+                      style: TextStyle(color: p.textPrimary, fontSize: 13, height: 1.4),
+                      children: [
+                        const TextSpan(text: 'Доплата сэкономит '),
+                        TextSpan(
+                          text: curr.format(sim['saved_interest']),
+                          style: TextStyle(color: p.income, fontWeight: FontWeight.w700),
+                        ),
+                        TextSpan(text: ' и ${sim['saved_months']} мес. выплат'),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ]),
+        const SizedBox(height: AppSpacing.xl),
+        _inputsCard(p, [
+          _buildSlider(
+            p: p,
+            label: loc.t('cc_debt_balance'),
+            valueText: curr.format(_cardDebt),
+            min: 500000,
+            max: 50000000,
+            currentValue: _cardDebt,
+            onChanged: (val) => setState(() => _cardDebt = (val / 50000).round() * 50000.0),
+          ),
+          _buildSlider(
+            p: p,
+            label: loc.t('cc_credit_limit'),
+            valueText: curr.format(_cardLimit),
+            min: 1000000,
+            max: 100000000,
+            currentValue: _cardLimit,
+            onChanged: (val) => setState(() => _cardLimit = (val / 100000).round() * 100000.0),
+          ),
+          _buildSlider(
+            p: p,
+            label: 'Годовая ставка (APR)',
+            valueText: '${_cardApr.toStringAsFixed(1)}%',
+            min: 10,
+            max: 60,
+            currentValue: _cardApr,
+            onChanged: (val) => setState(() => _cardApr = (val * 2).round() / 2),
+          ),
+          _buildSlider(
+            p: p,
+            label: 'Доплата к минимальному платежу',
+            valueText: curr.format(_extraPay),
+            min: 50000,
+            max: 2000000,
+            currentValue: _extraPay,
+            onChanged: (val) => setState(() => _extraPay = (val / 10000).round() * 10000.0),
+          ),
+        ]),
       ],
     );
   }
 
   Widget _buildSlider({
+    required AppPalette p,
     required String label,
     required String valueText,
     required double min,
@@ -554,18 +457,15 @@ class _CalculatorsScreenState extends State<CalculatorsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted)),
-            Text(valueText, style: AppTypography.titleSmall.copyWith(fontWeight: FontWeight.bold, color: Colors.white)),
+            Expanded(child: Text(label, style: TextStyle(color: p.textSecondary, fontSize: 13))),
+            Text(valueText, style: AppTypography.money(15, p.textPrimary)),
           ],
         ),
         SliderTheme(
           data: SliderTheme.of(context).copyWith(
-            activeTrackColor: AppColors.primaryBlue,
-            inactiveTrackColor: Colors.white.withOpacity(0.1),
-            thumbColor: AppColors.cyanAccent,
-            overlayColor: AppColors.cyanAccent.withOpacity(0.2),
+            overlayShape: const RoundSliderOverlayShape(overlayRadius: 18),
+            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 0),
           ),
           child: Slider(
             value: currentValue.clamp(min, max),

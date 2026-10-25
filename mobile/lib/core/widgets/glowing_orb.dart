@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 
@@ -56,12 +55,12 @@ class _GlowingOrbState extends State<GlowingOrb> with SingleTickerProviderStateM
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.cyanAccent.withOpacity(0.22 + (breath * 0.1)),
+                        color: AppColors.cyanAccent.withValues(alpha: 0.22 + (breath * 0.1)),
                         blurRadius: 55,
                         spreadRadius: 8,
                       ),
                       BoxShadow(
-                        color: AppColors.orbPurple.withOpacity(0.28 + (breath * 0.08)),
+                        color: AppColors.orbPurple.withValues(alpha: 0.28 + (breath * 0.08)),
                         blurRadius: 70,
                         spreadRadius: 14,
                       ),
@@ -90,7 +89,7 @@ class _GlowingOrbState extends State<GlowingOrb> with SingleTickerProviderStateM
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.cyanAccent.withOpacity(0.4),
+                        color: AppColors.cyanAccent.withValues(alpha: 0.4),
                         blurRadius: 28,
                         spreadRadius: 2,
                       ),
@@ -115,8 +114,8 @@ class _GlowingOrbState extends State<GlowingOrb> with SingleTickerProviderStateM
                       borderRadius: BorderRadius.circular(50),
                       gradient: RadialGradient(
                         colors: [
-                          Colors.white.withOpacity(0.75),
-                          Colors.white.withOpacity(0.0),
+                          Colors.white.withValues(alpha: 0.75),
+                          Colors.white.withValues(alpha: 0.0),
                         ],
                       ),
                     ),

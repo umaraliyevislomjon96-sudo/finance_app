@@ -97,13 +97,13 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
                     shape: BoxShape.circle,
                     color: isFilled ? AppColors.cyanAccent : Colors.transparent,
                     border: Border.all(
-                      color: isFilled ? AppColors.cyanAccent : Colors.white.withOpacity(0.25),
+                      color: isFilled ? AppColors.cyanAccent : Colors.white.withValues(alpha: 0.25),
                       width: 2,
                     ),
                     boxShadow: isFilled
                         ? [
                             BoxShadow(
-                              color: AppColors.cyanAccent.withOpacity(0.6),
+                              color: AppColors.cyanAccent.withValues(alpha: 0.6),
                               blurRadius: 14,
                               spreadRadius: 2,
                             ),
@@ -178,8 +178,8 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
             height: 72,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.04),
-              border: Border.all(color: Colors.white.withOpacity(0.08)),
+              color: Colors.white.withValues(alpha: 0.04),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
             ),
             alignment: Alignment.center,
             child: _buildKeyContent(key),

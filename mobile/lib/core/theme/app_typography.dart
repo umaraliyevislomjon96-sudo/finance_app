@@ -2,6 +2,15 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 class AppTypography {
+  /// Monetary values: tabular figures keep digits aligned while amounts change.
+  static TextStyle money(double size, Color color, {FontWeight weight = FontWeight.w700}) => TextStyle(
+        fontSize: size,
+        fontWeight: weight,
+        color: color,
+        letterSpacing: size >= 24 ? -0.8 : -0.2,
+        fontFeatures: const [FontFeature.tabularFigures()],
+      );
+
   static const TextStyle largeNumber = TextStyle(
     fontSize: 44,
     fontWeight: FontWeight.w600,

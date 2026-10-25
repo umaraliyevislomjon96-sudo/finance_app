@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/widgets/glass_card.dart';
 import '../../../../core/widgets/sparkline_wave.dart';
+import '../../../../core/widgets/ui_kit.dart';
 import '../../../../core/localization/currency_controller.dart';
 
+/// Hero card: total balance, trend and savings sparkline on the brand gradient.
 class BalanceCard extends StatefulWidget {
   final double totalBalanceUzs;
   final double changePercentage;
+  final bool isDemo;
   final VoidCallback? onDetailsTap;
 
   const BalanceCard({
     super.key,
     this.totalBalanceUzs = 34850000.0,
     this.changePercentage = 8.4,
+    this.isDemo = true,
     this.onDetailsTap,
   });
 
@@ -34,142 +37,161 @@ class _BalanceCardState extends State<BalanceCard> {
 
   @override
   Widget build(BuildContext context) {
+    final p = context.palette;
     final currency = CurrencyController.instance;
 
     return AnimatedBuilder(
       animation: currency,
       builder: (context, _) {
-        final currentPoints = _timeframeData[_selectedTimeframe] ?? _timeframeData['1M']!;
-        final displayAmount = currency.format(widget.totalBalanceUzs);
+        final points = _timeframeData[_selectedTimeframe] ?? _timeframeData['1M']!;
+        final positive = widget.changePercentage >= 0;
 
-        return GlassCard(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-          borderRadius: 24,
-          borderColor: AppColors.primaryBlue.withOpacity(0.35),
-          gradientColors: const [
-            Color(0xFF101C30),
-            Color(0xFF0C1424),
-          ],
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        return Container(
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppRadius.xl),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: p.heroGradient,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: p.primary.withValues(alpha: p.isDark ? 0.35 : 0.28),
+                blurRadius: 28,
+                offset: const Offset(0, 14),
+              ),
+            ],
+          ),
+          child: Stack(
             children: [
-              // Top Row: Label, Masking & Details Button
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        'Общий баланс',
-                        style: AppTypography.cardTitle.copyWith(
-                          color: AppColors.textSecondary,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      GestureDetector(
-                        onTap: () => setState(() => _isMasked = !_isMasked),
-                        child: Icon(
-                          _isMasked ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                          size: 16,
-                          color: AppColors.textMuted,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: AppColors.incomeGreen.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppColors.incomeGreen.withOpacity(0.3)),
-                    ),
-                    child: Text(
-                      '+${widget.changePercentage.toStringAsFixed(1)}%',
-                      style: const TextStyle(
-                        color: AppColors.incomeGreen,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ),
-                ],
+              // Soft light blobs give the flat gradient depth.
+              Positioned(
+                top: -60,
+                right: -40,
+                child: _Glow(size: 180, color: Colors.white.withValues(alpha: 0.14)),
               ),
-
-              const SizedBox(height: 8),
-
-              // Main Balance Number
-              Text(
-                _isMasked ? '••••••••' : displayAmount,
-                style: AppTypography.largeNumber.copyWith(
-                  fontSize: currency.isUsd ? 36 : 28,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.5,
-                  color: Colors.white,
-                ),
+              Positioned(
+                bottom: -70,
+                left: -30,
+                child: _Glow(size: 160, color: const Color(0xFF18D5FF).withValues(alpha: 0.22)),
               ),
-
-              const SizedBox(height: 12),
-
-              // Timeframe Selector & Trend Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Динамика накоплений',
-                    style: AppTypography.caption.copyWith(
-                      color: AppColors.textMuted,
-                      fontSize: 11,
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.06),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: ['1W', '1M', '3M', '1Y'].map((tf) {
-                        final isSelected = _selectedTimeframe == tf;
-                        return GestureDetector(
-                          onTap: () => setState(() => _selectedTimeframe = tf),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 180),
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: isSelected ? AppColors.cyanAccent.withOpacity(0.2) : Colors.transparent,
-                              borderRadius: BorderRadius.circular(10),
-                              border: isSelected ? Border.all(color: AppColors.cyanAccent.withOpacity(0.5)) : null,
-                            ),
-                            child: Text(
-                              tf,
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                                color: isSelected ? AppColors.cyanAccent : AppColors.textMuted,
-                              ),
-                            ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 18, 20, 14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'Общий баланс',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.85),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
                           ),
-                        );
-                      }).toList(),
+                        ),
+                        const SizedBox(width: 4),
+                        IconButton(
+                          visualDensity: VisualDensity.compact,
+                          tooltip: _isMasked ? 'Показать сумму' : 'Скрыть сумму',
+                          onPressed: () => setState(() => _isMasked = !_isMasked),
+                          icon: Icon(
+                            _isMasked ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                            size: 18,
+                            color: Colors.white.withValues(alpha: 0.85),
+                          ),
+                        ),
+                        const Spacer(),
+                        if (widget.isDemo) ...[
+                          const StatusPill(label: 'Демо', color: Colors.white, onDark: true),
+                          const SizedBox(width: 6),
+                        ],
+                        StatusPill(
+                          label: '${positive ? '+' : ''}${widget.changePercentage.toStringAsFixed(1)}%',
+                          icon: positive ? Icons.trending_up_rounded : Icons.trending_down_rounded,
+                          color: Colors.white,
+                          onDark: true,
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 10),
-
-              // Glowing Sparkline Wave Mesh
-              SparklineWave(
-                dataPoints: currentPoints,
-                height: 54,
-                strokeColor: AppColors.cyanAccent,
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: FittedBox(
+                        key: ValueKey('$_isMasked${currency.isUsd}'),
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          _isMasked ? '•••••• ${currency.symbol}' : currency.format(widget.totalBalanceUzs),
+                          style: AppTypography.money(34, Colors.white, weight: FontWeight.w700),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Изменение за месяц',
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 12),
+                    ),
+                    const SizedBox(height: 14),
+                    SparklineWave(dataPoints: points, height: 56, strokeColor: Colors.white),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        for (final tf in _timeframeData.keys)
+                          Expanded(child: _timeframeButton(tf)),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
         );
       },
+    );
+  }
+
+  Widget _timeframeButton(String tf) {
+    final selected = tf == _selectedTimeframe;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => setState(() => _selectedTimeframe = tf),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        margin: const EdgeInsets.symmetric(horizontal: 3),
+        padding: const EdgeInsets.symmetric(vertical: 7),
+        decoration: BoxDecoration(
+          color: selected ? Colors.white.withValues(alpha: 0.22) : Colors.transparent,
+          borderRadius: BorderRadius.circular(AppRadius.sm),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          tf,
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: selected ? 1 : 0.7),
+            fontSize: 12,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Glow extends StatelessWidget {
+  final double size;
+  final Color color;
+  const _Glow({required this.size, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(colors: [color, color.withValues(alpha: 0)]),
+      ),
     );
   }
 }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/glass_card.dart';
+import '../../../../core/widgets/ui_kit.dart';
 
 class UpcomingBillCard extends StatelessWidget {
   final String title;
@@ -27,36 +28,16 @@ class UpcomingBillCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final p = context.palette;
     final effectiveIcon = categoryIcon ?? icon ?? Icons.home_outlined;
-    final effectiveSubtitle = amountWithDate ?? '${amount ?? ""} • $dueDate';
+    final tone = isCritical ? p.expense : p.accent;
+
     return GlassCard(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-      borderRadius: 20,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: 14),
       onTap: onTap,
-      gradientColors: [
-        const Color(0xFF131D2D),
-        const Color(0xFF0F1624),
-      ],
       child: Row(
         children: [
-          // Cyan tinted rounded container with home icon
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: AppColors.cyanAccent.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: AppColors.cyanAccent.withOpacity(0.2),
-                width: 1,
-              ),
-            ),
-            child: Icon(
-              effectiveIcon,
-              color: isCritical ? AppColors.expenseRed : AppColors.cyanAccent,
-              size: 22,
-            ),
-          ),
+          IconBadge(icon: effectiveIcon, color: tone),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
@@ -64,27 +45,33 @@ class UpcomingBillCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: AppTypography.cardTitle.copyWith(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: p.textPrimary, fontSize: 15, fontWeight: FontWeight.w600),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  effectiveSubtitle,
-                  style: AppTypography.caption.copyWith(
-                    color: AppColors.textMuted,
-                    fontSize: 13,
+                const SizedBox(height: 4),
+                if (amountWithDate != null)
+                  Text(amountWithDate!, style: TextStyle(color: p.textMuted, fontSize: 13))
+                else if (dueDate != null)
+                  Row(
+                    children: [
+                      Icon(Icons.event_rounded, size: 13, color: isCritical ? p.expense : p.textMuted),
+                      const SizedBox(width: 4),
+                      Text(
+                        dueDate!,
+                        style: TextStyle(
+                          color: isCritical ? p.expense : p.textMuted,
+                          fontSize: 12,
+                          fontWeight: isCritical ? FontWeight.w600 : FontWeight.w400,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
               ],
             ),
           ),
-          const Icon(
-            Icons.arrow_forward_ios_rounded,
-            color: AppColors.textMuted,
-            size: 14,
-          ),
+          if (amount != null && amountWithDate == null)
+            Text(amount!, style: AppTypography.money(15, p.textPrimary)),
         ],
       ),
     );

@@ -150,7 +150,7 @@ class _OtpScreenState extends State<OtpScreen> {
                       boxShadow: _controllers[index].text.isNotEmpty
                           ? [
                               BoxShadow(
-                                color: AppColors.cyanAccent.withOpacity(0.2),
+                                color: AppColors.cyanAccent.withValues(alpha: 0.2),
                                 blurRadius: 10,
                               )
                             ]
@@ -220,7 +220,7 @@ class _OtpScreenState extends State<OtpScreen> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     elevation: 8,
-                    shadowColor: AppColors.primaryBlue.withOpacity(0.5),
+                    shadowColor: AppColors.primaryBlue.withValues(alpha: 0.5),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,

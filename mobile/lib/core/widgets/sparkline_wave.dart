@@ -57,8 +57,8 @@ class SparklineWavePainter extends CustomPainter {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          strokeColor.withOpacity(0.28),
-          AppColors.primaryBlue.withOpacity(0.08),
+          strokeColor.withValues(alpha: 0.28),
+          AppColors.primaryBlue.withValues(alpha: 0.08),
           Colors.transparent,
         ],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
@@ -67,7 +67,7 @@ class SparklineWavePainter extends CustomPainter {
 
     // Glowing blur stroke
     final glowPaint = Paint()
-      ..color = strokeColor.withOpacity(0.4)
+      ..color = strokeColor.withValues(alpha: 0.4)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 6.0
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);

@@ -1,7 +1,8 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
+import '../theme/app_palette.dart';
 
+/// Base surface for every card in the app. Theme-aware: dark mode gets a soft
+/// gradient with a hairline border, light mode a white card with a gentle shadow.
 class GlassCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
@@ -13,8 +14,8 @@ class GlassCard extends StatelessWidget {
   const GlassCard({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.all(18),
-    this.borderRadius = 22,
+    this.padding = const EdgeInsets.all(AppSpacing.lg + 2),
+    this.borderRadius = AppRadius.lg,
     this.onTap,
     this.borderColor,
     this.gradientColors,
@@ -22,49 +23,32 @@ class GlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final p = context.palette;
+    final radius = BorderRadius.circular(borderRadius);
+
+    return DecoratedBox(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(borderRadius),
-        boxShadow: const [
+        borderRadius: radius,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: gradientColors ?? (p.isDark ? [p.surfaceAlt, p.surface] : [p.surface, p.surface]),
+        ),
+        border: Border.all(color: borderColor ?? p.border),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x52000000),
-            blurRadius: 36,
-            offset: Offset(0, 14),
+            color: p.shadow,
+            blurRadius: p.isDark ? 24 : 18,
+            offset: Offset(0, p.isDark ? 10 : 6),
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(borderRadius),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: onTap,
-              borderRadius: BorderRadius.circular(borderRadius),
-              splashColor: AppColors.cyanAccent.withOpacity(0.08),
-              highlightColor: Colors.white.withOpacity(0.04),
-              child: Container(
-                padding: padding,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(borderRadius),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: gradientColors ?? [
-                      AppColors.cardSurface.withOpacity(0.85),
-                      AppColors.secondaryBackground.withOpacity(0.90),
-                    ],
-                  ),
-                  border: Border.all(
-                    color: borderColor ?? AppColors.softBorder,
-                    width: 1.2,
-                  ),
-                ),
-                child: child,
-              ),
-            ),
-          ),
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: radius,
+          child: Padding(padding: padding, child: child),
         ),
       ),
     );

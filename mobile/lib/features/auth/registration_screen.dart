@@ -90,9 +90,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: AppColors.cyanAccent.withOpacity(0.12),
+                          color: AppColors.cyanAccent.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: AppColors.cyanAccent.withOpacity(0.3)),
+                          border: Border.all(color: AppColors.cyanAccent.withValues(alpha: 0.3)),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -113,7 +113,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       Container(
                         padding: const EdgeInsets.all(3),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.06),
+                          color: Colors.white.withValues(alpha: 0.06),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
@@ -166,7 +166,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        Container(width: 1, height: 24, color: Colors.white.withOpacity(0.12)),
+                        Container(width: 1, height: 24, color: Colors.white.withValues(alpha: 0.12)),
                         const SizedBox(width: 12),
                         Expanded(
                           child: TextField(
@@ -200,7 +200,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         elevation: 6,
-                        shadowColor: AppColors.primaryBlue.withOpacity(0.4),
+                        shadowColor: AppColors.primaryBlue.withValues(alpha: 0.4),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -223,7 +223,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   // Divider with "or continue with"
                   Row(
                     children: [
-                      Expanded(child: Container(height: 1, color: Colors.white.withOpacity(0.08))),
+                      Expanded(child: Container(height: 1, color: Colors.white.withValues(alpha: 0.08))),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         child: Text(
@@ -231,7 +231,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           style: AppTypography.caption.copyWith(color: AppColors.textMuted),
                         ),
                       ),
-                      Expanded(child: Container(height: 1, color: Colors.white.withOpacity(0.08))),
+                      Expanded(child: Container(height: 1, color: Colors.white.withValues(alpha: 0.08))),
                     ],
                   ),
                   const SizedBox(height: 18),
@@ -293,7 +293,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                               decoration: BoxDecoration(
-                                color: AppColors.cyanAccent.withOpacity(0.1),
+                                color: AppColors.cyanAccent.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
@@ -415,10 +415,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             height: 18,
             margin: const EdgeInsets.only(top: 2),
             decoration: BoxDecoration(
-              color: value ? AppColors.primaryBlue : Colors.black.withOpacity(0.3),
+              color: value ? AppColors.primaryBlue : Colors.black.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(5),
               border: Border.all(
-                color: value ? AppColors.primaryBlue : Colors.white.withOpacity(0.2),
+                color: value ? AppColors.primaryBlue : Colors.white.withValues(alpha: 0.2),
                 width: 1.5,
               ),
             ),

@@ -21,10 +21,6 @@ class QuickPromptCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
         borderRadius: 18,
         onTap: onTap,
-        gradientColors: [
-          const Color(0xFF131D2D),
-          const Color(0xFF0F1726),
-        ],
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

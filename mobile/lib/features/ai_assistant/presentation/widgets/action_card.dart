@@ -22,17 +22,13 @@ class ActionCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         borderRadius: 18,
         onTap: onTap,
-        gradientColors: [
-          const Color(0xFF131D2D),
-          const Color(0xFF0F1726),
-        ],
         child: Row(
           children: [
             Container(
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: AppColors.cyanAccent.withOpacity(0.08),
+                color: AppColors.cyanAccent.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
