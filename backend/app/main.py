@@ -58,7 +58,12 @@ async def health_check():
         },
         "integrations": {
             "sms_provider": settings.SMS_PROVIDER,
-            "supabase": supabase_status.get("status")
+            "supabase": supabase_status.get("status"),
+            # Presence only — the key itself is never returned.
+            "gemini": {
+                "configured": bool(settings.GEMINI_API_KEY.strip()),
+                "model": settings.GEMINI_MODEL,
+            },
         }
     }
 
