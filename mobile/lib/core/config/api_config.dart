@@ -7,6 +7,11 @@ class ApiConfig {
     defaultValue: 'https://finance-app-odoh.onrender.com/api/v1',
   );
 
-  static const Duration connectTimeout = Duration(seconds: 15);
-  static const Duration receiveTimeout = Duration(seconds: 15);
+  // Generous on purpose: the free Render instance sleeps when idle and the
+  // first request after that waits 30-60 s while it boots.
+  static const Duration connectTimeout = Duration(seconds: 30);
+  static const Duration receiveTimeout = Duration(seconds: 45);
+
+  /// Health endpoint lives at the server root, outside `/api/v1`.
+  static String get healthUrl => '${Uri.parse(baseUrl).origin}/health';
 }

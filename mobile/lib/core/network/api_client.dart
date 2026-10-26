@@ -80,6 +80,15 @@ class ApiClient {
     }
   }
 
+  Future<void>? _warmUp;
+
+  /// Wakes a sleeping server in the background as soon as the app opens, so
+  /// it is ready by the time the user submits the first form.
+  Future<void> warmUp() => _warmUp ??= _refreshDio
+      .get(ApiConfig.healthUrl, options: Options(receiveTimeout: const Duration(seconds: 75)))
+      .then<void>((_) {}, onError: (Object _) {})
+      .whenComplete(() => _warmUp = null);
+
   /// Exchanges the refresh token for a new pair. Concurrent callers share one
   /// network call. Returns false when the session is gone (sign-in required).
   Future<bool> refreshSession() {

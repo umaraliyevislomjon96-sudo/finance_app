@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/auth/auth_controller.dart';
@@ -18,6 +19,8 @@ class RegistrationScreen extends StatefulWidget {
 class _RegistrationScreenState extends State<RegistrationScreen> {
   final _phoneController = TextEditingController();
   bool _loading = false;
+  bool _slow = false;
+  Timer? _slowTimer;
   String? _error;
 
   // Consent must be an explicit action, so nothing is pre-ticked.
@@ -43,6 +46,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   @override
   void dispose() {
+    _slowTimer?.cancel();
     _phoneController.dispose();
     super.dispose();
   }
@@ -54,6 +58,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       _loading = true;
       _error = null;
     });
+    // A sleeping server can take up to a minute; say so instead of a silent spinner.
+    _slowTimer = Timer(const Duration(seconds: 4), () {
+      if (mounted) setState(() => _slow = true);
+    });
     try {
       final result = await AuthController.instance.requestOtp(phone);
       if (!mounted) return;
@@ -63,7 +71,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     } on ApiException catch (e) {
       setState(() => _error = e.message);
     } finally {
-      if (mounted) setState(() => _loading = false);
+      _slowTimer?.cancel();
+      if (mounted) {
+        setState(() {
+          _loading = false;
+          _slow = false;
+        });
+      }
     }
   }
 
@@ -125,6 +139,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white))
                       : Text(loc.t('send_sms_code')),
                 ),
+                if (_slow) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  Text(
+                    'Подключаемся к серверу… После простоя первый запуск может занять до минуты.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: p.textMuted, fontSize: 13, height: 1.4),
+                  ),
+                ],
                 const SizedBox(height: AppSpacing.lg),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/auth/auth_controller.dart';
+import '../../core/network/api_client.dart';
 import '../../core/theme/app_palette.dart';
 import '../../core/widgets/glowing_orb.dart';
 import '../navigation/presentation/main_bottom_nav.dart';
@@ -30,6 +31,7 @@ class _AuthGateState extends State<AuthGate> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     _auth.addListener(_onAuthChanged);
     _auth.bootstrap();
+    ApiClient.instance.warmUp();
   }
 
   @override
@@ -56,6 +58,7 @@ class _AuthGateState extends State<AuthGate> with WidgetsBindingObserver {
     } else if (state == AppLifecycleState.resumed) {
       final since = _backgroundedAt;
       _backgroundedAt = null;
+      ApiClient.instance.warmUp();
       if (since != null && DateTime.now().difference(since) >= AuthGate.lockAfter) _auth.lock();
     }
   }
