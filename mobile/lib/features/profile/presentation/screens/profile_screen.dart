@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/auth/auth_controller.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/theme_controller.dart';
 import '../../../../core/localization/app_localizations.dart';
@@ -281,7 +282,7 @@ class ProfileScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Выйти из аккаунта?'),
-        content: const Text('Локальные ключи будут заблокированы до ввода PIN-кода.'),
+        content: const Text('Сессия на этом устройстве завершится, PIN-код будет удалён. Для входа понадобится код из SMS.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -291,10 +292,8 @@ class ProfileScreen extends StatelessWidget {
             style: FilledButton.styleFrom(backgroundColor: p.expense, minimumSize: const Size(0, 44)),
             onPressed: () {
               Navigator.pop(ctx);
-              onBack();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Вы вышли из аккаунта')),
-              );
+              // AuthGate closes this screen and shows sign-in.
+              AuthController.instance.signOut();
             },
             child: const Text('Выйти'),
           ),

@@ -28,7 +28,7 @@ class ClipboardParserService {
     return matches >= 2;
   }
 
-  Future<Map<String, dynamic>?> checkClipboardAndIngest({String? authToken}) async {
+  Future<Map<String, dynamic>?> checkClipboardAndIngest() async {
     try {
       final ClipboardData? data = await Clipboard.getData(Clipboard.kTextPlain);
       if (data == null || data.text == null) return null;
@@ -42,7 +42,6 @@ class ClipboardParserService {
         return await NotificationListenerService.instance.simulatePush(
           packageName: 'smart_clipboard_ios',
           text: text,
-          authToken: authToken,
         );
       }
     } catch (e) {

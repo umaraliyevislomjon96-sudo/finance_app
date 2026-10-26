@@ -1,214 +1,144 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_typography.dart';
-import '../navigation/presentation/main_bottom_nav.dart';
+import '../../core/auth/auth_controller.dart';
+import '../../core/auth/pin_service.dart';
+import '../../core/theme/app_palette.dart';
+import 'widgets/pin_pad.dart';
 
+/// Step 3: choose a 4-digit PIN, then repeat it. Biometrics can be enabled
+/// when the device supports it.
 class PinSetupScreen extends StatefulWidget {
-  final String phoneNumber;
-
-  const PinSetupScreen({super.key, required this.phoneNumber});
+  const PinSetupScreen({super.key});
 
   @override
   State<PinSetupScreen> createState() => _PinSetupScreenState();
 }
 
 class _PinSetupScreenState extends State<PinSetupScreen> {
-  String _pin = "";
-  bool _enableBiometrics = true;
+  String _pin = '';
+  String? _first;
+  bool _error = false;
+  bool _saving = false;
+  bool _biometricsAvailable = false;
+  bool _biometrics = true;
 
-  void _onKeyPress(String key) {
-    if (key == "clear") {
-      setState(() => _pin = "");
+  @override
+  void initState() {
+    super.initState();
+    PinService.instance.biometricsAvailable().then((v) {
+      if (mounted) setState(() => _biometricsAvailable = v);
+    });
+  }
+
+  bool _isWeak(String pin) {
+    if (pin.split('').toSet().length == 1) return true; // 1111
+    const runs = '01234567890';
+    const reverse = '09876543210';
+    return runs.contains(pin) || reverse.contains(pin); // 1234, 4321
+  }
+
+  Future<void> _onDigit(String d) async {
+    if (_saving || _pin.length >= PinService.pinLength) return;
+    setState(() {
+      _error = false;
+      _pin += d;
+    });
+    if (_pin.length < PinService.pinLength) return;
+
+    await Future.delayed(const Duration(milliseconds: 150));
+    if (_first == null) {
+      if (_isWeak(_pin)) {
+        _fail('Слишком простой PIN. Не используйте одинаковые цифры или 1234.');
+        return;
+      }
+      setState(() {
+        _first = _pin;
+        _pin = '';
+      });
       return;
     }
-    if (key == "del") {
-      if (_pin.isNotEmpty) {
-        setState(() => _pin = _pin.substring(0, _pin.length - 1));
-      }
+    if (_pin != _first) {
+      _fail('PIN-коды не совпали. Придумайте заново.');
+      setState(() => _first = null);
       return;
     }
+    setState(() => _saving = true);
+    await AuthController.instance.setPin(_pin, biometrics: _biometricsAvailable && _biometrics);
+  }
 
-    if (_pin.length < 4) {
-      setState(() => _pin += key);
-
-      if (_pin.length == 4) {
-        // Complete PIN setup and route into Main Application
-        Future.delayed(const Duration(milliseconds: 300), () {
-          if (!mounted) return;
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => const MainBottomNav()),
-            (route) => false,
-          );
-        });
-      }
-    }
+  void _fail(String message) {
+    setState(() {
+      _error = true;
+      _pin = '';
+    });
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
   Widget build(BuildContext context) {
+    final p = context.palette;
+    final text = Theme.of(context).textTheme;
+    final confirming = _first != null;
+
     return Scaffold(
-      backgroundColor: AppColors.primaryBackground,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 20),
-            child: Center(
-              child: Text(
-                "Шаг 3 из 3",
-                style: AppTypography.caption.copyWith(color: AppColors.textMuted),
-              ),
-            ),
-          ),
-        ],
-      ),
+      backgroundColor: p.background,
       body: SafeArea(
         child: Column(
           children: [
-            const SizedBox(height: 16),
-            Text(
-              "Установите PIN-код",
-              style: AppTypography.display1.copyWith(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              "4 цифры для быстрого и защищенного входа",
-              style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
-            ),
-            const SizedBox(height: 36),
-
-            // 4 Pin Dots with Luminous Glow
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(4, (index) {
-                final isFilled = index < _pin.length;
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  margin: const EdgeInsets.symmetric(horizontal: 10),
-                  width: 18,
-                  height: 18,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isFilled ? AppColors.cyanAccent : Colors.transparent,
-                    border: Border.all(
-                      color: isFilled ? AppColors.cyanAccent : Colors.white.withValues(alpha: 0.25),
-                      width: 2,
-                    ),
-                    boxShadow: isFilled
-                        ? [
-                            BoxShadow(
-                              color: AppColors.cyanAccent.withValues(alpha: 0.6),
-                              blurRadius: 14,
-                              spreadRadius: 2,
-                            ),
-                          ]
-                        : null,
-                  ),
-                );
-              }),
-            ),
-            const SizedBox(height: 28),
-
-            // Biometric Option Switch
-            GestureDetector(
-              onTap: () => setState(() => _enableBiometrics = !_enableBiometrics),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(AppSpacing.page, AppSpacing.md, AppSpacing.page, 0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.fingerprint_rounded,
-                    size: 22,
-                    color: _enableBiometrics ? AppColors.cyanAccent : AppColors.textMuted,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    "Включить Face ID / Биометрию",
-                    style: AppTypography.bodySmall.copyWith(
-                      color: _enableBiometrics ? AppColors.textPrimary : AppColors.textMuted,
-                      fontWeight: FontWeight.w600,
+                  if (confirming)
+                    TextButton.icon(
+                      onPressed: () => setState(() {
+                        _first = null;
+                        _pin = '';
+                      }),
+                      icon: const Icon(Icons.arrow_back_rounded, size: 18),
+                      label: const Text('Заново'),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Switch(
-                    value: _enableBiometrics,
-                    onChanged: (val) => setState(() => _enableBiometrics = val),
-                    activeColor: AppColors.cyanAccent,
-                  ),
+                  const Spacer(),
+                  Text('Шаг 3 из 3', style: TextStyle(color: p.textMuted, fontSize: 13)),
                 ],
               ),
             ),
             const Spacer(),
-
-            // Custom Glass Numeric Keypad
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 20),
-              child: Column(
-                children: [
-                  _buildKeypadRow(["1", "2", "3"]),
-                  const SizedBox(height: 16),
-                  _buildKeypadRow(["4", "5", "6"]),
-                  const SizedBox(height: 16),
-                  _buildKeypadRow(["7", "8", "9"]),
-                  const SizedBox(height: 16),
-                  _buildKeypadRow(["clear", "0", "del"]),
-                ],
-              ),
+            Icon(Icons.lock_outline_rounded, size: 36, color: p.primary),
+            const SizedBox(height: AppSpacing.lg),
+            Text(confirming ? 'Повторите PIN-код' : 'Придумайте PIN-код', style: text.headlineSmall),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              confirming ? 'Введите те же 4 цифры ещё раз' : 'Он нужен для быстрого входа в приложение',
+              style: text.bodyMedium?.copyWith(color: p.textMuted),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.xxl),
+            PinDots(length: PinService.pinLength, filled: _pin.length, error: _error),
+            const SizedBox(height: AppSpacing.xl),
+            if (_biometricsAvailable)
+              SwitchListTile.adaptive(
+                value: _biometrics,
+                onChanged: (v) => setState(() => _biometrics = v),
+                contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxxl),
+                secondary: Icon(Icons.fingerprint_rounded, color: p.primary),
+                title: Text('Вход по отпечатку или Face ID', style: TextStyle(color: p.textPrimary, fontSize: 14)),
+              ),
+            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+              child: _saving
+                  ? const Padding(padding: EdgeInsets.all(AppSpacing.xxxl), child: CircularProgressIndicator())
+                  : PinPad(
+                      onDigit: _onDigit,
+                      onDelete: () {
+                        if (_pin.isNotEmpty) setState(() => _pin = _pin.substring(0, _pin.length - 1));
+                      },
+                    ),
+            ),
+            const SizedBox(height: AppSpacing.xl),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildKeypadRow(List<String> keys) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: keys.map((key) {
-        return GestureDetector(
-          onTap: () => _onKeyPress(key),
-          child: Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withValues(alpha: 0.04),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-            ),
-            alignment: Alignment.center,
-            child: _buildKeyContent(key),
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildKeyContent(String key) {
-    if (key == "del") {
-      return const Icon(Icons.backspace_outlined, color: Colors.white, size: 22);
-    }
-    if (key == "clear") {
-      return Text(
-        "СБРОС",
-        style: AppTypography.caption.copyWith(
-          color: AppColors.textMuted,
-          fontWeight: FontWeight.bold,
-          fontSize: 10,
-        ),
-      );
-    }
-    return Text(
-      key,
-      style: AppTypography.titleLarge.copyWith(
-        fontSize: 26,
-        fontWeight: FontWeight.w600,
-        color: Colors.white,
       ),
     );
   }

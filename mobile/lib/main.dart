@@ -2,21 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_controller.dart';
-import 'features/navigation/presentation/main_bottom_nav.dart';
-import 'features/auth/registration_screen.dart';
+import 'features/auth/auth_gate.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
   );
-  runApp(const AuroraFinanceApp(startWithOnboarding: false));
+  runApp(const AuroraFinanceApp());
 }
 
 class AuroraFinanceApp extends StatelessWidget {
-  final bool startWithOnboarding;
-
-  const AuroraFinanceApp({super.key, this.startWithOnboarding = false});
+  const AuroraFinanceApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -32,11 +29,8 @@ class AuroraFinanceApp extends StatelessWidget {
           darkTheme: AppTheme.darkTheme,
           themeMode: themeController.themeMode,
           themeAnimationDuration: const Duration(milliseconds: 300),
-          initialRoute: startWithOnboarding ? '/onboarding' : '/dashboard',
-          routes: {
-            '/onboarding': (context) => const RegistrationScreen(),
-            '/dashboard': (context) => const MainBottomNav(),
-          },
+          // Sign-in, PIN setup, lock screen and the app itself are chosen here.
+          home: const AuthGate(),
         );
       },
     );

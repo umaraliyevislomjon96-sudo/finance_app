@@ -5,7 +5,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/glowing_orb.dart';
 import '../../../../core/widgets/glass_card.dart';
 import '../../../../core/localization/app_localizations.dart';
-import '../../../../core/config/api_config.dart';
+import '../../../../core/network/api_client.dart';
 import '../widgets/chat_input_bar.dart';
 
 class AiAssistantScreen extends StatefulWidget {
@@ -23,11 +23,7 @@ class AiAssistantScreen extends StatefulWidget {
 class _AiAssistantScreenState extends State<AiAssistantScreen> {
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final Dio _dio = Dio(BaseOptions(
-    baseUrl: ApiConfig.baseUrl,
-    connectTimeout: ApiConfig.connectTimeout,
-    receiveTimeout: ApiConfig.receiveTimeout,
-  ));
+  Dio get _dio => ApiClient.instance.dio;
 
   final List<Map<String, dynamic>> _messages = [];
   bool _isLoading = false;
@@ -135,6 +131,8 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
           'message': query,
           'language': lang,
         },
+        // Model replies can take longer than ordinary API calls.
+        options: Options(receiveTimeout: const Duration(seconds: 60)),
       );
 
       if (response.statusCode == 200) {

@@ -3,7 +3,7 @@ import 'dart:collection';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
-import '../config/api_config.dart';
+import '../network/api_client.dart';
 
 enum NotificationListenerState {
   connected,
@@ -22,11 +22,8 @@ class NotificationListenerService {
   StreamSubscription? _subscription;
   NotificationListenerState _currentState = NotificationListenerState.permissionRequired;
 
-  final Dio _dio = Dio(BaseOptions(
-    baseUrl: ApiConfig.baseUrl,
-    connectTimeout: ApiConfig.connectTimeout,
-    receiveTimeout: ApiConfig.receiveTimeout,
-  ));
+  // Shared client: attaches and refreshes the session token automatically.
+  Dio get _dio => ApiClient.instance.dio;
 
   // Stream of successfully processed transactions for reactive UI updates
   final StreamController<Map<String, dynamic>> _onTransactionIngested = StreamController.broadcast();
@@ -89,13 +86,13 @@ class NotificationListenerService {
     }
   }
 
-  void startListening({String? authToken}) {
+  void startListening() {
     _subscription?.cancel();
     _subscription = _eventChannel.receiveBroadcastStream().listen(
       (dynamic event) async {
         if (event is Map) {
           final Map<String, dynamic> data = Map<String, dynamic>.from(event);
-          await _processAndIngest(data, authToken: authToken);
+          await _processAndIngest(data);
         }
       },
       onError: (dynamic error) {
@@ -112,10 +109,7 @@ class NotificationListenerService {
     _updateState(NotificationListenerState.disabled);
   }
 
-  Future<Map<String, dynamic>?> _processAndIngest(
-    Map<String, dynamic> rawNotification, {
-    String? authToken,
-  }) async {
+  Future<Map<String, dynamic>?> _processAndIngest(Map<String, dynamic> rawNotification) async {
     final String text = rawNotification['text'] ?? '';
     final String package = rawNotification['package'] ?? 'unknown_app';
     final int timestamp = rawNotification['timestamp'] ?? DateTime.now().millisecondsSinceEpoch;
@@ -145,12 +139,6 @@ class NotificationListenerService {
       final response = await _dio.post(
         '/transactions/ingest',
         data: payload,
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-            if (authToken != null) 'Authorization': 'Bearer $authToken',
-          },
-        ),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -160,7 +148,7 @@ class NotificationListenerService {
           debugPrint('Successfully ingested push transaction: ${result['merchant']} - ${result['amount_formatted']}');
         }
         // Flush any queued offline notifications
-        _flushOfflineQueue(authToken: authToken);
+        _flushOfflineQueue();
         return result;
       }
     } catch (e) {
@@ -171,7 +159,7 @@ class NotificationListenerService {
     return null;
   }
 
-  Future<void> _flushOfflineQueue({String? authToken}) async {
+  Future<void> _flushOfflineQueue() async {
     if (_isProcessingOfflineQueue || _offlineQueue.isEmpty) return;
     _isProcessingOfflineQueue = true;
 
@@ -181,12 +169,6 @@ class NotificationListenerService {
         final response = await _dio.post(
           '/transactions/ingest',
           data: payload,
-          options: Options(
-            headers: {
-              'Content-Type': 'application/json',
-              if (authToken != null) 'Authorization': 'Bearer $authToken',
-            },
-          ),
         );
         if (response.statusCode == 200 || response.statusCode == 201) {
           _offlineQueue.removeFirst();
@@ -207,13 +189,12 @@ class NotificationListenerService {
   Future<Map<String, dynamic>?> simulatePush({
     required String packageName,
     required String text,
-    String? authToken,
   }) async {
     return await _processAndIngest({
       'package': packageName,
       'title': 'Bank Push',
       'text': text,
       'timestamp': DateTime.now().millisecondsSinceEpoch,
-    }, authToken: authToken);
+    });
   }
 }

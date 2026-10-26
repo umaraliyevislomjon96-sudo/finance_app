@@ -7,7 +7,8 @@ from ...core.security import (
     verify_pin,
     create_access_token,
     create_refresh_token,
-    decode_access_token
+    decode_access_token,
+    decode_refresh_token
 )
 
 router = APIRouter(prefix="/auth", tags=["Authentication & Security"])
@@ -259,6 +260,42 @@ async def verify_phone_otp(req: PhoneOtpVerifyRequest):
         refresh_token=raw_refresh,
         user_id=user_id,
         phone=req.phone,
+        is_new_user=False
+    )
+
+
+class RefreshRequest(BaseModel):
+    refresh_token: str
+    device_id: str
+
+
+@router.post("/refresh", response_model=TokenResponse)
+async def refresh_session(req: RefreshRequest):
+    """
+    Exchanges a valid refresh token for a new access/refresh pair (rotation).
+    The token must belong to the device that presents it.
+    """
+    payload = decode_refresh_token(req.refresh_token)
+    if not payload or payload.get("device_id") != req.device_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Сессия истекла. Войдите заново."
+        )
+    for s in mock_sessions_db:
+        if s["device_id"] == req.device_id and s["is_revoked"]:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Сессия на этом устройстве завершена. Войдите заново."
+            )
+
+    user_id = payload["sub"]
+    access = create_access_token(user_id=user_id, device_id=req.device_id)
+    raw_refresh, _ = create_refresh_token(user_id=user_id, device_id=req.device_id)
+    return TokenResponse(
+        access_token=access,
+        refresh_token=raw_refresh,
+        user_id=user_id,
+        phone=mock_user_profile.get("phone", ""),
         is_new_user=False
     )
 

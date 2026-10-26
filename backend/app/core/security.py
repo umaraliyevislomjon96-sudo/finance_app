@@ -38,11 +38,33 @@ def create_access_token(user_id: str, device_id: str, expires_delta: Optional[ti
 
 
 def create_refresh_token(user_id: str, device_id: str) -> tuple[str, str]:
+    """
+    Signed, long-lived refresh JWT bound to a device. Stateless so sessions
+    survive server restarts; returns (token, sha256 digest) for optional storage.
+    """
     now = datetime.now(timezone.utc)
     expire = now + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
-    raw_token = os.urandom(32).hex()
+    payload: Dict[str, Any] = {
+        "sub": user_id,
+        "device_id": device_id,
+        "type": "refresh",
+        "jti": os.urandom(16).hex(),
+        "iat": now,
+        "exp": expire,
+    }
+    raw_token = jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     token_hash = hashlib.sha256(raw_token.encode("utf-8")).hexdigest()
     return raw_token, token_hash
+
+
+def decode_refresh_token(token: str) -> Optional[Dict[str, Any]]:
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        if payload.get("type") != "refresh":
+            return None
+        return payload
+    except jwt.PyJWTError:
+        return None
 
 
 def decode_access_token(token: str) -> Optional[Dict[str, Any]]:

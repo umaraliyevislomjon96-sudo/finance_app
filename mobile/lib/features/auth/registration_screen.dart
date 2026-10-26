@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_typography.dart';
-import '../../core/widgets/glass_card.dart';
+import 'package:flutter/services.dart';
+import '../../core/auth/auth_controller.dart';
 import '../../core/localization/app_localizations.dart';
-import '../../core/services/social_auth_service.dart';
+import '../../core/network/api_exception.dart';
+import '../../core/theme/app_palette.dart';
+import '../../core/widgets/glowing_orb.dart';
 import 'otp_screen.dart';
 
+/// Step 1: phone number. Sends the SMS code and opens [OtpScreen].
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
 
@@ -14,13 +16,30 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-  final TextEditingController _phoneController = TextEditingController(text: "90 123 45 67");
-  bool _isLoading = false;
+  final _phoneController = TextEditingController();
+  bool _loading = false;
+  String? _error;
 
-  // Consents per Law of the Republic of Uzbekistan 'On Personal Data' [Проверить у юриста]
-  bool _consentTerms = true;
-  bool _consentSms = true;
-  bool _consentAi = true;
+  // Consent must be an explicit action, so nothing is pre-ticked.
+  bool _consentTerms = false;
+  bool _consentSms = false;
+  bool _consentAi = false;
+
+  String get _digits => _phoneController.text.replaceAll(RegExp(r'\D'), '');
+  bool get _canSubmit => _digits.length == 9 && _consentTerms && !_loading;
+
+  @override
+  void initState() {
+    super.initState();
+    _phoneController.addListener(() => setState(() => _error = null));
+    final reason = AuthController.instance.signOutReason;
+    if (reason != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(reason)));
+        AuthController.instance.signOutReason = null;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -28,315 +47,100 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     super.dispose();
   }
 
-  void _onContinuePhone() {
-    final loc = LocalizationController.instance;
-    if (!_consentTerms) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          backgroundColor: AppColors.expenseRed,
-          content: Text("Для продолжения необходимо принять Условия сервиса и согласие на обработку данных (ст. 13 Закона РУз)"),
-        ),
-      );
-      return;
-    }
-
-    final rawPhone = _phoneController.text.replaceAll(' ', '');
-    final fullPhone = "+998$rawPhone";
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => OtpScreen(phoneNumber: fullPhone),
-      ),
-    );
-  }
-
-  Future<void> _handleOAuthLogin(String provider) async {
-    setState(() => _isLoading = true);
-    final result = await SocialAuthService.instance.signInWithProvider(provider: provider);
-    setState(() => _isLoading = false);
-
-    if (result != null && mounted) {
-      Navigator.pushReplacementNamed(context, '/dashboard');
-    } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: AppColors.expenseRed,
-          content: Text("Ошибка авторизации через $provider. Повторите попытку."),
-        ),
-      );
+  Future<void> _submit() async {
+    FocusScope.of(context).unfocus();
+    final phone = '+998$_digits';
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final result = await AuthController.instance.requestOtp(phone);
+      if (!mounted) return;
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => OtpScreen(phoneNumber: phone, initial: result),
+      ));
+    } on ApiException catch (e) {
+      setState(() => _error = e.message);
+    } finally {
+      if (mounted) setState(() => _loading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final loc = LocalizationController.instance;
-
     return AnimatedBuilder(
       animation: loc,
       builder: (context, _) {
+        final p = context.palette;
+        final text = Theme.of(context).textTheme;
         return Scaffold(
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          backgroundColor: p.background,
           body: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Top Bar: Badge & Language Selector (RU, EN, UZ)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: AppColors.cyanAccent.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: AppColors.cyanAccent.withValues(alpha: 0.3)),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.auto_awesome, size: 14, color: AppColors.cyanAccent),
-                            const SizedBox(width: 6),
-                            Text(
-                              "SPENDLY FINTECH",
-                              style: AppTypography.caption.copyWith(
-                                color: AppColors.cyanAccent,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(3),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.06),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-                            _buildLangPill(AppLanguage.ru, 'RU'),
-                            const SizedBox(width: 4),
-                            _buildLangPill(AppLanguage.en, 'EN'),
-                            const SizedBox(width: 4),
-                            _buildLangPill(AppLanguage.uz, 'UZ'),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 28),
-
-                  // Title & Subtitle
-                  Text(
-                    loc.t('welcome_title'),
-                    style: AppTypography.display1.copyWith(
-                      height: 1.15,
-                      fontWeight: FontWeight.w800,
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(AppSpacing.page + 4, AppSpacing.lg, AppSpacing.page + 4, AppSpacing.xxl),
+              children: [
+                Row(
+                  children: [
+                    const GlowingOrb(size: 28),
+                    const SizedBox(width: 4),
+                    Expanded(child: Text('Aurora Finance', style: text.titleMedium)),
+                    _langSwitch(p, loc),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.xxxl),
+                Text(loc.t('welcome_title'), style: text.headlineMedium),
+                const SizedBox(height: AppSpacing.sm),
+                Text(loc.t('welcome_subtitle'), style: text.bodyMedium?.copyWith(color: p.textMuted)),
+                const SizedBox(height: AppSpacing.xxxl),
+                Text('Номер телефона', style: text.labelMedium),
+                const SizedBox(height: AppSpacing.sm),
+                TextField(
+                  controller: _phoneController,
+                  keyboardType: TextInputType.phone,
+                  autofocus: true,
+                  inputFormatters: [_UzPhoneFormatter()],
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: p.textPrimary, letterSpacing: 0.5),
+                  decoration: InputDecoration(
+                    hintText: '90 123 45 67',
+                    errorText: _error,
+                    errorMaxLines: 3,
+                    prefixIcon: Padding(
+                      padding: const EdgeInsets.only(left: 16, right: 8),
+                      child: Text('+998', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: p.textSecondary)),
                     ),
+                    prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
                   ),
-                  const SizedBox(height: 10),
-                  Text(
-                    loc.t('welcome_subtitle'),
-                    style: AppTypography.bodySmall.copyWith(
-                      color: AppColors.textMuted,
-                      height: 1.45,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Phone Input Container
-                  Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF131D2D),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: AppColors.softBorder),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                    child: Row(
-                      children: [
-                        Text(
-                          "+998",
-                          style: AppTypography.titleLarge.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Container(width: 1, height: 24, color: Colors.white.withValues(alpha: 0.12)),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: TextField(
-                            controller: _phoneController,
-                            keyboardType: TextInputType.phone,
-                            style: AppTypography.titleLarge.copyWith(
-                              color: AppColors.textPrimary,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 1.0,
-                            ),
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                              hintText: "90 123 45 67",
-                              hintStyle: TextStyle(color: AppColors.textDisabled),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-
-                  // Phone Submit Button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _onContinuePhone,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryBlue,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        elevation: 6,
-                        shadowColor: AppColors.primaryBlue.withValues(alpha: 0.4),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            loc.t('send_sms_code'),
-                            style: AppTypography.titleMedium.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.arrow_forward_rounded, size: 18),
-                        ],
+                  onSubmitted: (_) => _canSubmit ? _submit() : null,
+                ),
+                const SizedBox(height: AppSpacing.xl),
+                _consent(p, _consentTerms, 'Принимаю условия сервиса и согласен на обработку персональных данных', (v) => setState(() => _consentTerms = v), required: true),
+                _consent(p, _consentSms, 'Разрешаю автоматически учитывать операции из SMS и push-уведомлений банков', (v) => setState(() => _consentSms = v)),
+                _consent(p, _consentAi, 'Включить AI-советника по моим финансам', (v) => setState(() => _consentAi = v)),
+                const SizedBox(height: AppSpacing.xl),
+                FilledButton(
+                  onPressed: _canSubmit ? _submit : null,
+                  child: _loading
+                      ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white))
+                      : Text(loc.t('send_sms_code')),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.lock_outline_rounded, size: 14, color: p.textMuted),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        'Мы не храним данные карт и не проводим платежи',
+                        style: TextStyle(color: p.textMuted, fontSize: 12),
+                        textAlign: TextAlign.center,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Divider with "or continue with"
-                  Row(
-                    children: [
-                      Expanded(child: Container(height: 1, color: Colors.white.withValues(alpha: 0.08))),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Text(
-                          loc.t('or_continue_with'),
-                          style: AppTypography.caption.copyWith(color: AppColors.textMuted),
-                        ),
-                      ),
-                      Expanded(child: Container(height: 1, color: Colors.white.withValues(alpha: 0.08))),
-                    ],
-                  ),
-                  const SizedBox(height: 18),
-
-                  // OAuth Buttons Grid (Google, Apple ID, GitHub)
-                  Row(
-                    children: [
-                      // Google
-                      Expanded(
-                        child: _buildOAuthButton(
-                          icon: Icons.g_mobiledata,
-                          label: "Google",
-                          color: const Color(0xFFEA4335),
-                          onTap: () => _handleOAuthLogin('google'),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      // Apple ID (Required per Apple Guidelines)
-                      Expanded(
-                        child: _buildOAuthButton(
-                          icon: Icons.apple,
-                          label: "Apple ID",
-                          color: Colors.white,
-                          onTap: () => _handleOAuthLogin('apple'),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      // GitHub
-                      Expanded(
-                        child: _buildOAuthButton(
-                          icon: Icons.code,
-                          label: "GitHub",
-                          color: const Color(0xFF6E5494),
-                          onTap: () => _handleOAuthLogin('github'),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Legal Consents Box
-                  GlassCard(
-                    borderRadius: 18,
-                    padding: const EdgeInsets.all(14),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              "ЮРИДИЧЕСКИЕ СОГЛАСИЯ (ЗАКОН РУЗ)",
-                              style: AppTypography.caption.copyWith(
-                                color: AppColors.cyanAccent,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: AppColors.cyanAccent.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                "[Проверить у юриста]",
-                                style: AppTypography.caption.copyWith(fontSize: 9, color: AppColors.cyanAccent),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        _buildConsentRow(
-                          value: _consentTerms,
-                          label: "Согласен с Условиями сервиса и обработкой персональных данных (ст. 13 Закона РУз)",
-                          onChanged: (val) => setState(() => _consentTerms = val),
-                        ),
-                        const SizedBox(height: 10),
-                        _buildConsentRow(
-                          value: _consentSms,
-                          label: "Разрешить автоматический учет push и SMS транзакций (ст. 27¹ Закона РУз)",
-                          onChanged: (val) => setState(() => _consentSms = val),
-                        ),
-                        const SizedBox(height: 10),
-                        _buildConsentRow(
-                          value: _consentAi,
-                          label: "Включить контекстного AI-советника (деперсонализированная аналитика)",
-                          onChanged: (val) => setState(() => _consentAi = val),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Non-custodial privacy guarantee
-                  Center(
-                    child: Text(
-                      "🔒 Non-custodial: Мы не храним CVV, PIN карт и не осуществляем платежи.",
-                      style: AppTypography.caption.copyWith(color: AppColors.textMuted, fontSize: 11),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-              ),
+                  ],
+                ),
+              ],
             ),
           ),
         );
@@ -344,32 +148,61 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 
-  Widget _buildOAuthButton({
-    required IconData icon,
-    required String label,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
+  Widget _langSwitch(AppPalette p, LocalizationController loc) {
+    return PopupMenuButton<AppLanguage>(
+      tooltip: 'Язык',
+      initialValue: loc.currentLanguage,
+      onSelected: loc.setLanguage,
+      itemBuilder: (_) => const [
+        PopupMenuItem(value: AppLanguage.ru, child: Text('Русский')),
+        PopupMenuItem(value: AppLanguage.uz, child: Text("O'zbekcha")),
+        PopupMenuItem(value: AppLanguage.en, child: Text('English')),
+      ],
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: const Color(0xFF131D2D),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.softBorder),
+          color: p.surface,
+          borderRadius: BorderRadius.circular(AppRadius.pill),
+          border: Border.all(color: p.border),
         ),
-        child: Column(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 24, color: color),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: AppTypography.caption.copyWith(
-                fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary,
-                fontSize: 11,
+            Icon(Icons.language_rounded, size: 16, color: p.textSecondary),
+            const SizedBox(width: 6),
+            Text(loc.currentLanguage.name.toUpperCase(), style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: p.textPrimary)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _consent(AppPalette p, bool value, String label, ValueChanged<bool> onChanged, {bool required = false}) {
+    return InkWell(
+      onTap: () => onChanged(!value),
+      borderRadius: BorderRadius.circular(AppRadius.sm),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 24,
+              height: 24,
+              child: Checkbox(
+                value: value,
+                onChanged: (v) => onChanged(v ?? false),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Text.rich(
+                TextSpan(
+                  text: label,
+                  children: [if (required) TextSpan(text: ' *', style: TextStyle(color: p.expense))],
+                ),
+                style: TextStyle(color: p.textSecondary, fontSize: 13, height: 1.4),
               ),
             ),
           ],
@@ -377,66 +210,25 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       ),
     );
   }
+}
 
-  Widget _buildLangPill(AppLanguage lang, String label) {
-    final isSelected = LocalizationController.instance.currentLanguage == lang;
-    return GestureDetector(
-      onTap: () => LocalizationController.instance.setLanguage(lang),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryBlue : Colors.transparent,
-          borderRadius: BorderRadius.circular(9),
-        ),
-        child: Text(
-          label,
-          style: AppTypography.caption.copyWith(
-            color: isSelected ? Colors.white : AppColors.textMuted,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildConsentRow({
-    required bool value,
-    required String label,
-    required ValueChanged<bool> onChanged,
-  }) {
-    return GestureDetector(
-      onTap: () => onChanged(!value),
-      behavior: HitTestBehavior.opaque,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 18,
-            height: 18,
-            margin: const EdgeInsets.only(top: 2),
-            decoration: BoxDecoration(
-              color: value ? AppColors.primaryBlue : Colors.black.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(5),
-              border: Border.all(
-                color: value ? AppColors.primaryBlue : Colors.white.withValues(alpha: 0.2),
-                width: 1.5,
-              ),
-            ),
-            child: value ? const Icon(Icons.check, size: 12, color: Colors.white) : null,
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              label,
-              style: AppTypography.bodySmall.copyWith(
-                color: AppColors.textSecondary,
-                fontSize: 11,
-                height: 1.35,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+/// Formats 9 local digits as "90 123 45 67".
+class _UzPhoneFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    var digits = newValue.text.replaceAll(RegExp(r'\D'), '');
+    final oldDigits = oldValue.text.replaceAll(RegExp(r'\D'), '');
+    // Backspace over a separator: drop the digit before it instead.
+    if (newValue.text.length < oldValue.text.length && digits == oldDigits && digits.isNotEmpty) {
+      digits = digits.substring(0, digits.length - 1);
+    }
+    final d = digits.length > 9 ? digits.substring(0, 9) : digits;
+    final buf = StringBuffer();
+    for (var i = 0; i < d.length; i++) {
+      if (i == 2 || i == 5 || i == 7) buf.write(' ');
+      buf.write(d[i]);
+    }
+    final s = buf.toString();
+    return TextEditingValue(text: s, selection: TextSelection.collapsed(offset: s.length));
   }
 }
