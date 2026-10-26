@@ -29,6 +29,16 @@ class Settings(BaseModel):
     SUPABASE_ANON_KEY: str = os.getenv("SUPABASE_ANON_KEY", "")
     SUPABASE_SERVICE_ROLE_KEY: str = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
 
+    # Optional server-side Gemini provider. Never expose this value to clients.
+    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+
+    # Optional server-side Yandex SpeechKit TTS credentials. Never expose these to clients.
+    YANDEX_SPEECHKIT_API_KEY: str = os.getenv("YANDEX_SPEECHKIT_API_KEY", "")
+    YANDEX_SPEECHKIT_TTS_URL: str = os.getenv(
+        "YANDEX_SPEECHKIT_TTS_URL", "https://tts.api.ml.yandexcloud.kz/tts/v3/utteranceSynthesis"
+    )
+
     # Uzbekistan SMS Aggregators (Eskiz.uz / PlayMobile)
     SMS_PROVIDER: str = os.getenv("SMS_PROVIDER", "mock")  # "eskiz", "playmobile", "mock"
     ESKIZ_EMAIL: str = os.getenv("ESKIZ_EMAIL", "")

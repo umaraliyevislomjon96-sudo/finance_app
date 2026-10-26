@@ -1079,47 +1079,58 @@ class AIFinancialAdvisor:
                 ]
             }
 
-        # --- DEFAULT ASSISTANT FALLBACK ---
+        # --- UNIVERSAL ASSISTANT FALLBACK ---
         else:
+            personal_finance_terms = [
+                "мои деньги", "мои расходы", "мой доход", "мой баланс", "мой кредит",
+                "могу ли я", "купить", "накопить", "my money", "my spending", "my income",
+                "my balance", "my loan", "can i afford", "save for", "mening pulim",
+                "xarajatlarim", "daromadim", "kreditim", "sotib olsam"
+            ]
+            is_personal_finance = any(term in q for term in personal_finance_terms)
+            if lang == "uz":
+                greeting = "Salom"
+            elif lang == "en":
+                greeting = "Hello"
+            else:
+                greeting = "Здравствуйте"
             if lang == "uz":
                 reply = (
-                    f"Salom! Men sizning shaxsiy AI Moliyaviy Yordamchingizman.\n\n"
-                    f"Sizning joriy ko'rsatkichlaringiz:\n"
-                    f"• Umumiy balans: {ctx['total_balance']:,.0f} {curr}\n"
-                    f"• Oylik erkin qoldiq: 13 550 000 {curr}\n"
-                    f"• Moliyaviy salomatlik: 78 / 100\n\n"
-                    f"Menga erkin tilda savol bering: xarajatlar tahlili, yangi xaridlar, "
-                    f"kreditlar yoki «What-If» ssenariylari bo'yicha hisob-kitob qilib beraman."
+                    f"{greeting}! Men Aurora — umumiy savollar, tushuntirishlar, rejalashtirish, matn yozish "
+                    "va variantlarni taqqoslashda yordam beradigan universal yordamchiman.\n\n"
+                    + ("Shaxsiy moliyaviy xulosa uchun profilingiz va haqiqiy tranzaksiyalar kerak. "
+                       "Hozircha ulangan ma'lumotlarga kirish imkoni yo'q, shuning uchun balans yoki xarajatlarni taxmin qilmayman. "
+                       "Savolingizga javob berish uchun kerakli raqamlarni yozing yoki hisoblarni ulang."
+                       if is_personal_finance else
+                       "Agar savolingiz shaxsiy vaziyatingizga tegishli bo'lsa, maqsad va muhim tafsilotlarni ham yozing — "
+                       "javobimni shunga moslayman.")
                 )
             elif lang == "en":
                 reply = (
-                    f"Hello! I am your personal AI Financial Assistant & Agent.\n\n"
-                    f"Your live financial snapshot:\n"
-                    f"• Total Balance: {ctx['total_balance']:,.0f} {curr}\n"
-                    f"• Monthly Free Cash Flow: 13,550,000 {curr}\n"
-                    f"• Financial Health Score: 78 / 100\n\n"
-                    f"Ask me anything in natural language: spending analysis, large purchases, "
-                    f"debt acceleration, or 'What-If' simulations."
+                    "Hello! I am Aurora, a general-purpose assistant. I can explain topics, make plans, write drafts, "
+                    "or compare options.\n\n"
+                    + ("A personal financial recommendation needs your profile and real transactions. "
+                       "I cannot access connected data right now, so I will not guess your balance or spending. "
+                       "Share the relevant figures or connect your accounts and I can work through it with you."
+                       if is_personal_finance else
+                       "If this is about your own situation, share the goal and any important details so I can tailor the answer.")
                 )
             else:
                 reply = (
-                    f"Здравствуйте! Я ваш персональный AI Финансовый Ассистент.\n\n"
-                    f"Ваши текущие финансовые показатели:\n"
-                    f"• Общий баланс: {ctx['total_balance']:,.0f} {curr}\n"
-                    f"• Свободный остаток в месяц: 13 550 000 {curr}\n"
-                    f"• Финансовое здоровье: 78 / 100\n\n"
-                    f"Вы можете написать мне любой вопрос: проанализировать траты, рассчитать покупку, "
-                    f"оценить кредит, проверить подписки или смоделировать сценарий «Что будет, если...»."
+                    "Здравствуйте! Я Aurora — универсальный помощник. Могу объяснять темы, составлять планы, "
+                    "писать тексты и сравнивать варианты.\n\n"
+                    + ("Для персонального финансового вывода нужны ваш профиль и реальные операции. "
+                       "Сейчас у меня нет доступа к подтверждённым данным, поэтому я не буду придумывать баланс или расходы. "
+                       "Напишите нужные суммы или подключите финансовые источники — и я разберу вопрос по шагам."
+                       if is_personal_finance else
+                       "Если вопрос зависит от вашей ситуации, расскажите о цели и важных деталях — я уточню недостающее.")
                 )
 
             return {
-                "title": "AI Финансовый Ассистент" if lang == "ru" else ("AI Moliyaviy Yordamchi" if lang == "uz" else "AI Financial Assistant"),
+                "title": "Универсальный помощник" if lang == "ru" else ("Universal yordamchi" if lang == "uz" else "Universal assistant"),
                 "reply": reply,
-                "action_buttons": [
-                    {"id": "act_health_score", "label": "Финансовое здоровье 78/100"},
-                    {"id": "act_spending", "label": "Анализ расходов"},
-                    {"id": "act_what_if", "label": "Что если откладывать 1 млн?"}
-                ]
+                "type": "general_assistant" if not is_personal_finance else "financial_context_needed",
+                "action_buttons": []
             }
 
     def analyze_affordability(
