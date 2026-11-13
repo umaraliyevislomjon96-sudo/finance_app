@@ -95,7 +95,40 @@ def _find_city(text: str) -> tuple[str, bool]:
 
 
 def weather_facts(text: str) -> Optional[str]:
+    """Open-Meteo first; wttr.in if it is unreachable or rate-limits the server."""
     city, explicit = _find_city(text)
+    try:
+        res = _open_meteo(city, explicit)
+        if res:
+            return res
+    except Exception as exc:
+        logger.warning("Open-Meteo failed (%s), trying wttr.in", type(exc).__name__)
+    return _wttr(city, explicit)
+
+
+def _wttr(city: str, explicit: bool) -> Optional[str]:
+    data = _cached_get(f"https://wttr.in/{city}", {"format": "j1"})
+    cur = (data.get("current_condition") or [{}])[0]
+    area = (data.get("nearest_area") or [{}])[0]
+    name = ((area.get("areaName") or [{}])[0]).get("value", city)
+    country = ((area.get("country") or [{}])[0]).get("value", "")
+    lines = [
+        f"Weather for {name}, {country} (source: wttr.in, retrieved now)"
+        + ("" if explicit else " — no city named, Tashkent assumed; say so"),
+        f"Now: {cur.get('temp_C')}°C, feels like {cur.get('FeelsLikeC')}°C, "
+        f"{((cur.get('weatherDesc') or [{}])[0]).get('value', '')}, wind {cur.get('windspeedKmph')} km/h",
+    ]
+    for i, day in enumerate(data.get("weather", [])[:3]):
+        hourly = day.get("hourly", [])
+        rain = max((int(h.get("chanceofrain", 0) or 0) for h in hourly), default=0)
+        desc = ((hourly[len(hourly) // 2].get("weatherDesc") or [{}])[0]).get("value", "") if hourly else ""
+        label = {0: "today", 1: "tomorrow"}.get(i, day.get("date"))
+        lines.append(f"{day.get('date')} ({label}): {day.get('mintempC')}…{day.get('maxtempC')}°C, {desc}, "
+                     f"precipitation chance {rain}%")
+    return "\n".join(lines)
+
+
+def _open_meteo(city: str, explicit: bool) -> Optional[str]:
     geo = _cached_get("https://geocoding-api.open-meteo.com/v1/search",
                       {"name": city, "count": 1, "language": "ru"})
     results = geo.get("results") or []
