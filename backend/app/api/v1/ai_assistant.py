@@ -27,43 +27,74 @@ GEMINI_WEB_SEARCH = os.getenv("GEMINI_WEB_SEARCH", "").lower() in ("1", "true", 
 GEMINI_INTERACTIONS_URL = "https://generativelanguage.googleapis.com/v1/interactions"
 
 
+# A model that timed out or is overloaded is skipped for a while, so one hung
+# model (e.g. gemini-3.8-flash under high demand) cannot stall every message.
+_COOLDOWN_UNTIL: dict = {}
+COOLDOWN_SECONDS = 600
+# Per-model time budget; the next model is tried after it.
+PER_MODEL_TIMEOUT = 15.0
+_RETRYABLE = (408, 429, 500, 502, 503, 504)
+
+
+# The chat must answer in seconds, so the fast model always goes first;
+# GEMINI_MODEL (often a bigger, slower model) is the fallback.
+GEMINI_FAST_MODEL = os.getenv("GEMINI_FAST_MODEL", "gemini-3.5-flash-lite")
+
+
 def _gemini_models() -> list:
-    models = [settings.GEMINI_MODEL, *GEMINI_FALLBACK_MODELS]
+    models = [GEMINI_FAST_MODEL, settings.GEMINI_MODEL, *GEMINI_FALLBACK_MODELS]
     unique = [m for i, m in enumerate(models) if m and m not in models[:i]]
     alive = [m for m in unique if m not in _DEAD_MODELS]
-    return alive or unique[-1:]
+    now = time.time()
+    ready = [m for m in alive if _COOLDOWN_UNTIL.get(m, 0) <= now]
+    # Everything cooling down: still try them in the normal (fast-first) order.
+    return ready or alive or unique[:1]
 
 
 def _post_gemini_interaction(body: dict, timeout: float):
-    """POST to the Interactions API, falling back to the next model when the
-    current one is unavailable. Returns (response, model_used)."""
+    """POST to the Interactions API, moving to the next model when the current
+    one is retired (404), overloaded, rate-limited or too slow.
+    Returns (response, model_used); response is None if every model failed to
+    answer at all (timeouts / network errors)."""
     response, used = None, settings.GEMINI_MODEL
+    per_model = min(timeout, PER_MODEL_TIMEOUT)
     for model in _gemini_models():
         used = model
-        for attempt in range(2):
+        try:
             response = httpx.post(
                 GEMINI_INTERACTIONS_URL,
                 headers={"x-goog-api-key": settings.GEMINI_API_KEY},
                 json={**body, "model": model},
-                timeout=timeout,
+                timeout=per_model,
             )
-            if response.status_code != 503 or attempt == 1:
-                break
-            time.sleep(1)
-        if response.status_code == 404:
-            _DEAD_MODELS.add(model)
+        except (httpx.TimeoutException, httpx.TransportError) as exc:
+            logger.warning("Gemini model %s did not answer (%s), trying fallback", model, type(exc).__name__)
+            _COOLDOWN_UNTIL[model] = time.time() + COOLDOWN_SECONDS
+            response = None
+            continue
         if response.status_code == 429 and body.get("tools"):
             # No search quota on this key: answer without the tool instead of failing.
             body = {k: v for k, v in body.items() if k != "tools"}
-            response = httpx.post(
-                GEMINI_INTERACTIONS_URL,
-                headers={"x-goog-api-key": settings.GEMINI_API_KEY},
-                json={**body, "model": model},
-                timeout=timeout,
-            )
-        if response.status_code in (404, 503):
+            try:
+                response = httpx.post(
+                    GEMINI_INTERACTIONS_URL,
+                    headers={"x-goog-api-key": settings.GEMINI_API_KEY},
+                    json={**body, "model": model},
+                    timeout=per_model,
+                )
+            except (httpx.TimeoutException, httpx.TransportError):
+                _COOLDOWN_UNTIL[model] = time.time() + COOLDOWN_SECONDS
+                response = None
+                continue
+        if response.status_code == 404:
+            _DEAD_MODELS.add(model)
+            logger.warning("Gemini model %s is retired for this key, trying fallback", model)
+            continue
+        if response.status_code in _RETRYABLE:
+            _COOLDOWN_UNTIL[model] = time.time() + COOLDOWN_SECONDS
             logger.warning("Gemini model %s unavailable (HTTP %s), trying fallback", model, response.status_code)
             continue
+        _COOLDOWN_UNTIL.pop(model, None)
         break
     return response, used
 
@@ -145,7 +176,7 @@ async def transcribe_ai_audio(request: Request, lang: str = Query("ru", pattern=
             asyncio.to_thread(_post_gemini_interaction, body, 20),
             timeout=45,
         )
-        if response.is_error:
+        if response is None or response.is_error:
             logger.warning("Gemini transcription returned HTTP %s", response.status_code)
             raise HTTPException(status_code=502, detail="Gemini не смог распознать запись. Попробуйте ещё раз.")
         result = response.json()
@@ -388,10 +419,12 @@ async def query_ai_assistant(req: AskAIRequest):
                 return _post_gemini_interaction(body, 25)
 
             gemini_response, model_used = await asyncio.wait_for(asyncio.to_thread(request_gemini), timeout=55)
+            if gemini_response is None:
+                raise HTTPException(status_code=504, detail="Gemini сейчас не отвечает. Повторите вопрос через минуту.")
             if gemini_response.is_error:
                 logger.error("Gemini API returned HTTP %s", gemini_response.status_code)
-                if gemini_response.status_code == 503:
-                    raise HTTPException(status_code=503, detail="Gemini сейчас перегружен. Подождите немного и повторите вопрос.")
+                if gemini_response.status_code in _RETRYABLE:
+                    raise HTTPException(status_code=503, detail="Gemini сейчас перегружен или исчерпан лимит запросов. Повторите через минуту.")
                 raise HTTPException(status_code=502, detail="Gemini отклонил запрос. Проверьте доступ API-ключа и выбранную модель.")
             payload = gemini_response.json()
             status_value = payload.get("status")
