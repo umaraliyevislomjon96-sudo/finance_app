@@ -7,7 +7,7 @@ from .api.v1.cards import router as cards_router
 from .api.v1.analytics import router as analytics_router
 from .api.v1.ai_assistant import router as ai_router
 from .api.v1.calculators import router as calculators_router
-from .api.v1.sync import router as sync_router, storage_status
+from .api.v1.sync import router as sync_router, cached_storage_status
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -62,7 +62,7 @@ async def health_check():
             "sms_provider": settings.SMS_PROVIDER,
             "supabase": supabase_status.get("status"),
             # Whether user backups survive a server restart (DATABASE_URL set and reachable).
-            "backup_storage": await storage_status(),
+            "backup_storage": cached_storage_status(),
             # Presence only — the key itself is never returned.
             "gemini": {
                 "configured": bool(settings.GEMINI_API_KEY.strip()),

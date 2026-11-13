@@ -10,11 +10,13 @@ restart, reported as persistent=false so the app can tell the user.
 """
 from __future__ import annotations
 
+import asyncio
 import base64
 import hashlib
 import json
 import logging
 import os
+import time
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
@@ -33,6 +35,9 @@ MAX_BACKUP_BYTES = 3 * 1024 * 1024
 _memory: Dict[str, Dict[str, Any]] = {}
 _pool = None
 _db_error: Optional[str] = None
+_last_attempt = 0.0
+RETRY_AFTER_SECONDS = 60
+CONNECT_TIMEOUT = 5
 
 CREATE_TABLE = """
 CREATE TABLE IF NOT EXISTS user_data_backups (
@@ -92,23 +97,55 @@ def _asyncpg_args(url: str) -> tuple[str, dict]:
 
 
 async def _get_pool():
-    global _pool, _db_error
+    global _pool, _db_error, _last_attempt
     if _pool is not None or not database_url():
         return _pool
+    # A broken DATABASE_URL must never make requests slow: try at most once a minute.
+    if _db_error and time.monotonic() - _last_attempt < RETRY_AFTER_SECONDS:
+        return None
+    _last_attempt = time.monotonic()
     try:
         import asyncpg
 
         dsn, kwargs = _asyncpg_args(database_url())
-        _pool = await asyncpg.create_pool(dsn, min_size=0, max_size=4, command_timeout=10,
-                                          statement_cache_size=0, **kwargs)
-        async with _pool.acquire() as con:
-            await con.execute(CREATE_TABLE)
+        pool = await asyncio.wait_for(
+            asyncpg.create_pool(dsn, min_size=0, max_size=4, command_timeout=10, timeout=CONNECT_TIMEOUT,
+                                statement_cache_size=0, **kwargs),
+            timeout=CONNECT_TIMEOUT + 2,
+        )
+        try:
+            # min_size=0 means no connection yet: only a real query proves the database works.
+            con = await asyncio.wait_for(pool.acquire(), timeout=CONNECT_TIMEOUT + 2)
+            try:
+                await con.execute(CREATE_TABLE)
+            finally:
+                await pool.release(con)
+        except BaseException:
+            pool.terminate()
+            raise
+        _pool = pool
         _db_error = None
     except Exception as exc:  # keep the API usable; report the problem
-        _db_error = type(exc).__name__
+        _db_error = type(exc).__name__ or "error"
         logger.warning("Backup database unavailable: %s", _db_error)
-        _pool = None
     return _pool
+
+
+def cached_storage_status() -> Dict[str, Any]:
+    """For /health: never touches the database (Render health checks are short)."""
+    if not database_url():
+        return {"persistent": False, "database": "unconfigured"}
+    if _pool is not None:
+        return {"persistent": True, "database": "connected"}
+    if _db_error:
+        return {"persistent": False, "database": "error", "detail": _db_error}
+    return {"persistent": False, "database": "connecting"}
+
+
+@router.on_event("startup")
+async def _connect_in_background():
+    if database_url():
+        asyncio.get_running_loop().create_task(_get_pool())
 
 
 async def storage_status() -> Dict[str, Any]:
