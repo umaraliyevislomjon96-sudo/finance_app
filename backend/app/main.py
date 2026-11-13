@@ -7,6 +7,7 @@ from .api.v1.cards import router as cards_router
 from .api.v1.analytics import router as analytics_router
 from .api.v1.ai_assistant import router as ai_router
 from .api.v1.calculators import router as calculators_router
+from .api.v1.sync import router as sync_router, storage_status
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -36,6 +37,7 @@ app.include_router(cards_router, prefix=settings.API_V1_STR)
 app.include_router(analytics_router, prefix=settings.API_V1_STR)
 app.include_router(ai_router, prefix=settings.API_V1_STR)
 app.include_router(calculators_router, prefix=settings.API_V1_STR)
+app.include_router(sync_router, prefix=settings.API_V1_STR)
 
 
 import os
@@ -59,6 +61,8 @@ async def health_check():
         "integrations": {
             "sms_provider": settings.SMS_PROVIDER,
             "supabase": supabase_status.get("status"),
+            # Whether user backups survive a server restart (DATABASE_URL set and reachable).
+            "backup_storage": await storage_status(),
             # Presence only — the key itself is never returned.
             "gemini": {
                 "configured": bool(settings.GEMINI_API_KEY.strip()),

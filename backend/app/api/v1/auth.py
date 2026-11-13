@@ -8,7 +8,8 @@ from ...core.security import (
     create_access_token,
     create_refresh_token,
     decode_access_token,
-    decode_refresh_token
+    decode_refresh_token,
+    user_id_for_phone,
 )
 
 router = APIRouter(prefix="/auth", tags=["Authentication & Security"])
@@ -226,7 +227,9 @@ async def verify_phone_otp(req: PhoneOtpVerifyRequest):
             detail="Неверный или просроченный SMS-код. Повторите запрос."
         )
 
-    user_id = mock_user_profile["user_id"]
+    # Each phone number gets its own stable id: data never mixes between people
+    # and survives app reinstalls (same number -> same id).
+    user_id = user_id_for_phone(req.phone)
     access = create_access_token(user_id=user_id, device_id=req.device_id)
     raw_refresh, _ = create_refresh_token(user_id=user_id, device_id=req.device_id)
 

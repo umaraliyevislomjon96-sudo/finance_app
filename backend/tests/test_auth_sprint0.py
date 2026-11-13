@@ -53,7 +53,9 @@ def test_otp_verify_and_session_generation():
     data = res_good.json()
     assert "access_token" in data
     assert "refresh_token" in data
-    assert data["user_id"] == "usr_99890_mock_id"
+    # Each phone number has its own stable id (data never mixes between people).
+    from app.core.security import user_id_for_phone
+    assert data["user_id"] == user_id_for_phone("+998901234567")
 
 
 def test_pin_setup_and_verification():

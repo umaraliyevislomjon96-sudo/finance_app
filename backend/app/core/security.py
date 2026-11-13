@@ -75,3 +75,13 @@ def decode_access_token(token: str) -> Optional[Dict[str, Any]]:
         return payload
     except jwt.PyJWTError:
         return None
+
+def user_id_for_phone(phone: str) -> str:
+    """Stable per-person id derived from the phone number (keyed hash), so the
+    same number always maps to the same data and different numbers never mix.
+    The number itself cannot be read back from the id."""
+    import hashlib
+    import hmac
+    digits = "".join(ch for ch in phone if ch.isdigit())
+    digest = hmac.new(settings.SECRET_KEY.encode(), f"phone:{digits}".encode(), hashlib.sha256).hexdigest()
+    return f"usr_{digest[:24]}"
